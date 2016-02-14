@@ -34,6 +34,11 @@ class Parser:
         self.whiteMoves_RAW = regexWM.findall(self.sgf_file.fileContent)
         self.blackMoves_RAW = regexBM.findall(self.sgf_file.fileContent)
 
+    def getMoveList(self):
+        regexMove = re.compile(r'[WB]\[[a-z]{2}\]')
+        self.allMoves = regexMove.findall(self.sgf_file.fileContent)
+        return self.allMoves
+
     def translateMoves(self):
         for move in self.whiteMoves_RAW:
             self.whiteMoves.append(self.SGF_to_IGO(move))
@@ -43,6 +48,17 @@ class Parser:
     def SGF_to_IGO(self, move):
         charX = move[2]
         charY = self.letter_to_number(move[3])
+        return charX + charY
+
+    def SGF_to_Goban(self, move):
+        color = move[0]
+        x = 1 + (ord(move[2]) - ord('a'))
+        y = 1 + (ord(move[3]) - ord('a'))
+        return (color, (x,y))
+
+    def Goban_to_IGO(self, coord):
+        charX = str(coord[0])
+        charY = str( 19 - coord[1] + 1 ) 
         return charX + charY
 
     def letter_to_number(self,letter):
@@ -118,4 +134,6 @@ if __name__ == "__main__":
     print(parser.numberedVariation_RAW)
     print(parser.numericLabelDict)
     print(parser.latexOutput)
+    moveList = parser.getMoveList()
+    print moveList
 
