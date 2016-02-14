@@ -1,0 +1,48 @@
+\documentclass{beamer}
+
+\usepackage[utf8x]{inputenc}
+\usepackage{default}
+\usepackage{igo}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+
+\newtheorem{thm}{Theorem}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{coro}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{conj}[thm]{Conjecture}
+\newtheorem{rem}[thm]{Remark}
+\newtheorem{ex}[thm]{Example}
+\newtheorem{exs}[thm]{Examples}
+\newtheorem{obs}[thm]{Observation} 
+\begin{document}
+\begin{frame}
+\frametitle{Les libertés}
+\begin{defn}
+Les intersections adjacentes,verticalement ou horizontalement, aux pierres d'un groupe sont appel\'ees \textbf{libertés}. 
+\end{defn}
+\cleargoban
+\gobansymbol{a3,b2,c1,a7,a9,b8,c4,c5,c6,d7,e7,f6,g5,g4,f3,e3,d3,e5,h1,j2,j9,j8,j6,h6,g7,g8,g9,c9}{x}
+\white{a8,b9,h7,h8,h9,j7}
+\black{a1,a2,b1,d4,d5,d6,e4,f4,f5,e6,j1}
+
+\begin{center}
+	\gobansize{9}
+	\showgoban
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{D\'efi pour les professionnels}
+
+\cleargoban
+
+\white{a2,a8,a9,a15,a16,b1,b2,b10,b11,b12,b13,b14,b15,c2,c10,d1,d2,d10,d12,d13,d19,e9,e10,e12,e19,f2,f9,f12,f19,g2,g3,g4,g5,g9,g11,g12,g19,h5,h6,h9,h19,j3,j5,j7,j8,j9,j10,j11,j18,k2,k3,k4,k6,k18,k19,l4,l5,l18,m2,m18,m19,n2,n3,n4,n5,n6,n18,o18,o19,p1,p2,p3,p4,p5,p6,p7,p9,p10,p11,p12,p14,q3,q12,q17,q18,r3,r5,r6,r7,r8,r10,r12,r16,r18,s3,s4,s5,s8,s10,s11,s12,s16,s17,t9,t13,t14,t15,t16}
+\black{a13,a14,b3,b4,b5,b6,b7,b9,b16,b17,b18,c4,c9,c14,c15,c16,c18,d3,d4,d5,d6,d7,d8,d9,d14,d16,d18,e1,e2,e8,e14,f1,f3,f4,f5,f6,f8,f13,f14,f15,f16,f17,f18,g1,g6,g7,g8,g13,h1,h8,h12,h13,h15,h17,h18,j1,j2,j12,j13,j15,j17,k1,k7,k8,k9,k10,k11,k12,k15,k17,l1,l6,l12,l14,l15,l16,l17,m1,m6,m13,m17,n1,n7,n9,n11,n14,n17,o1,o7,o9,o10,o12,o13,o15,o17,p8,p13,p15,p17,q1,q2,q8,q9,q13,q15,r2,r13,r15,s1,s2,s13,s15,t2}
+
+\begin{center}
+\gobansize{19}
+\showfullgoban
+\end{center}
+\end{frame}
+\end{document}

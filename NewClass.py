@@ -1,0 +1,121 @@
+import os
+import sys
+import re
+
+
+class SGF_file:
+    def __init__(self):
+        self.usage = 'Use to translate SGF files into format friendly for usage with IGO-LaTeX package'
+   
+    def getFilePath(self):
+        self.filePath = os.path.join(os.getcwd(),raw_input('Please enter path to SGF file : '))
+    
+    def setFilePath(self, filename):
+        self.filePath = os.path.join(os.getcwd(), filename)
+
+    def openFile(self):
+        self.fileHandle = open(self.filePath)
+        self.fileContent = self.fileHandle.read()
+
+
+class Parser:
+    def __init__(self):
+        self.usage = 'Parses SGF_file into data structures to make it ready for creating LaTeX ready files'
+        self.whiteMoves_RAW = []
+        self.whiteMoves = []
+        self.blackMoves_RAW = []
+        self.blackMoves = []
+        self.numberedVariation_RAW = []
+        self.sgf_file = SGF_file()
+    
+    def getMoves(self):
+        regexWM = re.compile(r'W\[..\]')
+        regexBM = re.compile(r'B\[..\]')
+        self.whiteMoves_RAW = regexWM.findall(self.sgf_file.fileContent)
+        self.blackMoves_RAW = regexBM.findall(self.sgf_file.fileContent)
+
+    def translateMoves(self):
+        for move in self.whiteMoves_RAW:
+            self.whiteMoves.append(self.SGF_to_IGO(move))
+        for move in self.blackMoves_RAW:
+            self.blackMoves.append(self.SGF_to_IGO(move))
+
+    def SGF_to_IGO(self, move):
+        charX = move[2]
+        charY = self.letter_to_number(move[3])
+        return charX + charY
+
+    def letter_to_number(self,letter):
+        return str(19 - ( ord(letter) - ord('a')))
+
+    def getNumberdVariation(self):
+        regexNVAR = re.compile(r'\[..:\d*\]')
+        regexNumber = re.compile(r'\d\d*')
+        self.numberedVariation_RAW = regexNVAR.findall(self.sgf_file.fileContent)
+        self.numericLabelDict = {}
+        self.numberedMoves = []
+        for numLabel in self.numberedVariation_RAW:
+            move = numLabel[1] + self.letter_to_number(numLabel[2])
+            number = regexNumber.search(numLabel).group()
+            self.numericLabelDict[move] = number
+            self.numberedMoves.append(move)
+
+    def createLatexOutput(self):
+        # Remove labeled moves
+        self.whiteNumberedMoves = []
+        self.blackNumberedMoves = []
+        self.nocolorNumberedMoves = []
+        whiteMoves = list(self.whiteMoves)
+        blackMoves = list(self.blackMoves)
+        numberedDict = dict(self.numericLabelDict)
+        for move in self.numberedMoves:
+            if( move in self.whiteMoves ):
+                self.whiteNumberedMoves.append(move)
+                whiteMoves.remove(move)
+            elif( move in self.blackMoves ):
+                self.blackNumberedMoves.append(move)
+                blackMoves.remove(move)
+            else: 
+                self.nocolorNumberedMoves.append(move)
+
+        whiteMoveString = '\\white{' + self.commaList(whiteMoves) + '}'
+        blackMoveString = '\\black{' + self.commaList(blackMoves) + '}'
+
+        numberedMovesString = ''
+        for move in self.blackNumberedMoves:
+            number = self.numericLabelDict[move]
+            numberedMove = '\\black[' + number + ']{' + move + '}\n'
+            numberedMovesString = numberedMovesString + numberedMove
+        for move in self.whiteNumberedMoves:
+            number = self.numericLabelDict[move]
+            numberedMove = '\\white[' + number + ']{' + move + '}\n'
+            numberedMovesString = numberedMovesString + numberedMove
+
+        self.latexOutput = whiteMoveString + '\n' + blackMoveString + '\n' + numberedMovesString
+
+    
+    def commaList(self, moveList):
+        moveString = ''
+        for move in moveList:
+            moveString += move + ','
+        moveString = moveString[0:moveString.__len__()-1]
+        print(moveString)
+        return  moveString
+
+            
+
+
+        
+
+if __name__ == "__main__":
+    parser = Parser()
+    parser.sgf_file.setFilePath('numbers.sgf')
+    parser.sgf_file.openFile()
+    parser.getMoves()
+    parser.translateMoves()
+    parser.getNumberdVariation()
+    parser.createLatexOutput()
+    print(parser.numberedVariation_RAW)
+    print(parser.numericLabelDict)
+    print(parser.latexOutput)
+

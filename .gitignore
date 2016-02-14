@@ -1,0 +1,11 @@
+*.pyc
+*.swp
+*.aux
+*.log
+*.out
+*.pdf
+*.snm
+*.toc
+*.log
+*.DS_Store
+*.nav
