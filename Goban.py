@@ -1,16 +1,9 @@
 class Goban:
     def __init__(self, width , height):
         self.board = {}
-        self.moves = []
         self.width = width
         self.height = height
         self.ko = (0,0)
-
-    def isInBoard(self, x,y):
-        if (1 <= x and x <= self.width and 1 <= y and y <= height ):
-            return 1
-        else:
-            return 0
 
     def getNeighbors(self, coord):
         neighbors = []
