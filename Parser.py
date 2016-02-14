@@ -6,6 +6,7 @@ import re
 class SGF_file:
     def __init__(self):
         self.usage = 'Use to translate SGF files into format friendly for usage with IGO-LaTeX package'
+        self.fileContent = ''
    
     def getFilePath(self):
         self.filePath = os.path.join(os.getcwd(),raw_input('Please enter path to SGF file : '))
@@ -14,9 +15,8 @@ class SGF_file:
         self.filePath = os.path.join(os.getcwd(), filename)
 
     def openFile(self):
-        self.fileHandle = open(self.filePath)
-        self.fileContent = self.fileHandle.read()
-
+        fileHandle = open(self.filePath)
+        self.fileContent = fileHandle.read()
 
 class Parser:
     def __init__(self):
@@ -34,7 +34,9 @@ class Parser:
         self.whiteMoves_RAW = regexWM.findall(self.sgf_file.fileContent)
         self.blackMoves_RAW = regexBM.findall(self.sgf_file.fileContent)
 
-    def getMoveList(self):
+    def getMoveList(self,filename):
+        self.sgf_file.setFilePath(filename)
+        self.sgf_file.openFile()
         regexMove = re.compile(r'[WB]\[[a-z]{2}\]')
         self.allMoves = regexMove.findall(self.sgf_file.fileContent)
         return self.allMoves
@@ -57,7 +59,7 @@ class Parser:
         return (color, (x,y))
 
     def Goban_to_IGO(self, coord):
-        charX = str(coord[0])
+        charX = chr(coord[0] + ord('a'))
         charY = str( 19 - coord[1] + 1 ) 
         return charX + charY
 
@@ -115,7 +117,6 @@ class Parser:
         for move in moveList:
             moveString += move + ','
         moveString = moveString[0:moveString.__len__()-1]
-        print(moveString)
         return  moveString
 
             

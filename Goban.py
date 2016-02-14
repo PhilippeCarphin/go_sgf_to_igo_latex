@@ -47,7 +47,6 @@ class Goban:
 
     def removeGroup(self,coord):
         group = self.getGroup(coord)
-        print 'group to remove ', group
         for key in group:
             del self.board[key]
         return len(group)
@@ -73,12 +72,12 @@ class Goban:
         
         # check for Ko
         if ( coord  == self.ko ):
-            print 'This move would violate the rule of Ko'
+            print 'ERROR This move would violate the rule of Ko'
             return {}
         self.ko = (0,0)
         # Check for stone
         if ( self.board.has_key(coord)):
-            print 'There is already a stone there'
+            print 'ERROR There is already a stone there'
             return {}
         # Resolve captures
         adjacent = self.getNeighbors(coord)
@@ -93,7 +92,7 @@ class Goban:
         # Check legality
         self.board[coord] = color
         if self.getLiberties(coord) == 0:
-            print "suicidal move is illegal"
+            print "ERROR suicidal move is illegal"
             del self.board[coord]
         # Add stone
         self.board[coord] = color
