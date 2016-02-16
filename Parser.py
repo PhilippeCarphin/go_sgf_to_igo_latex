@@ -27,6 +27,42 @@ class Parser:
         self.blackMoves = []
         self.numberedVariation_RAW = []
         self.sgf_file = SGF_file()
+
+    def preprocess(self):
+        self.sgf_file.fileContent = re.sub(r'(CA|LB|ST|GM|TB|TW|FF|SZ|AP|GN|PW|WR|EV|PB|BR|DT|PC|KM|RU|CH)\[.*?\]','',self.sgf_file.fileContent)
+        self.sgf_file.fileContent = re.sub(r'\[..:.*?\]','',self.sgf_file.fileContent)
+        i = 2
+        string = self.sgf_file.fileContent
+        c = string[i]
+        while i < len(string):
+            if string[i] == '(':
+                stack = 1
+                openParen = i
+                i += 1
+                print len(string)
+                while i < len(string):
+                    if string[i] == '(':
+                        stack += 1
+                    if string[i] == ')':
+                        stack -= 1
+                        if stack == 0:
+                            closeParen = i
+                            string = string[0:closeParen+1] 
+                    i+=1
+                i = openParen + 1
+            i += 1
+        i = 0
+        print string + '\n\n\n'
+        while i < len(string):
+            if string[i] == '(':
+                string = string[0:i] + string[i + 1:len(string)]
+            i += 1
+        self.sgf_file.fileContent = string
+
+
+
+
+        
     
     def getMoves(self):
         regexWM = re.compile(r'W\[..\]')
@@ -126,7 +162,7 @@ class Parser:
 
 if __name__ == "__main__":
     parser = Parser()
-    parser.sgf_file.setFilePath('numbers.sgf')
+    parser.sgf_file.setFilePath('Phil_vs_Chantale.sgf')
     parser.sgf_file.openFile()
     parser.getMoves()
     parser.translateMoves()
@@ -135,6 +171,8 @@ if __name__ == "__main__":
     print(parser.numberedVariation_RAW)
     print(parser.numericLabelDict)
     print(parser.latexOutput)
-    moveList = parser.getMoveList()
-    print moveList
+
+    print parser.sgf_file.fileContent
+    parser.preprocess()
+    print parser.sgf_file.fileContent
 
