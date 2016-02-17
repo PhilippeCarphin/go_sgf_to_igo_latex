@@ -79,9 +79,8 @@ class Parser:
         i = 0
         while i < len(tokenList):
             if (self.isMove(tokenList[i])):
-                tempList.append(token)
+                tempList.append(tokenList[i])
             if tokenList[i] == '(':
-                print 'Level : ', level, '\n i : ', i
                 start = i
                 stack = 1
                 while i < len(tokenList) and stack != 0:
@@ -92,8 +91,9 @@ class Parser:
                         stack -= 1
                         if stack == 0:
                             end = i
-                sublist = tokenList[start+1:end-1]
-                tempList += self.splitParens( sublist ,level + 1)
+                            break
+                sublist = tokenList[start+1:end]
+                tempList.append(self.splitParens( sublist ,level + 1))
             i += 1
         return tempList
                 
@@ -198,7 +198,8 @@ class Parser:
 
 if __name__ == "__main__":
     parser = Parser()
-    parser.sgf_file.setFilePath('Phil_vs_Chantale.sgf')
+    # parser.sgf_file.setFilePath('Phil_vs_Chantale.sgf')
+    parser.sgf_file.setFilePath('Variations.sgf')
     parser.sgf_file.openFile()
     parser.getMoves()
     parser.translateMoves()
@@ -212,12 +213,8 @@ if __name__ == "__main__":
     # parser.preprocess()
     # print parser.sgf_file.fileContent
 
-#    print parser.sgf_file.fileContent
-#    replaced = parser.sgf_file.fileContent.replace('\n','FUCKFACE')
-#
-#    print 'Replaced : =============== ' + replaced
     parser.makeTokens()
-    print parser.tokenList
-    # treeList = parser.splitParens( parser.sgf_file.fileContent, 1)
+    treeList = parser.splitParens( parser.tokenList, 1)
+    print treeList
 
 

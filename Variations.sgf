@@ -1,0 +1,20 @@
+(;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]
+RU[Japanese]SZ[19]KM[0.00]
+PW[White]PB[Black]
+;B[pd]
+;W[dd]
+;B[dj]
+(;W[pj]C[Mainline]
+;B[pn]
+;W[ln]
+;B[kp]
+;W[ho]C[Still mainline ]
+(;B[ml]C[Mainline 9])
+(;B[ng]C[Variation move 9]
+;W[pg]
+(;B[qh]C[Mainline of variation move 9])
+(;B[nl]C[variation of variationjk])))
+(;W[jj]
+;B[jh]
+;W[jf]
+;B[jd]C[End of variation]))
