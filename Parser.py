@@ -59,8 +59,44 @@ class Parser:
             i += 1
         self.sgf_file.fileContent = string
 
+    def makeTokens(self):
+        self.tokenList = []
+        moveRegex = r'[WB]\[[a-z]{2}\]\r?\n?C\[.*?[^\\]\]|[WB]\[[a-z]{2}\]'
+        tokenRegex = re.compile(r'\(|\)|' + moveRegex )
+        self.tokenList = tokenRegex.findall(self.sgf_file.fileContent)
 
 
+
+    def isMove(slef, token ):
+        if(len(token)>1):
+            return True
+        else:
+            return False
+
+
+    def splitParens(self, tokenList ,level):
+        tempList = []
+        i = 0
+        while i < len(tokenList):
+            if (self.isMove(tokenList[i])):
+                tempList.append(token)
+            if tokenList[i] == '(':
+                print 'Level : ', level, '\n i : ', i
+                start = i
+                stack = 1
+                while i < len(tokenList) and stack != 0:
+                    i += 1
+                    if tokenList[i] == '(':
+                        stack += 1
+                    if tokenList[i] == ')':
+                        stack -= 1
+                        if stack == 0:
+                            end = i
+                sublist = tokenList[start+1:end-1]
+                tempList += self.splitParens( sublist ,level + 1)
+            i += 1
+        return tempList
+                
 
         
     
@@ -168,11 +204,20 @@ if __name__ == "__main__":
     parser.translateMoves()
     parser.getNumberdVariation()
     parser.createLatexOutput()
-    print(parser.numberedVariation_RAW)
-    print(parser.numericLabelDict)
-    print(parser.latexOutput)
+    # print(parser.numberedVariation_RAW)
+    # print(parser.numericLabelDict)
+    # print(parser.latexOutput)
 
-    print parser.sgf_file.fileContent
-    parser.preprocess()
-    print parser.sgf_file.fileContent
+    # print parser.sgf_file.fileContent
+    # parser.preprocess()
+    # print parser.sgf_file.fileContent
+
+#    print parser.sgf_file.fileContent
+#    replaced = parser.sgf_file.fileContent.replace('\n','FUCKFACE')
+#
+#    print 'Replaced : =============== ' + replaced
+    parser.makeTokens()
+    print parser.tokenList
+    # treeList = parser.splitParens( parser.sgf_file.fileContent, 1)
+
 
