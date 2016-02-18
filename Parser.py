@@ -39,7 +39,7 @@ class Parser:
                 stack = 1
                 openParen = i
                 i += 1
-                print len(string)
+                print (len(string))
                 while i < len(string):
                     if string[i] == '(':
                         stack += 1
@@ -52,7 +52,7 @@ class Parser:
                 i = openParen + 1
             i += 1
         i = 0
-        print string + '\n\n\n'
+        print (string + '\n\n\n')
         while i < len(string):
             if string[i] == '(':
                 string = string[0:i] + string[i + 1:len(string)]
@@ -215,6 +215,6 @@ if __name__ == "__main__":
 
     parser.makeTokens()
     treeList = parser.splitParens( parser.tokenList, 1)
-    print treeList
+    print (treeList)
 
 
