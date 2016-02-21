@@ -21,43 +21,14 @@ class SGF_file:
 class Parser:
     def __init__(self):
         self.usage = 'Parses SGF_file into data structures to make it ready for creating LaTeX ready files'
+        self.sgf_file = SGF_file()
         self.whiteMoves_RAW = []
         self.whiteMoves = []
         self.blackMoves_RAW = []
         self.blackMoves = []
         self.numberedVariation_RAW = []
-        self.sgf_file = SGF_file()
-
-    def preprocess(self):
-        self.sgf_file.fileContent = re.sub(r'(CA|LB|ST|GM|TB|TW|FF|SZ|AP|GN|PW|WR|EV|PB|BR|DT|PC|KM|RU|CH)\[.*?\]','',self.sgf_file.fileContent)
-        self.sgf_file.fileContent = re.sub(r'\[..:.*?\]','',self.sgf_file.fileContent)
-        i = 2
-        string = self.sgf_file.fileContent
-        c = string[i]
-        while i < len(string):
-            if string[i] == '(':
-                stack = 1
-                openParen = i
-                i += 1
-                print (len(string))
-                while i < len(string):
-                    if string[i] == '(':
-                        stack += 1
-                    if string[i] == ')':
-                        stack -= 1
-                        if stack == 0:
-                            closeParen = i
-                            string = string[0:closeParen+1] 
-                    i+=1
-                i = openParen + 1
-            i += 1
-        i = 0
-        print (string + '\n\n\n')
-        while i < len(string):
-            if string[i] == '(':
-                string = string[0:i] + string[i + 1:len(string)]
-            i += 1
-        self.sgf_file.fileContent = string
+        self.moveTokens = []
+        self.moveTree = []
 
     def makeTokens(self):
         self.tokenList = []
@@ -65,14 +36,17 @@ class Parser:
         tokenRegex = re.compile(r'\(|\)|' + moveRegex )
         self.tokenList = tokenRegex.findall(self.sgf_file.fileContent)
 
+#    def isMove(self, token ):
+#        if(len(token)>1):
+#            return True
+#        else:
+#            return False
 
-
-    def isMove(slef, token ):
-        if(len(token)>1):
+    def isMove(self, token):
+        if token[0] == 'W' or token[0] == 'B':
             return True
         else:
             return False
-
 
     def splitParens(self, tokenList ,level):
         tempList = []
@@ -96,7 +70,29 @@ class Parser:
                 tempList.append(self.splitParens( sublist ,level + 1))
             i += 1
         return tempList
+
+    def makeTree(self, filename):
+        self.sgf_file.setFilePath(filename)
+        self.sgf_file.openFile()
+        self.makeTokens()
+        self.splitParens(self.moveTokens,0)
                 
+    def getMainline(self,tree,number):
+        # Number argument will be to get mainline until a certain move number
+        # and then go with a variation.
+        retList = []
+        i = 0
+        while i < len(tree) and self.isMove(tree[i]):
+            number += 1
+            retList.append((tree[i],number))
+            i+=1
+        if i < len(tree):
+            mainline = tree[i]
+            varList = tree[i+1:len(tree)]
+            retList += self.getMainline(mainline,number)
+
+        return retList
+        # the recursion will stop based on the size of the list.
 
         
     
@@ -217,4 +213,6 @@ if __name__ == "__main__":
     treeList = parser.splitParens( parser.tokenList, 1)
     print (treeList)
 
+    mainline = parser.getMainline(treeList,0)
+    print (mainline)
 
