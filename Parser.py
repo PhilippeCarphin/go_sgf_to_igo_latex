@@ -71,31 +71,34 @@ class Parser:
             i += 1
         return tempList
 
-    def makeTree(self, filename):
+    def makeTree(self,filename):
         self.sgf_file.setFilePath(filename)
         self.sgf_file.openFile()
         self.makeTokens()
-        self.splitParens(self.moveTokens,0)
-                
-    def getMainline(self,tree,number):
-        # Number argument will be to get mainline until a certain move number
-        # and then go with a variation.
-        retList = []
+        self.moveTree = self.splitParens(self.tokenList,0)
+
+    def getMainline(self,tree,number, branchPoint):
+        """Creates a dictionnary with the complete mainline and the mainline of
+        the variation starting at the specified branching point"""
+        retDict = {'mainline':[], 'variation':[]}
         i = 0
         while i < len(tree) and self.isMove(tree[i]):
             number += 1
-            retList.append((tree[i],number))
+            retDict['mainline'].append((tree[i],number))
             i+=1
         if i < len(tree):
             mainline = tree[i]
             varList = tree[i+1:len(tree)]
-            retList += self.getMainline(mainline,number)
+            retDict['mainline'] += self.getMainline(mainline,number,branchPoint)['mainline']
+            retDict['variation'] = self.getMainline(mainline,number,branchPoint)['variation']
+            if number == branchPoint:
+                retDict['variation'] = self.getMainline(varList,number,1000)['mainline']
 
-        return retList
-        # the recursion will stop based on the size of the list.
-
-        
+        return retDict
     
+    def getMainlineBranchAt(self,moveNumber):
+        return self.getMainline(self.moveTree,0,moveNumber)
+
     def getMoves(self):
         regexWM = re.compile(r'W\[..\]')
         regexBM = re.compile(r'B\[..\]')
@@ -197,10 +200,10 @@ if __name__ == "__main__":
     # parser.sgf_file.setFilePath('Phil_vs_Chantale.sgf')
     parser.sgf_file.setFilePath('Variations.sgf')
     parser.sgf_file.openFile()
-    parser.getMoves()
-    parser.translateMoves()
-    parser.getNumberdVariation()
-    parser.createLatexOutput()
+    # parser.getMoves()
+    # parser.translateMoves()
+    # parser.getNumberdVariation()
+    # parser.createLatexOutput()
     # print(parser.numberedVariation_RAW)
     # print(parser.numericLabelDict)
     # print(parser.latexOutput)
@@ -210,9 +213,13 @@ if __name__ == "__main__":
     # print parser.sgf_file.fileContent
 
     parser.makeTokens()
+    parser.makeTree('Variations.sgf')
     treeList = parser.splitParens( parser.tokenList, 1)
     print (treeList)
+    print (parser.moveTree)
 
-    mainline = parser.getMainline(treeList,0)
+    print ('===============================================================')
+    mainline = parser.getMainline(treeList,0,9)
+    mainline = parser.getMainlineBranchAt(8)
     print (mainline)
-
+    
