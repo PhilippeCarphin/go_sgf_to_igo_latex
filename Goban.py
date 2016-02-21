@@ -94,6 +94,16 @@ class Goban:
             self.ko = potentialKo
         return { 'removed' : removedStones , 'move' : coord }
 
+    def clear(self):
+        self.board = {}
+
+    def getStones(self,color):
+        stones = []
+        for coord in self.board:
+            if self.board[coord] == color:
+                stones.append(coord)
+        return stones
+
 if __name__ == "__main__":
     goban = Goban(19,19)
     goban.playMove('B', (1,1))

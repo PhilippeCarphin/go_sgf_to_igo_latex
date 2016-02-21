@@ -1,7 +1,7 @@
 import Goban
 import Parser
 import sys
-class beamerMaker:
+class BeamerMaker:
     def __init__(self,size,frameTitle):
         self.frameTitle = frameTitle
         self.frameText = ''
@@ -11,6 +11,7 @@ class beamerMaker:
         self.move = 1
         self.goban = Goban.Goban(size,size)
         self.parser = Parser.Parser()
+        self.parser.makeTree('Variations.sgf')
 
     def newPage(self,color,coord):
         differences = self.goban.playMove(color,coord)
@@ -36,40 +37,56 @@ class beamerMaker:
     def addPage(self,color,coord):
         self.latexOutput += self.newPage(color,coord)
 
+    def makePostitionPage(self,moveNumber):
+        # Clear goban
+        self.goban.clear()
+
+        # Play moves on goban
+        mainline = self.parser.getMainlineBranchAt(0)['mainline']
+        i = 0
+        while i < len(mainline) and (moveNumber == 0 or i < moveNumber):
+            sgfMove = mainline[i][0]
+            print(sgfMove)
+            gobanMove = self.parser.SGF_to_Goban(sgfMove)
+            self.goban.playMove(gobanMove[0],gobanMove[1])
+            i += 1
+
+        # Get stones from goban
+        whiteStones = self.goban.getStones('W')
+        blackStones = self.goban.getStones('B')
+
+        # Translate to IGO coordinates
+        whiteStonesIGO = []
+        for coord in whiteStones:
+            whiteStonesIGO.append(self.parser.Goban_to_IGO(coord))
+        blackStonesIGO = []
+        for coord in blackStones:
+            blackStonesIGO.append(self.parser.Goban_to_IGO(coord))
+
+        # Make into comma list
+        commaListWhite = self.parser.commaList(whiteStonesIGO)
+        commaListBlack = self.parser.commaList(blackStonesIGO)
+
+        # Create LaTeX output
+        output = ''
+        output += '\\white{' + commaListWhite + '}\n'
+        output += '\\black{' + commaListBlack + '}\n'
+
+        print output
+
+
+
+
+        
+    
+
+        
+        
+        
+
 
         
 if __name__ == "__main__":
-    # bm = beamerMaker(19,'Phils game')
-    # bm.newPage('W',(3,3))
-    # bm.addPage('B', (1,1))
-    # bm.addPage('W', (1,2))
-    # bm.addPage('B', (2,1))
-    # bm.addPage('W', (2,2))
-    # bm.addPage('B', (3,1))
-    # bm.addPage('W', (3,2))
-    # bm.addPage('W', (4,1))
-
-
-    # bm.addPage('B', (3,4))
-    # bm.addPage('B', (4,3))
-    # bm.addPage('B', (5,4))
-    # bm.addPage('W', (3,5))
-    # bm.addPage('W', (4,6))
-    # bm.addPage('W', (5,5))
-
-    # bm.addPage('W', (4,4))
-    # bm.addPage('B', (4,5))
-    # bm.addPage('W', (4,4))
+    bm = BeamerMaker(19,'ALLO')
+    bm.makePostitionPage(0)
     
-    filename = sys.argv[1]
-    frametitle = sys.argv[2]
-    bm = beamerMaker(19,frametitle)
-    bm.latexOutput = ''
-    moveList = bm.parser.getMoveList(filename)
-    for move in moveList:
-        gobanMove = bm.parser.SGF_to_Goban(move)
-        bm.addPage(gobanMove[0],gobanMove[1])
-        
-    print bm.latexOutput
-
-    print filename
