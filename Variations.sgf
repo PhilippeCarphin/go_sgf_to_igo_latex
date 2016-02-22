@@ -7,11 +7,15 @@ PW[White]PB[Black]
 (;W[jj]C[Variation move 4]
 ;B[jh]
 ;W[jf]
-;B[jd]C[End of variation])
+;B[jd]C[Mainline last move])
 (;W[ej]C[Jean-Sebastien est le meilleur joueur de Go au monde]
 ;B[ei]C[Vincent Binette est pas mal bon aussi]
 ;W[di]C[Crosscut!]
 ;B[dk]C[Nobi]
 ;W[fi]C[Atari]
 ;B[ek]C[Counter atari]
-;W[eh]C[White captures.]))
+;W[eh]C[White captures.
+\\begin{enumerate}
+	\\item A stone
+	\\item The honor of his adversary
+\\end{enumerate}[\]*!@#$%^&*()]))

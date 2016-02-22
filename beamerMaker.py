@@ -79,7 +79,7 @@ class BeamerMaker:
 
         return output
 
-    def numberedPage(self, number, sgfMove,Title):
+    def numberedPage(self, number, sgfMove,Title,writeNumber):
         # Obtain differences caused by move
         gobanMove = self.parser.SGF_to_Goban(sgfMove)
         color = gobanMove[0]
@@ -100,11 +100,15 @@ class BeamerMaker:
             for remCoord in remGroup:
                 pageText += '\\clear{' + self.parser.Goban_to_IGO(remCoord) + '}\n'
 
-        # Put numbered stone
+        # Put stone
         if color == 'W':
-            pageText += '\\white[' + str(number) + ']{' + self.parser.Goban_to_IGO(coord) + '}\n'
+            pageText += '\\white'
         else:
-            pageText += '\\black[' + str(number) + ']{' + self.parser.Goban_to_IGO(coord) + '}\n'
+            pageText += '\\black'
+
+        if writeNumber:
+            pageText += '[' + str(number) + ']'
+        pageText += '{' + self.parser.Goban_to_IGO(coord) + '}\n'
 
         # End page
         pageText += self.frameEnd
@@ -121,18 +125,35 @@ class BeamerMaker:
         for moveTuple in variation:
             sgfMove = moveTuple[0]
             gobanMove = self.parser.SGF_to_Goban(sgfMove)
-            output += self.numberedPage(number,sgfMove,'Variation after move '+ str(branchPoint) + ': move ' + str(number) )
+            pageTitle = 'Variation after move '+ str(branchPoint) + ': move ' + str(number) 
+            output += self.numberedPage(number,sgfMove,pageTitle,True)
             number += 1
 
         return output
 
     def getComment(self, sgfMove):
         if len(sgfMove) > 7:
-            return sgfMove[7:len(sgfMove)-1] + '\n'
+            comment = sgfMove[7:len(sgfMove)-1] + '\n'
+            comment = comment.replace('\\\\','\\')
+            comment = comment.replace('\\]',']')
+            return comment
         else:
             return ''
             
-    
+    def playMovesTill(self, moveNumber):
+        mainline = self.parser.getMainlineBranchAt(0)['mainline']
+        self.goban.clear()
+        i = 0
+        output = ''
+        while i < len(mainline) and (moveNumber == 0 or i < moveNumber):
+            sgfMove = mainline[i][0]
+            i += 1
+            pageTitle = 'mainline move ' + str(i)
+            output += self.numberedPage(i,sgfMove,pageTitle,False)
+        return output
+
+
+
 
         
 
@@ -143,3 +164,5 @@ if __name__ == "__main__":
     bm = BeamerMaker(19,'ALLO')
     output = bm.makeVariation(3)
     print ( output )
+    output = bm.playMovesTill(7)
+    print (output)
