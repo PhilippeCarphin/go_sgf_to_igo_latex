@@ -33,14 +33,8 @@ class Parser:
     def makeTokens(self):
         self.tokenList = []
         moveRegex = r'[WB]\[[a-z]{2}\]\r?\n?C\[.*?[^\\]\]|[WB]\[[a-z]{2}\]'
-        tokenRegex = re.compile(r'\(|\)|' + moveRegex )
+        tokenRegex = re.compile(r'\(|\)|' + moveRegex, re.DOTALL )
         self.tokenList = tokenRegex.findall(self.sgf_file.fileContent)
-
-#    def isMove(self, token ):
-#        if(len(token)>1):
-#            return True
-#        else:
-#            return False
 
     def isMove(self, token):
         if token[0] == 'W' or token[0] == 'B':
@@ -190,11 +184,6 @@ class Parser:
         moveString = moveString[0:moveString.__len__()-1]
         return  moveString
 
-            
-
-
-        
-
 if __name__ == "__main__":
     parser = Parser()
     # parser.sgf_file.setFilePath('Phil_vs_Chantale.sgf')
@@ -219,7 +208,8 @@ if __name__ == "__main__":
     print (parser.moveTree)
 
     print ('===============================================================')
-    mainline = parser.getMainline(treeList,0,9)
     mainline = parser.getMainlineBranchAt(8)
     print (mainline)
-    
+    print ('===============================================================')
+    mainline = parser.getMainlineBranchAt(0)
+    print (mainline)
