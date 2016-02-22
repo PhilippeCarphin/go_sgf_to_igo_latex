@@ -5,8 +5,8 @@ class BeamerMaker:
     def __init__(self,size,frameTitle):
         self.frameTitle = frameTitle
         self.frameText = ''
-        self.frameStart = ' \\begin{frame} \n \\frametitle{' + frameTitle + '}\n'
-        self.frameEnd = '\\end{frame}\n'
+        self.frameStart = '\\begin{frame} \n\\frametitle{' + frameTitle + '}\n'
+        self.frameEnd = '\\showfullgoban\n\\end{frame}\n'
         self.latexOutput = ''
         self.move = 1
         self.goban = Goban.Goban(size,size)
@@ -37,7 +37,7 @@ class BeamerMaker:
     def addPage(self,color,coord):
         self.latexOutput += self.newPage(color,coord)
 
-    def makePostitionPage(self,moveNumber):
+    def positionPage(self,moveNumber):
         # Clear goban
         self.goban.clear()
 
@@ -69,24 +69,77 @@ class BeamerMaker:
 
         # Create LaTeX output
         output = ''
+        output += '%%%%%%%%%%%%%%%% Position at move '+str(moveNumber)+'%%%%%%%%%%%%\n'
+        output += self.frameStart
+        output += '\\cleargoban\n'
+        output += self.getComment(sgfMove)
         output += '\\white{' + commaListWhite + '}\n'
         output += '\\black{' + commaListBlack + '}\n'
+        output += self.frameEnd
 
-        print output
+        return output
 
-
-
-
+    def numberedPage(self, number, sgfMove,Title):
+        # Obtain differences caused by move
+        gobanMove = self.parser.SGF_to_Goban(sgfMove)
+        color = gobanMove[0]
+        coord = gobanMove[1]
         
+        differences = self.goban.playMove(color,coord)
+        if not differences.has_key('move'):
+            print ( 'AddNumberedPage(): invalid move')
+            return '\n move number ' + str(number) + ' at ' + str(coord) + ' is invalid \n\n'
+
+        # Start of page
+        pageText = '\n\n\n%%%%%%%%%%%%%%%% ' + Title + ' %%%%%%%%%%%% \n'
+        pageText += self.frameStart
+        pageText += self.getComment(sgfMove)
+
+        # Remove stones
+        for remGroup in differences['removed']:
+            for remCoord in remGroup:
+                pageText += '\\clear{' + self.parser.Goban_to_IGO(remCoord) + '}\n'
+
+        # Put numbered stone
+        if color == 'W':
+            pageText += '\\white[' + str(number) + ']{' + self.parser.Goban_to_IGO(coord) + '}\n'
+        else:
+            pageText += '\\black[' + str(number) + ']{' + self.parser.Goban_to_IGO(coord) + '}\n'
+
+        # End page
+        pageText += self.frameEnd
+        return pageText
+
+    def makeVariation(self, branchPoint):
+        output = self.positionPage(branchPoint)
+        
+        # Get the moveList for the variation
+        variation = self.parser.getMainlineBranchAt(branchPoint)['variation']
+
+        # Make a numbered move page for each move
+        number = 1
+        for moveTuple in variation:
+            sgfMove = moveTuple[0]
+            gobanMove = self.parser.SGF_to_Goban(sgfMove)
+            output += self.numberedPage(number,sgfMove,'Variation after move '+ str(branchPoint) + ': move ' + str(number) )
+            number += 1
+
+        return output
+
+    def getComment(self, sgfMove):
+        if len(sgfMove) > 7:
+            return sgfMove[7:len(sgfMove)-1] + '\n'
+        else:
+            return ''
+            
     
 
         
+
         
         
-
-
         
 if __name__ == "__main__":
     bm = BeamerMaker(19,'ALLO')
-    bm.makePostitionPage(0)
-    
+    output = bm.makeVariation(3)
+    print ( output )
