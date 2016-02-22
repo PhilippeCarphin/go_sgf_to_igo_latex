@@ -9,3 +9,5 @@
 *.log
 *.DS_Store
 *.nav
+*.sgf
+*.txt
