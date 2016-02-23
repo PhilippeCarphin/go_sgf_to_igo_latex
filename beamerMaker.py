@@ -1,6 +1,51 @@
 import Goban
 import Parser
 import sys
+
+
+# MOVE UTILITY
+def getComment(sgfMove):
+    if len(sgfMove) > 7:
+        comment = sgfMove[7:len(sgfMove)-1] + '\n'
+        comment = comment.replace('\\\\','\\')
+        comment = comment.replace('\\]',']')
+        return comment
+    else:
+        return ''
+
+# MOVES UTIL
+def SGF_to_IGO(move):
+    charX = move[2]
+    charY = letter_to_number(move[3])
+    return charX + charY
+
+# MOVES UTIL
+def SGF_to_Goban(move):
+    color = move[0]
+    x = 1 + (ord(move[2]) - ord('a'))
+    y = 1 + (ord(move[3]) - ord('a'))
+    return (color, (x,y))
+
+# MOVES UTIL
+def Goban_to_IGO(coord):
+    charX = chr(coord[0] + ord('a'))
+    charY = str( 19 - coord[1] + 1 ) 
+    return charX + charY
+
+# MOVES UTIL
+def letter_to_number(letter):
+    return str(19 - ( ord(letter) - ord('a')))
+
+    # LaTeX UTIL
+def commaList(moveList):
+    """ Transforms a list of strings into a comma separated list of these
+    strings """
+    moveString = ''
+    for move in moveList:
+        moveString += move + ','
+    moveString = moveString[0:moveString.__len__()-1]
+    return  moveString
+
 class BeamerMaker:
     def __init__(self,size,frameTitle):
         self.frameTitle = frameTitle
@@ -21,7 +66,7 @@ class BeamerMaker:
         while i < len(mainline) and (moveNumber == 0 or i < moveNumber):
             sgfMove = mainline[i][0]
             print(sgfMove)
-            gobanMove = self.parser.SGF_to_Goban(sgfMove)
+            gobanMove = SGF_to_Goban(sgfMove)
             self.goban.playMove(gobanMove[0],gobanMove[1])
             i += 1
 
@@ -32,21 +77,21 @@ class BeamerMaker:
         # Translate to IGO coordinates
         whiteStonesIGO = []
         for coord in whiteStones:
-            whiteStonesIGO.append(self.parser.Goban_to_IGO(coord))
+            whiteStonesIGO.append(Goban_to_IGO(coord))
         blackStonesIGO = []
         for coord in blackStones:
-            blackStonesIGO.append(self.parser.Goban_to_IGO(coord))
+            blackStonesIGO.append(Goban_to_IGO(coord))
 
         # Make into comma list
-        commaListWhite = self.parser.commaList(whiteStonesIGO)
-        commaListBlack = self.parser.commaList(blackStonesIGO)
+        commaListWhite = commaList(whiteStonesIGO)
+        commaListBlack = commaList(blackStonesIGO)
 
         # Create LaTeX output
         output = ''
         output += '%%%%%%%%%%%%%%%% Position at move '+str(moveNumber)+'%%%%%%%%%%%%\n'
         output += self.frameStart
         output += '\\cleargoban\n'
-        output += self.getComment(sgfMove)
+        output += getComment(sgfMove)
         output += '\\white{' + commaListWhite + '}\n'
         output += '\\black{' + commaListBlack + '}\n'
         output += self.frameEnd
@@ -55,7 +100,7 @@ class BeamerMaker:
 
     def numberedPage(self, number, sgfMove,Title,writeNumber):
         # Obtain differences caused by move
-        gobanMove = self.parser.SGF_to_Goban(sgfMove)
+        gobanMove = SGF_to_Goban(sgfMove)
         color = gobanMove[0]
         coord = gobanMove[1]
         
@@ -67,12 +112,12 @@ class BeamerMaker:
         # Start of page
         pageText = '\n\n\n%%%%%%%%%%%%%%%% ' + Title + ' %%%%%%%%%%%% \n'
         pageText += self.frameStart
-        pageText += self.getComment(sgfMove)
+        pageText += getComment(sgfMove)
 
         # Remove stones
         for remGroup in differences['removed']:
             for remCoord in remGroup:
-                pageText += '\\clear{' + self.parser.Goban_to_IGO(remCoord) + '}\n'
+                pageText += '\\clear{' + Goban_to_IGO(remCoord) + '}\n'
 
         # Put stone
         if color == 'W':
@@ -82,7 +127,7 @@ class BeamerMaker:
 
         if writeNumber:
             pageText += '[' + str(number) + ']'
-        pageText += '{' + self.parser.Goban_to_IGO(coord) + '}\n'
+        pageText += '{' + Goban_to_IGO(coord) + '}\n'
 
         # End page
         pageText += self.frameEnd
@@ -98,22 +143,13 @@ class BeamerMaker:
         number = 1
         for moveTuple in variation:
             sgfMove = moveTuple[0]
-            gobanMove = self.parser.SGF_to_Goban(sgfMove)
+            gobanMove = SGF_to_Goban(sgfMove)
             pageTitle = 'Variation after move '+ str(branchPoint) + ': move ' + str(number) 
             output += self.numberedPage(number,sgfMove,pageTitle,True)
             number += 1
 
         return output
 
-    # MOVE UTILITY
-    def getComment(self, sgfMove):
-        if len(sgfMove) > 7:
-            comment = sgfMove[7:len(sgfMove)-1] + '\n'
-            comment = comment.replace('\\\\','\\')
-            comment = comment.replace('\\]',']')
-            return comment
-        else:
-            return ''
             
     def playMovesTill(self, moveNumber):
         mainline = self.parser.getMainlineBranchAt(0)['mainline']
