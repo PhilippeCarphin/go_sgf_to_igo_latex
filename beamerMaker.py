@@ -3,7 +3,6 @@ import Parser
 import sys
 
 
-# MOVE UTILITY
 def getComment(sgfMove):
     if len(sgfMove) > 7:
         comment = sgfMove[7:len(sgfMove)-1] + '\n'
@@ -13,30 +12,25 @@ def getComment(sgfMove):
     else:
         return ''
 
-# MOVES UTIL
 def SGF_to_IGO(move):
     charX = move[2]
     charY = letter_to_number(move[3])
     return charX + charY
 
-# MOVES UTIL
 def SGF_to_Goban(move):
     color = move[0]
     x = 1 + (ord(move[2]) - ord('a'))
     y = 1 + (ord(move[3]) - ord('a'))
     return (color, (x,y))
 
-# MOVES UTIL
 def Goban_to_IGO(coord):
     charX = chr(coord[0] + ord('a'))
     charY = str( 19 - coord[1] + 1 ) 
     return charX + charY
 
-# MOVES UTIL
 def letter_to_number(letter):
     return str(19 - ( ord(letter) - ord('a')))
 
-    # LaTeX UTIL
 def commaList(moveList):
     """ Transforms a list of strings into a comma separated list of these
     strings """
@@ -137,7 +131,10 @@ class BeamerMaker:
         output = self.positionPage(branchPoint)
         
         # Get the moveList for the variation
-        variation = self.parser.getMainlineBranchAt(branchPoint)['variation']
+        variation = self.parser.getMainlineBranchAt(branchPoint)['variations']
+
+        # TODO: Add argument to choose which one to take
+        variation = variation[0]
 
         # Make a numbered move page for each move
         number = 1
