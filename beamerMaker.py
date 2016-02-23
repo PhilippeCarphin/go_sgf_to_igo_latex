@@ -4,38 +4,12 @@ import sys
 class BeamerMaker:
     def __init__(self,size,frameTitle):
         self.frameTitle = frameTitle
-        self.frameText = ''
         self.frameStart = '\\begin{frame} \n\\frametitle{' + frameTitle + '}\n'
         self.frameEnd = '\\showfullgoban\n\\end{frame}\n'
-        self.latexOutput = ''
         self.move = 1
         self.goban = Goban.Goban(size,size)
         self.parser = Parser.Parser()
         self.parser.makeTree('Variations.sgf')
-
-    def newPage(self,color,coord):
-        differences = self.goban.playMove(color,coord)
-        if not differences.has_key('move'):
-            print "invalid move"
-            return '% INVALID MOVE \n'
-        page = '\n\n\n %%%%%%%%%%%%%%%%%%%%%%%%%  move ' + str(self.move) + ' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n'
-        self.move += 1
-        page += self.frameStart
-        for rem in differences['removed']:
-            for remCoord in rem:
-                page += '\\clear{ ' + self.parser.Goban_to_IGO(remCoord) + '} \n'
-        if color == 'W':
-            page += '\\white{'
-        else:
-            page += '\\black{'
-        page += self.parser.Goban_to_IGO(coord) 
-        page += '} \n'
-        page += '\\showfullgoban \n'
-        page += self.frameEnd
-        return page
-
-    def addPage(self,color,coord):
-        self.latexOutput += self.newPage(color,coord)
 
     def positionPage(self,moveNumber):
         # Clear goban
@@ -131,6 +105,7 @@ class BeamerMaker:
 
         return output
 
+    # MOVE UTILITY
     def getComment(self, sgfMove):
         if len(sgfMove) > 7:
             comment = sgfMove[7:len(sgfMove)-1] + '\n'
@@ -151,14 +126,6 @@ class BeamerMaker:
             pageTitle = 'mainline move ' + str(i)
             output += self.numberedPage(i,sgfMove,pageTitle,False)
         return output
-
-
-
-
-        
-
-        
-        
         
 if __name__ == "__main__":
     bm = BeamerMaker(19,'ALLO')
