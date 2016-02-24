@@ -82,7 +82,7 @@ class BeamerMaker:
 
         # Create LaTeX output
         output = ''
-        output += '%%%%%%%%%%%%%%%% Position at move '+str(moveNumber)+'%%%%%%%%%%%%\n'
+        output += '%%%%%%%%%%%%%%%% Position at move ' + str(moveNumber) + ' %%%%%%%%%%%%\n'
         output += self.frameStart
         output += '\\cleargoban\n'
         output += getComment(sgfMove)
@@ -127,14 +127,16 @@ class BeamerMaker:
         pageText += self.frameEnd
         return pageText
 
-    def makeVariation(self, branchPoint):
+    def makeVariation(self, branchPoint, variationNumber):
         output = self.positionPage(branchPoint)
         
         # Get the moveList for the variation
-        variation = self.parser.getMainlineBranchAt(branchPoint)['variations']
-
-        # TODO: Add argument to choose which one to take
-        variation = variation[0]
+        variations = self.parser.getMainlineBranchAt(branchPoint)['variations']
+        if variationNumber < len(variations):
+            variation = variations[variationNumber]
+        else:
+            variation = []
+            print ( 'No such variation: ' + str(variationNumber) )
 
         # Make a numbered move page for each move
         number = 1
@@ -144,9 +146,7 @@ class BeamerMaker:
             pageTitle = 'Variation after move '+ str(branchPoint) + ': move ' + str(number) 
             output += self.numberedPage(number,sgfMove,pageTitle,True)
             number += 1
-
         return output
-
             
     def playMovesTill(self, moveNumber):
         mainline = self.parser.getMainlineBranchAt(0)['mainline']
@@ -162,7 +162,7 @@ class BeamerMaker:
         
 if __name__ == "__main__":
     bm = BeamerMaker(19,'ALLO')
-    output = bm.makeVariation(3)
+    output = bm.makeVariation(3,3)
     print ( output )
-    output = bm.playMovesTill(7)
-    print (output)
+    #output = bm.playMovesTill(7)
+    #print (output)
