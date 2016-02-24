@@ -4,10 +4,6 @@ PW[White]PB[Black]
 ;B[pd]
 ;W[dd]
 ;B[dj]C[mainline move 3]
-(;W[jj]C[Variation move 4]
-;B[jh]
-;W[jf]
-;B[jd]C[Mainline last move])
 (;W[ej]C[Jean-Sebastien est le meilleur joueur de Go au monde]
 ;B[ei]C[Vincent Binette est pas mal bon aussi]
 ;W[di]C[Crosscut!]
@@ -19,6 +15,10 @@ PW[White]PB[Black]
 	\\item A stone
 	\\item The honor of his adversary
 \\end{enumerate}[\]*!@#$%^&*()])
+(;W[jj]TR[gf][hf][if][gg][hg][ig]C[Symbols at this move]
+;B[jh]
+;W[jf]
+;B[jd])
 (;W[jd]
 ;B[lc]
 ;W[le]
