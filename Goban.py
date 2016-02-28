@@ -8,7 +8,10 @@ class Goban:
         self.positionStack = []
         self.moveStack = []
         self.currentMove = MoveTree.Move(0)
-
+    def push(self):
+        self.positionStack.append(dict(self.board))
+    def undo(self):
+        self.board = self.positionStack.pop()
     def getNeighbors(self, coord):
         neighbors = []
         x = coord[0]
@@ -22,20 +25,6 @@ class Goban:
         if(y + 1 <= self.height):
             neighbors.append((x, y + 1))
         return neighbors
-
-    def push(self):
-        self.positionStack.append(dict(self.board))
-        print 'push', self.board
-        #print 'Pushed to stack----'
-        #for pos in self.positionStack:
-            #print pos
-
-    def undo(self):
-        #print 'board before pop: ' , self.board
-        self.board = self.positionStack.pop()
-        print 'pop', self.board
-        #print 'board popped :    ', self.board
-
     def getGroup(self, coord):
         if ( not self.board.has_key(coord) ):
             return []
@@ -54,13 +43,11 @@ class Goban:
                     if not ( coord in seen ):
                         queue.append(coord)
         return group
-
     def removeGroup(self,coord):
         group = self.getGroup(coord)
         for key in group:
             del self.board[key]
         return len(group)
-
     def getLiberties(self,coord):
         color = self.board[coord]
         queue = self.getNeighbors(coord)
@@ -77,7 +64,7 @@ class Goban:
                     if adj not in seen:
                         queue.append(adj)
         return liberties
-
+    """ Updates the state based on a move being played """
     def playMove(self,color,coord):
         # check for Ko
         if ( coord  == self.ko ):
@@ -110,24 +97,11 @@ class Goban:
         if ( numRemoved == 1 and sizeRemoved == 1 ):
             self.ko = potentialKo
         return { 'removed' : removedStones , 'move' : coord }
-
-    def getGobanChange(self,move):
-        return self.playMove(move.color, move.goban())
-
-    def getGobanState(self,move):
-        self.board.clear()
-        mainline = move.getMainlineToSelf()
-        print mainline
-        for mv in mainline:
-            self.playMove(mv.color,mv.goban())
-        return self.getStones()
-
     def getStones(self):
         stones = {'W':[],'B':[]}
         for coord in self.board:
             stones[self.board[coord]].append(self.Goban_to_SGF(coord))
         return stones
-
     def Goban_to_SGF(self,coord):
         charX = chr( coord[0] + ord('a') -1 )
         charY = chr( coord[1] + ord('a') -1 )
@@ -155,9 +129,7 @@ class stateVisitor:
             child.acceptVisitor(self)
         self.goban.undo()
 
-
-
-if __name__ == "__main__":
+def gobanTest():
     goban = Goban(19,19)
     goban.playMove('B', (1,1))
     goban.playMove('W', (1,2))
@@ -183,7 +155,8 @@ if __name__ == "__main__":
     goban.playMove('B', (4,5))
     print 'should be refused for KO'
     goban.playMove('W', (4,4))
-    
+
+def moveTreeTest():
     print 'Creating Move Tree'
     mt = MoveTree.Tree('Variations.sgf')
     # mt.head.acceptVisitor(MoveTree.nodeVisitor())
@@ -195,6 +168,8 @@ if __name__ == "__main__":
     current = current.getChild(0)
 
     current.nodePrint()
-    print 'Goban.getCurrentState',goban.getGobanState(current)
     mt.acceptVisitor(stateVisitor())
-#    mt.acceptVisitor(MoveTree.nodeVisitor())
+    mt.acceptVisitor(MoveTree.nodeVisitor())
+
+if __name__ == "__main__":
+    moveTreeTest()

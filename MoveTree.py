@@ -149,19 +149,18 @@ class Move(Node):
         mainline.reverse()
         print 'mainlineToSelf: retval:' , mainline
         return mainline
-            
     def sgf(self):
         """ returns SGF coordinates of move """
         return self.SGF_coord
+    """ returns goban coordinates of move """
     def goban(self):
         if self.moveNumber == 0:
             return 'No SGF coord'
-        """ returns goban coordinates of move """
         x = 1 + ord(self.SGF_coord[0]) - ord('a')
         y = 1 + ord(self.SGF_coord[1]) - ord('a')
         return (x,y)
+    """ returns IGO coordinates of move """
     def igo(self):
-        """ returns IGO coordinates of move """
         return 'TODO'
     def labels(self):
         return 'TODO'
@@ -191,7 +190,6 @@ class Tree:
         for key in self.info.data:
             print( '%%% ' + key + ' : ' + self.info.data[key])
 
-
 ################################################################################
 # Preorder printing visitor
 ################################################################################
@@ -201,7 +199,6 @@ class nodeVisitor:
         node.nodePrint()
         for child in node.children:
             child.acceptVisitor(self)
-
 
 ################################################################################
 # Single branch printing visitor
