@@ -1,17 +1,17 @@
 (;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]
 RU[Japanese]SZ[19]KM[0.00]
 PW[White]PB[Black]
-;B[pd]
-;W[dd]
-;B[dj]C[mainline move 3]
-(;W[jj]C[Mainline move 4]
+;B[pd]C[1]
+;W[dd]C[2]
+;B[dj]C[3]
+(;W[jj]C[4]
 ;B[jh]C[m5]
 ;W[jf]
-;B[jd]C[End of variation])
-(;W[ej]C[Variation Move 4]
-;B[ei]C[V5]
-;W[di]C[Crosscut!]
-(;B[dk]C[Nobi]
+;B[jd]C[End of mainline])
+(;W[ej]C[4a ]
+;B[ei]C[5A]
+;W[di]C[6A]
+(;B[dk]C[7A]
 ;W[fi]C[Atari]
 ;B[ek]C[Counter atari]
 ;W[eh]C[White captures.
@@ -19,4 +19,4 @@ PW[White]PB[Black]
 	\\item A stone
 	\\item The honor of his adversary
 \\end{enumerate}])
-(;B[eh]CR[gi][ej][gk]LB[ie:1][ke:3][ne:5][ef:A][gf:B][jf:2][kf:4][jh:6]TR[fc][di][ei]SQ[eh][dj])))
+(;B[eh]CR[gi][ej][gk]LB[ie:1][ke:3][ne:5][ef:A][gf:B][jf:2][kf:4][jh:6]TR[fc][di][ei]SQ[eh][dj]C[7B])))
