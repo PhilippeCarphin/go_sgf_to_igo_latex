@@ -30,7 +30,7 @@ class Goban:
         #for pos in self.positionStack:
             #print pos
 
-    def pop(self):
+    def undo(self):
         #print 'board before pop: ' , self.board
         self.board = self.positionStack.pop()
         print 'pop', self.board
@@ -153,7 +153,7 @@ class stateVisitor:
         # print node.moveNumber, ' ' , node.SGF_coord, ' ', node.goban_data
         for child in node.children:
             child.acceptVisitor(self)
-        self.goban.pop()
+        self.goban.undo()
 
 if __name__ == "__main__":
     goban = Goban(19,19)
