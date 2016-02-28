@@ -122,6 +122,7 @@ class Move(Node):
         self.data = {}
         self.color = '0'
         self.SGF_coord = (0,0)
+        self.goban_data = {}
     def nodePrint(self):
         print '%%% MoveInfo'
         print '%%% Number    : ', self.moveNumber
@@ -129,6 +130,7 @@ class Move(Node):
         print '%%% Coord     : ', self.SGF_coord
         print '%%% Data      : ', self.data
         print '%%% SGF_token : ', MakeToken(self)
+        print '%%% GobanState: ', self.goban_data
     def getComment(self):
         if self.data.has_key('C'):
             return self.data['C']
@@ -178,6 +180,7 @@ class Tree:
         self.head = MakeTree(fileContent)
         self.info = self.head
         self.head = self.head.getChild(0)
+        self.head.parent = 0
 
     def acceptVisitor(self, visitor):
         self.printInfo()
@@ -187,6 +190,7 @@ class Tree:
         print '%%%% GAME INFO'
         for key in self.info.data:
             print( '%%% ' + key + ' : ' + self.info.data[key])
+
 
 ################################################################################
 # Preorder printing visitor
