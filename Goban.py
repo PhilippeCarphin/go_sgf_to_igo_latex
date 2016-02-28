@@ -1,3 +1,4 @@
+import MoveTree
 class Goban:
     def __init__(self, width , height):
         self.board = {}
@@ -95,8 +96,21 @@ class Goban:
         return { 'removed' : removedStones , 'move' : coord }
 
     def clear(self):
-        self.board = {}
+        self.board.clear()
 
+
+    def getGobanState(self,move):
+        self.clear()
+        mainline = move.getMainlineToSelf()
+        print mainline
+        for mv in mainline:
+            mv.nodePrint()
+            self.playMove(mv.color,mv.goban())
+
+        return { 'W' : self.getStones('W') , 'B' : self.getStones('B') }
+
+
+        
     def getStones(self,color):
         stones = []
         for coord in self.board:
@@ -111,6 +125,7 @@ if __name__ == "__main__":
     goban.playMove('B', (2,1))
     goban.playMove('W', (2,2))
     goban.playMove('B', (3,1))
+    print 'Should be a capture: '
     goban.playMove('W', (3,2))
     dif = goban.playMove('W', (4,1))
     print dif
@@ -129,4 +144,15 @@ if __name__ == "__main__":
     goban.playMove('B', (4,5))
     print 'should be refused for KO'
     goban.playMove('W', (4,4))
+    
+    print 'Creating Move Tree'
+    mt = MoveTree.Tree('Variations.sgf')
+    # mt.head.acceptVisitor(MoveTree.nodeVisitor())
+    current = mt.head.getChild(0)
+    current = current.getChild(0)
+    current = current.getChild(0)
+    current = current.getChild(0)
+    current = current.getChild(0)
+    current = current.getChild(0)
 
+    print(goban.getGobanState(current))
