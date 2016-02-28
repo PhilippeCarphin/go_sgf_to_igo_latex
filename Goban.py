@@ -104,6 +104,7 @@ class Goban:
             print "ERROR suicidal move is illegal"
             del self.board[coord]
         # Add stone
+        self.push()
         self.board[coord] = color
         # remember KO
         if ( numRemoved == 1 and sizeRemoved == 1 ):
@@ -139,7 +140,6 @@ class stateVisitor:
         self.goban = Goban(19,19)
 
     def visit(self,node):
-        self.goban.push()
         moveDiff = self.goban.playMove(node.color, node.goban())
         node.goban_data = {}
         node.goban_data['gobanState'] = self.goban.getStones()  
@@ -154,6 +154,8 @@ class stateVisitor:
         for child in node.children:
             child.acceptVisitor(self)
         self.goban.undo()
+
+
 
 if __name__ == "__main__":
     goban = Goban(19,19)
@@ -195,4 +197,4 @@ if __name__ == "__main__":
     current.nodePrint()
     print 'Goban.getCurrentState',goban.getGobanState(current)
     mt.acceptVisitor(stateVisitor())
-    mt.acceptVisitor(MoveTree.nodeVisitor())
+#    mt.acceptVisitor(MoveTree.nodeVisitor())
