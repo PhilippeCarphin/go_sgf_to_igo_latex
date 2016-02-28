@@ -138,21 +138,25 @@ class Move(Node):
         return 'TODO'
     def goban(self):
         return 'TODO'
-    def getMainlineToSelf():
+    def getMainlineToSelf(self):
+        mainline= []
         current = self
-        mainline = [current]
-        while current != 0:
+        while current.parent != 0:
             mainline.append(current)
             current = current.getParent() 
+        mainline.reverse()
+        print 'mainlineToSelf: retval:' , mainline
         return mainline
             
     def sgf(self):
         """ returns SGF coordinates of move """
         return self.SGF_coord
     def goban(self):
+        if self.moveNumber == 0:
+            return 'No SGF coord'
         """ returns goban coordinates of move """
-        x = 1 + ord(self.SGF_coord[0] - ord('a'))
-        y = 1 + ord(self.SGF_coord[1] - ord('a'))
+        x = 1 + ord(self.SGF_coord[0]) - ord('a')
+        y = 1 + ord(self.SGF_coord[1]) - ord('a')
         return (x,y)
     def igo(self):
         """ returns IGO coordinates of move """
@@ -160,9 +164,9 @@ class Move(Node):
     def labels(self):
         return 'TODO'
     def __str__(self):
-        return 'TODO'
+        return self.color + str(self.SGF_coord)
     def __repr__(self):
-        return 'TODO'
+        return self.color + str(self.SGF_coord)
 
 ################################################################################
 # Master class of composite pattern
