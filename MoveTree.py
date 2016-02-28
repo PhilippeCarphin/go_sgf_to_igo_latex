@@ -138,12 +138,22 @@ class Move(Node):
         return 'TODO'
     def goban(self):
         return 'TODO'
+    def getMainlineToSelf():
+        current = self
+        mainline = [current]
+        while current != 0:
+            mainline.append(current)
+            current = current.getParent() 
+        return mainline
+            
     def sgf(self):
         """ returns SGF coordinates of move """
-        return 'TODO'
+        return self.SGF_coord
     def goban(self):
         """ returns goban coordinates of move """
-        return 'TODO'
+        x = 1 + ord(self.SGF_coord[0] - ord('a'))
+        y = 1 + ord(self.SGF_coord[1] - ord('a'))
+        return (x,y)
     def igo(self):
         """ returns IGO coordinates of move """
         return 'TODO'
