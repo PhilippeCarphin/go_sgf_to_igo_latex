@@ -112,9 +112,7 @@ class Goban:
         # remember KO
         if ( numRemoved == 1 and sizeRemoved == 1 ):
             self.ko = potentialKo
-        retval = { 'removed' : removedStones , 'move' : coord }
-        print retval
-        return retval
+        return  { 'removed' : removedStones , 'move' : coord }
     def getStones(self):
         stones = {'W':[],'B':[]}
         for coord in self.board:
