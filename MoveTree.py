@@ -164,6 +164,7 @@ class Move(Node,Stone):
         print '%%% Data      : ', self.data
         print '%%% SGF_token : ', MakeToken(self)
         print '%%% GobanState: ', self.goban_data
+        print '%%% Children  : ', self.children
     def getComment(self):
         if self.data.has_key('C'):
             return self.data['C']
