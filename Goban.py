@@ -4,6 +4,9 @@ def Goban_to_SGF(coord):
     charY = chr( coord[1] + ord('a') -1 )
     return charX + charY
 
+################################################################################
+""" Goban is used to memorize board state and implement go rules """
+################################################################################
 class Goban:
     def __init__(self, width , height):
         self.board = {}
@@ -119,8 +122,10 @@ class Goban:
             stones[color].append(MoveTree.Stone(color,Goban_to_SGF(coord)))
         return stones
 
+################################################################################
 """ Visitor vists move tree in parallel with a goban.  Assigns goban state and
 stones removed to each move Node"""
+################################################################################
 class stateVisitor:
     def __init__(self):
         self.goban = Goban(19,19)

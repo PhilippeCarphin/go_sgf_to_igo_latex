@@ -8,11 +8,9 @@ import Goban
 """ Unescapes the characters ] and \ characters """
 def unescape(string):
     return string.replace('\\\\','\\').replace('\\]',']')
-
 """ Escapes the characters ] and \ characters """
 def escape(string):
     return string.replace('\\','\\\\').replace(']','\\]')
-    
 """ Returns a list of tokens that are either a perentheses, a move, or the
 info thing at the start. Extracted by regexp from string """
 def makeFileTokens( string ):
@@ -22,7 +20,6 @@ def makeFileTokens( string ):
     tokenList = tokenRegex.findall(string)
     tokenList = tokenList[1:len(tokenList)-1] 
     return tokenList    
-
 """ Subdivides token data into the right bits based on the type """
 def breakTokenData(typeToken,dataToken):
     tokenData = re.compile(r'\[(.*?[^\\])\]',re.DOTALL).findall(dataToken)
@@ -36,7 +33,6 @@ def breakTokenData(typeToken,dataToken):
     elif typeToken not in ['CR','TR','SQ']:
         tokenData = unescape(tokenData[0])
     return tokenData
-
 """ Returns a move created by the supplied token with specified parent and move
 number """
 def createMove(token,Parent,moveNumber):
@@ -51,7 +47,6 @@ def createMove(token,Parent,moveNumber):
         else:
             move.data[subtok[0]] = breakTokenData(subtok[0],subtok[1])
     return move
-
 """ Returns the head of a move tree based on the content of an SGF_file """
 def MakeTree(fileContent):
     """ More elegant way of doing it """
@@ -75,7 +70,6 @@ def MakeTree(fileContent):
     root = root.getChild(0)
     root.parent = 0
     return root
-
 """ Returns the SGF_token corresponding to move """
 def MakeToken(move):
     token = ''
@@ -86,8 +80,6 @@ def MakeToken(move):
             token += key
             token += '[' + escape( move.data[key]) + ']'
     return token
-
-
 ################################################################################
 # Class node.  Base class of move Tree composite pattern
 ################################################################################
@@ -120,7 +112,6 @@ class Node:
         visitor.visit(self)
     def nodePrint(self):
         print 'Node'
-
 ################################################################################
 # Class Stone.  Represents a stone on the goban
 ################################################################################
@@ -145,8 +136,6 @@ class Stone:
         return self.color + str(self.SGF_coord)
     def __repr__(self):
         return self.color + str(self.SGF_coord)
-        
-
 ################################################################################
 # Class Move(Node) Contains move data and methods
 ################################################################################
@@ -175,7 +164,6 @@ class Move(Node,Stone):
         return 'TODO'
     def labels(self):
         return 'TODO'
-
 ################################################################################
 # Master class of composite pattern
 ################################################################################
@@ -197,7 +185,6 @@ class Tree:
         print '%%%% GAME INFO'
         for key in self.info.data:
             print( '%%% ' + key + ' : ' + self.info.data[key])
-
 ################################################################################
 # Preorder printing visitor
 ################################################################################
@@ -207,7 +194,6 @@ class nodeVisitor:
         node.nodePrint()
         for child in node.children:
             child.acceptVisitor(self)
-
 ################################################################################
 # Single branch printing visitor
 ################################################################################
@@ -217,7 +203,6 @@ class mainlineVisitor:
         node.nodePrint()
         if node.hasNext():
             node.getChild(0).acceptVisitor(self)
-
 if __name__ == "__main__":
     moveTree = Tree('Variations.sgf')
     moveTree.acceptVisitor(nodeVisitor())
