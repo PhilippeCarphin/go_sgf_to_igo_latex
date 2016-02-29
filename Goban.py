@@ -17,7 +17,7 @@ class Goban:
         self.positionStack.append(dict(self.board))
     def undo(self):
         self.board = self.positionStack.pop()
-    def getNeighbors(self, coord):
+    def __getNeighbors__(self, coord):
         neighbors = []
         x = coord[0]
         y = coord[1]
@@ -30,12 +30,12 @@ class Goban:
         if(y + 1 <= self.height):
             neighbors.append((x, y + 1))
         return neighbors
-    def getGroup(self, coord):
+    def __getGroup__(self, coord):
         if ( not self.board.has_key(coord) ):
             return []
         color = self.board[coord]
         group = [coord]
-        queue = self.getNeighbors(coord)
+        queue = self.__getNeighbors__(coord)
         seen = [coord]
         while len(queue):
             neighbor = queue.pop()
@@ -44,18 +44,18 @@ class Goban:
                 continue
             if (neighbor not in group and self.board[neighbor] == color ) :
                 group.append(neighbor)
-                for coord in self.getNeighbors(neighbor):
+                for coord in self.__getNeighbors__(neighbor):
                     if not ( coord in seen ):
                         queue.append(coord)
         return group
-    def removeGroup(self,coord):
-        group = self.getGroup(coord)
+    def __removeGroup__(self,coord):
+        group = self.__getGroup__(coord)
         for key in group:
             del self.board[key]
         return len(group)
-    def getLiberties(self,coord):
+    def __getLiberties__(self,coord):
         color = self.board[coord]
-        queue = self.getNeighbors(coord)
+        queue = self.__getNeighbors__(coord)
         seen = [coord]
         liberties = 0
         while len(queue):
@@ -65,10 +65,16 @@ class Goban:
                 liberties += 1
                 continue
             if self.board[neighbor] == color:
-                for adj in self.getNeighbors(neighbor):
+                for adj in self.__getNeighbors__(neighbor):
                     if adj not in seen:
                         queue.append(adj)
         return liberties
+    def __getGroupStones__(self,group):
+        groupStones = []
+        for coord in group:
+            color = self.board[coord]
+            groupStones.append(MoveTree.Stone(color,Goban_to_SGF(coord)))
+        return groupStones
     """ Updates the state based on a move being played """
     def playMove(self,color,coord):
         # check for Ko
@@ -81,18 +87,18 @@ class Goban:
             print 'ERROR There is already a stone there ', coord
             return {}
         # Resolve captures
-        adjacent = self.getNeighbors(coord)
+        adjacent = self.__getNeighbors__(coord)
         numRemoved = 0
         removedStones = []
         for adj in adjacent:
-            if( self.board.has_key(adj) and self.board[adj] != color and self.getLiberties(adj) == 1):
-                removedStones.append(self.getGroupStones(self.getGroup(adj)))
-                sizeRemoved = self.removeGroup(adj)
+            if( self.board.has_key(adj) and self.board[adj] != color and self.__getLiberties__(adj) == 1):
+                removedStones.append(self.__getGroupStones__(self.__getGroup__(adj)))
+                sizeRemoved = self.__removeGroup__(adj)
                 numRemoved += 1
                 potentialKo = adj
         # Check legality
         self.board[coord] = color
-        if self.getLiberties(coord) == 0:
+        if self.__getLiberties__(coord) == 0:
             print "ERROR suicidal move is illegal"
             del self.board[coord]
         # Add stone
@@ -110,12 +116,6 @@ class Goban:
             color = self.board[coord]
             stones[color].append(MoveTree.Stone(color,Goban_to_SGF(coord)))
         return stones
-    def getGroupStones(self,group):
-        groupStones = []
-        for coord in group:
-            color = self.board[coord]
-            groupStones.append(MoveTree.Stone(color,Goban_to_SGF(coord)))
-        return groupStones
 
 """ Visitor vists move tree in parallel with a goban.  Assigns goban state and
 stones removed to each move Node"""
