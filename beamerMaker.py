@@ -43,28 +43,28 @@ def makePage(node,pageType):
     return page
 class Sai:
     def ouvrirFichier(self):
-        #filename = raw_input("""
-        #Jean-Sebastien, peux-tu me dire quel fichier tu veux ouvir? 
-        #En passant c'est correct si je t'appelle par ton
-        #prenom?
-        #
-        #Fichier:""")
+        filename = raw_input("""
+        Jean-Sebastien, peux-tu me dire quel fichier tu veux ouvir? 
+        En passant c'est correct si je t'appelle par ton
+        prenom?
+        
+        Fichier:""")
         filename = 'Variations.sgf'
         self.tree = MoveTree.Tree(filename)
         self.parcourirFichier()
     def parcourirFichier(self):
-        #choix = raw_input(""" >>>> JS, (c'est correct si je t'appelle JS?), je suis pret a produire des
-        #diagrammes LaTeX vraiment sick pour toi!!
-        #
-        #Je peux produire plusieurs sortes de diagrammes pour toi. Choisis le
-        #type de diagramme que tu veux produire
-        #
-        #1: Mainline Complet 
-        #2: Mainline partant d'un noeud specifique 
+        choix = raw_input(""" >>>> JS, (c'est correct si je t'appelle JS?), je suis pret a produire des
+        diagrammes LaTeX vraiment sick pour toi!!
+        
+        Je peux produire plusieurs sortes de diagrammes pour toi. Choisis le
+        type de diagramme que tu veux produire
+        
+        1: Mainline Complet 
+        2: Mainline partant d'un noeud specifique 
         choix = '2'
         print 'PARCOURIR FICHIER'
 
-        #Choix :""")
+        Choix :""")
         if choix == '1':
             current = self.tree.head
             fileS = ''
@@ -127,14 +127,14 @@ class Sai:
         f.write(fileS)
         f.close()
     def bonjour(self):
-        #print """
-        #Bonjour Jean-Sebastien, je suis ton assistant Sai, que puis-je faire pour
-        #toi aujoutd'hui?
+        print """
+        Bonjour Jean-Sebastien, je suis ton assistant Sai, que puis-je faire pour
+        toi aujoutd'hui?
 
-        #Ouvrir Fichier SGF : O
+        Ouvrir Fichier SGF : O
 
-        #"""
-        #choix = raw_input(" Ton choix :")
+        """
+        choix = raw_input(" Ton choix :")
         choix = 'o'
         if choix == 'o' or choix == 'O':
             self.ouvrirFichier()
