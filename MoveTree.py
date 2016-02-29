@@ -123,9 +123,10 @@ class Stone:
     def __init__(self,color = 0, SGF_coord = 'XX'):
         self.color = color
         self.SGF_coord = SGF_coord
-    def igo(self,size):
-        charX = SGF_coord[0]
-        str(19 - ( ord(SGF_coord[1]) - ord('a')))
+    def igo(self,height):
+        charX = self.SGF_coord[0]
+        numY = str(height - ( ord(self.SGF_coord[1]) - ord('a')))
+        return charX + numY
     def sgf(self):
         """ returns SGF coordinates of stone """
         return self.SGF_coord
@@ -140,6 +141,7 @@ class Stone:
         return self.color + str(self.SGF_coord)
     def __repr__(self):
         return self.color + str(self.SGF_coord)
+        # return self.color + self.igo(19)
 ################################################################################
 # Class Move(Node) Contains move data and methods
 ################################################################################
@@ -164,8 +166,6 @@ class Move(Node,Stone):
         else :
             return ''
     """ returns IGO coordinates of move """
-    def igo(self):
-        return 'TODO'
     def labels(self):
         return 'TODO'
 ################################################################################
