@@ -198,6 +198,19 @@ class nodeVisitor:
         node.nodePrint()
         for child in node.children:
             child.acceptVisitor(self)
+class textSearchVisitor:
+    def __init__(self,searchString):
+        self.searchString = searchString
+        self.result = Move(0)
+    def getResult(self):
+        return self.result
+    def visit(self,node):
+        if self.searchString in node.getComment():
+            self.result = node
+        else:
+            for child in node.children:
+                child.acceptVisitor(self)
+
 ################################################################################
 # Single branch printing visitor
 ################################################################################
@@ -209,6 +222,11 @@ class mainlineVisitor:
             node.getChild(0).acceptVisitor(self)
 if __name__ == "__main__":
     moveTree = Tree('Variations.sgf')
+    searchString = '%ALLO'
+    tv = textSearchVisitor(searchString)
     moveTree.acceptVisitor(nodeVisitor())
+    moveTree.acceptVisitor(tv)
+    tv.getResult().nodePrint()
+
 
 
