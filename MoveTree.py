@@ -80,6 +80,10 @@ def MakeToken(move):
             token += key
             token += '[' + escape( move.data[key]) + ']'
     return token
+def SGF_to_IGO(sgf_coord, height):
+    charX = sgf_coord[0]
+    numY = str( ord(sgf_coord[1]) - ord(a) + 1)
+    return charX + numY
 ################################################################################
 # Class node.  Base class of move Tree composite pattern
 ################################################################################
