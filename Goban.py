@@ -76,7 +76,9 @@ class Goban:
             groupStones.append(MoveTree.Stone(color,Goban_to_SGF(coord)))
         return groupStones
     """ Updates the state based on a move being played """
-    def playMove(self,color,coord):
+    def playMove(self,stone):
+        color = stone.color
+        coord = stone.goban()
         # check for Ko
         if ( coord  == self.ko ):
             print 'ERROR This move would violate the rule of Ko'
@@ -124,7 +126,7 @@ class stateVisitor:
         self.goban = Goban(19,19)
 
     def visit(self,node):
-        moveDiff = self.goban.playMove(node.color, node.goban())
+        moveDiff = self.goban.playMove(node)
         node.goban_data = {}
         node.goban_data['gobanState'] = self.goban.getStones()  
         # print self.goban.board
