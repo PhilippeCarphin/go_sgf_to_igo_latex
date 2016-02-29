@@ -108,21 +108,53 @@ class Node:
         self.children.append(child)
     def clearChildren(self):
         self.children = []
+    def getMainlineToSelf(self):
+        mainline= []
+        current = self
+        while current.parent != 0:
+            mainline.append(current)
+            current = current.getParent() 
+        mainline.reverse()
+        return mainline
     def acceptVisitor(self,visitor):
         visitor.visit(self)
     def nodePrint(self):
         print 'Node'
 
 ################################################################################
+# Class Stone.  Represents a stone on the goban
+################################################################################
+class Stone:
+    def __init__(self,color = 0, SGF_coord = 'XX'):
+        self.color = color
+        self.SGF_coord = SGF_coord
+    def igo(self,size):
+        charX = SGF_coord[0]
+        str(19 - ( ord(SGF_coord[1]) - ord('a')))
+    def sgf(self):
+        """ returns SGF coordinates of stone """
+        return self.SGF_coord
+    """ returns goban coordinates of stone """
+    def goban(self):
+        if self.moveNumber == 0:
+            return 'No SGF coord'
+        x = 1 + ord(self.SGF_coord[0]) - ord('a')
+        y = 1 + ord(self.SGF_coord[1]) - ord('a')
+        return (x,y)
+    def __str__(self):
+        return self.color + str(self.SGF_coord)
+    def __repr__(self):
+        return self.color + str(self.SGF_coord)
+        
+
+################################################################################
 # Class Move(Node) Contains move data and methods
 ################################################################################
-class Move(Node):
+class Move(Node,Stone):
     def __init__(self,parent):
         Node.__init__(self,parent)
         self.moveNumber = 0
         self.data = {}
-        self.color = '0'
-        self.SGF_coord = (0,0)
         self.goban_data = {}
     def nodePrint(self):
         print '%%% MoveInfo'
@@ -137,38 +169,11 @@ class Move(Node):
             return self.data['C']
         else :
             return ''
-    def igo(self):
-        return 'TODO'
-    def goban(self):
-        return 'TODO'
-    def getMainlineToSelf(self):
-        mainline= []
-        current = self
-        while current.parent != 0:
-            mainline.append(current)
-            current = current.getParent() 
-        mainline.reverse()
-        print 'mainlineToSelf: retval:' , mainline
-        return mainline
-    def sgf(self):
-        """ returns SGF coordinates of move """
-        return self.SGF_coord
-    """ returns goban coordinates of move """
-    def goban(self):
-        if self.moveNumber == 0:
-            return 'No SGF coord'
-        x = 1 + ord(self.SGF_coord[0]) - ord('a')
-        y = 1 + ord(self.SGF_coord[1]) - ord('a')
-        return (x,y)
     """ returns IGO coordinates of move """
     def igo(self):
         return 'TODO'
     def labels(self):
         return 'TODO'
-    def __str__(self):
-        return self.color + str(self.SGF_coord)
-    def __repr__(self):
-        return self.color + str(self.SGF_coord)
 
 ################################################################################
 # Master class of composite pattern
