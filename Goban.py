@@ -1,4 +1,9 @@
 import MoveTree
+def Goban_to_SGF(coord):
+    charX = chr( coord[0] + ord('a') -1 )
+    charY = chr( coord[1] + ord('a') -1 )
+    return charX + charY
+
 class Goban:
     def __init__(self, width , height):
         self.board = {}
@@ -81,7 +86,7 @@ class Goban:
         removedStones = []
         for adj in adjacent:
             if( self.board.has_key(adj) and self.board[adj] != color and self.getLiberties(adj) == 1):
-                removedStones.append(self.getGroup(adj))
+                removedStones.append(self.getGroupStones(self.getGroup(adj)))
                 sizeRemoved = self.removeGroup(adj)
                 numRemoved += 1
                 potentialKo = adj
@@ -96,16 +101,21 @@ class Goban:
         # remember KO
         if ( numRemoved == 1 and sizeRemoved == 1 ):
             self.ko = potentialKo
-        return { 'removed' : removedStones , 'move' : coord }
+        retval = { 'removed' : removedStones , 'move' : coord }
+        print retval
+        return retval
     def getStones(self):
         stones = {'W':[],'B':[]}
         for coord in self.board:
-            stones[self.board[coord]].append(self.Goban_to_SGF(coord))
+            color = self.board[coord]
+            stones[color].append(MoveTree.Stone(color,Goban_to_SGF(coord)))
         return stones
-    def Goban_to_SGF(self,coord):
-        charX = chr( coord[0] + ord('a') -1 )
-        charY = chr( coord[1] + ord('a') -1 )
-        return charX + charY
+    def getGroupStones(self,group):
+        groupStones = []
+        for coord in group:
+            color = self.board[coord]
+            groupStones.append(MoveTree.Stone(color,Goban_to_SGF(coord)))
+        return groupStones
 
 """ Visitor vists move tree in parallel with a goban.  Assigns goban state and
 stones removed to each move Node"""
@@ -118,11 +128,6 @@ class stateVisitor:
         node.goban_data = {}
         node.goban_data['gobanState'] = self.goban.getStones()  
         # print self.goban.board
-        for group in moveDiff['removed']:
-            i = 0
-            while i < len(group):
-                group[i] = self.goban.Goban_to_SGF(group[i])
-                i+=1
         node.goban_data['removed'] = moveDiff['removed']
         # print node.moveNumber, ' ' , node.SGF_coord, ' ', node.goban_data
         for child in node.children:
