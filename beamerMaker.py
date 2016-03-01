@@ -42,6 +42,15 @@ def makePage(node,pageType):
     page += '\\end{frame}\n'
     return page
 class Sai:
+    def __init__(self):
+        self.states = { 'open':self.bonjour, 'mainMenu':self.parcourirFichier,\
+                'finished': self.finished, 'findNode':self.trouverNoeud,\
+                'validateFile': self.userValidate, 'saveFile':self.saveFile}
+    
+    def clear(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
+    def finished():
+        return 0
     def ouvrirFichier(self):
         filename = raw_input("""
         Jean-Sebastien, peux-tu me dire quel fichier tu veux ouvir? 
@@ -52,6 +61,7 @@ class Sai:
         filename = 'Variations.sgf'
         self.tree = MoveTree.Tree(filename)
         self.parcourirFichier()
+        current = self.tree.head
     def parcourirFichier(self):
         choix = raw_input(""" >>>> JS, (c'est correct si je t'appelle JS?), je suis pret a produire des
         diagrammes LaTeX vraiment sick pour toi!!
@@ -66,11 +76,12 @@ class Sai:
 
         Choix :""")
         if choix == '1':
-            current = self.tree.head
             fileS = ''
+            current = self.current
             while current.hasNext():
                 fileS += makePage(current,'diff')
                 current = current.getChild(0)
+            fileS += makePage(current,'diff')
             return self.userValidate(fileS)
         if choix == '2':
             self.trouverNoeud()
@@ -85,12 +96,16 @@ class Sai:
 
         Ton choix:""")
         if choix == 'A' or choix == 'a':
-            noop
+            self.parcourirFichier()
         elif choix == 'E' or choix == 'e':
             for child in self.current.children:
                 child.nodePrint()
         elif choix == 'C' or choix == 'c':
-            print 'Pas encore disponible'
+            searchString = raw_input(""" Jean-Sebastien, dit moi la chaine de
+            caracteres a chercher : """)
+            ts = MoveTree.textSearchVisitor(searchString)
+            self.tree.acceptVisitor(ts)
+            self.current = ts.getResult()
         else:
             self.current = self.tree.head
             i = 1
@@ -99,7 +114,7 @@ class Sai:
                 i += 1
                 if not self.current.hasNext():
                     break
-            self.current.nodePrint()
+        self.current.nodePrint()
         self.trouverNoeud()
 
         
@@ -114,7 +129,7 @@ class Sai:
         if choix == 'o' or choix == 'O':
             return self.saveFile(fileS)
         else:
-            return self.fichierOuvert()
+            return self.parcourirFichier()
     def saveFile(self, fileS):
         name = raw_input(""" >>>> Super! Je suis content d'avoir pu rencontrer
         tes exigences.
@@ -127,6 +142,7 @@ class Sai:
         f.write(fileS)
         f.close()
     def bonjour(self):
+        self.clear()
         print """
         Bonjour Jean-Sebastien, je suis ton assistant Sai, que puis-je faire pour
         toi aujoutd'hui?
