@@ -54,6 +54,11 @@ class Sai:
             self.states[self.state]()
     def clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
+    def printCurrent(self):
+        self.current.nodePrint()
+    def clearPrint(self):
+        self.clear()
+        self.printCurrent()
     def finished():
         return 0
     def ouvrirFichier(self):
@@ -67,14 +72,17 @@ class Sai:
         self.current = self.tree.head
         self.state = 'mainMenu'
     def parcourirFichier(self):
+        self.clear()
+        self.tree.printInfo()
+        self.printCurrent()
         choix = raw_input(""" >>>> JS, (c'est correct si je t'appelle JS?), je suis pret a produire des
         diagrammes LaTeX vraiment sick pour toi!!
         
         Je peux produire plusieurs sortes de diagrammes pour toi. Choisis le
         type de diagramme que tu veux produire
         
-        1: Mainline Complet 
-        2: Mainline partant d'un noeud specifique 
+        1: Mainline partant du noeud courant 
+        2: Trouver Noeud
         choix = '2'
         print 'PARCOURIR FICHIER'
 
@@ -82,14 +90,15 @@ class Sai:
         if choix == '1':
             self.fileS = ''
             current = self.current
+            self.fileS = makePage(current,'position')
             while current.hasNext():
-                self.fileS += makePage(current,'diff')
                 current = current.getChild(0)
-            self.fileS += makePage(current,'diff')
+                self.fileS += makePage(current,'diff')
             self.state = 'validateFile'
         if choix == '2':
             self.state = 'findNode'
     def trouverNoeud(self):
+        self.clearPrint()
         choix = raw_input(""" Mes systemes sont a la fine pointe de la
         technologie.  J'ai donc plusieurs facons de trouver des noeuds
 
@@ -119,9 +128,8 @@ class Sai:
                 if not self.current.hasNext():
                     break
         self.current.nodePrint()
-
-        
     def userValidate(self):
+        self.clear()
         print self.fileS
         choix = raw_input(""" >>>> Voici le code genere, est-ce qu'il te plait? 
 
@@ -134,6 +142,7 @@ class Sai:
         else:
             self.state = 'mainMenu'
     def saveFile(self):
+        self.clear()
         name = raw_input(""" >>>> Super! Je suis content d'avoir pu rencontrer
         tes exigences.
 
