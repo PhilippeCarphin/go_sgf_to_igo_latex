@@ -43,10 +43,15 @@ def makePage(node,pageType):
     return page
 class Sai:
     def __init__(self):
-        self.states = { 'open':self.bonjour, 'mainMenu':self.parcourirFichier,\
+        self.states = { 'init':self.bonjour, 'mainMenu':self.parcourirFichier,\
                 'finished': self.finished, 'findNode':self.trouverNoeud,\
-                'validateFile': self.userValidate, 'saveFile':self.saveFile}
-    
+                'validateFile': self.userValidate, 'saveFile':self.saveFile,\
+                'open':self.ouvrirFichier,'save':self.saveFile}
+        self.fileS = ''
+        self.state = 'init'
+    def __exec__(self):
+        while self.state != 'finished':
+            self.states[self.state]()
     def clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
     def finished():
@@ -58,10 +63,9 @@ class Sai:
         prenom?
         
         Fichier:""")
-        filename = 'Variations.sgf'
         self.tree = MoveTree.Tree(filename)
-        self.parcourirFichier()
-        current = self.tree.head
+        self.current = self.tree.head
+        self.state = 'mainMenu'
     def parcourirFichier(self):
         choix = raw_input(""" >>>> JS, (c'est correct si je t'appelle JS?), je suis pret a produire des
         diagrammes LaTeX vraiment sick pour toi!!
@@ -76,27 +80,27 @@ class Sai:
 
         Choix :""")
         if choix == '1':
-            fileS = ''
+            self.fileS = ''
             current = self.current
             while current.hasNext():
-                fileS += makePage(current,'diff')
+                self.fileS += makePage(current,'diff')
                 current = current.getChild(0)
-            fileS += makePage(current,'diff')
-            return self.userValidate(fileS)
+            self.fileS += makePage(current,'diff')
+            self.state = 'validateFile'
         if choix == '2':
-            self.trouverNoeud()
+            self.state = 'findNode'
     def trouverNoeud(self):
         choix = raw_input(""" Mes systemes sont a la fine pointe de la
         technologie.  J'ai donc plusieurs facons de trouver des noeuds
 
         C: par commentaire
-        N: par numero
-        E: Enfanta
+        N: par numero (entrer le numero)
+        E: Enfant
         a: accepter
 
         Ton choix:""")
         if choix == 'A' or choix == 'a':
-            self.parcourirFichier()
+            self.state = 'mainMenu'
         elif choix == 'E' or choix == 'e':
             for child in self.current.children:
                 child.nodePrint()
@@ -115,11 +119,10 @@ class Sai:
                 if not self.current.hasNext():
                     break
         self.current.nodePrint()
-        self.trouverNoeud()
 
         
-    def userValidate(self,fileS):
-        print fileS
+    def userValidate(self):
+        print self.fileS
         choix = raw_input(""" >>>> Voici le code genere, est-ce qu'il te plait? 
 
         o : oui
@@ -127,10 +130,10 @@ class Sai:
 
         Ton choix: """)
         if choix == 'o' or choix == 'O':
-            return self.saveFile(fileS)
+            self.state = 'saveFile'
         else:
-            return self.parcourirFichier()
-    def saveFile(self, fileS):
+            self.state = 'mainMenu'
+    def saveFile(self):
         name = raw_input(""" >>>> Super! Je suis content d'avoir pu rencontrer
         tes exigences.
 
@@ -139,8 +142,9 @@ class Sai:
         Nom: """)
 
         f = open(name,'w')
-        f.write(fileS)
+        f.write(self.fileS)
         f.close()
+        self.state = 'mainMenu'
     def bonjour(self):
         self.clear()
         print """
@@ -153,7 +157,7 @@ class Sai:
         choix = raw_input(" Ton choix :")
         choix = 'o'
         if choix == 'o' or choix == 'O':
-            self.ouvrirFichier()
+            self.state = 'open'
 if __name__ == "__main__":
     t = MoveTree.Tree('./ShusakuvsInseki.sgf')
     t = MoveTree.Tree('Variations.sgf')
@@ -169,4 +173,4 @@ if __name__ == "__main__":
         latex = makePage(current,'')
         print latex
     cyborg = Sai()
-    cyborg.bonjour()
+    cyborg.__exec__()

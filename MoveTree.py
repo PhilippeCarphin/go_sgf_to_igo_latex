@@ -182,7 +182,6 @@ class Tree:
         self.acceptVisitor(Goban.stateVisitor())
 
     def acceptVisitor(self, visitor):
-        self.printInfo()
         self.head.acceptVisitor(visitor)
 
     def printInfo(self):
