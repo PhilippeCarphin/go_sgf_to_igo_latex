@@ -2,21 +2,22 @@ import Goban
 import MoveTree
 import os
 import sys
+
 def commaList(stoneList):
     commaList = ''
     for stone in stoneList:
         commaList += stone.igo(19) + ','
     return commaList[0:len(commaList)-1]
 def makeDiagram(node):
-    diagram = ''
+    diagram = '\\cleargoban\n'
     blackStones = commaList(node.goban_data['gobanState']['B'])
     whiteStones = commaList(node.goban_data['gobanState']['W'])
     diagram += '\\white{' + whiteStones + '}\n'
     diagram += '\\black{' + blackStones + '}\n'
+    diagram += '\\showfullgoban\n'
     return diagram
 def makeDiffDiagram(node):
     diagram = ''
-
     if node.color == 'W':
         diagram += '\\white{' + node.igo(19) + '}\n'
     else:
@@ -26,21 +27,10 @@ def makeDiffDiagram(node):
         removedStones += group
     removedList = commaList(removedStones)
     diagram += '\\clearintersection{'+ removedList + '}\n'
+    diagram += '\\showfullgoban\n'
     return diagram
 def putLabels(node):
     noop
-def makePage(node,pageType):
-    page = '%%%%%%%%%%%%%%%%%%%% MOVE ' + str(node.moveNumber) + ' %%%%%%%%%%%%%%%%%%%%%%%\n'
-    page += '\\begin{frame}\n\n'
-    page += '% % BEGIN SGF COMMENTS % %\n'
-    page += node.getComment() + '\n'
-    page += '% % END SGF COMMENTS % %\n'
-    if pageType == 'diff':
-        page += makeDiffDiagram(node)
-    else:
-        page += makeDiagram(node)
-    page += '\\end{frame}\n'
-    return page
 class Sai:
     def __init__(self):
         self.states = { 'init':self.bonjour, 'mainMenu':self.parcourirFichier,\
@@ -49,6 +39,22 @@ class Sai:
                 'open':self.ouvrirFichier,'save':self.saveFile}
         self.fileS = ''
         self.state = 'init'
+        self.frameFile = open(os.path.join(os.getcwd(),'framestart.tex')).read()
+        self.prediag = open(os.path.join(os.getcwd(),'prediag.tex')).read()
+        self.postdiag = open(os.path.join(os.getcwd(), 'postdiag.tex')).read()
+    def makePage(self,node,pageType):
+        page = '%%%%%%%%%%%%%%%%%%%% MOVE ' + str(node.moveNumber) + ' %%%%%%%%%%%%%%%%%%%%%%%\n'
+        page += '\\begin{frame}\n\n'
+        page += '\\frametitle{' + self.frametitle + '}\n'
+        page += '% % BEGIN SGF COMMENTS % %\n'
+        page += node.getComment() + '\n'
+        page += '% % END SGF COMMENTS % %\n'
+        if pageType == 'diff':
+            page += makeDiffDiagram(node)
+        else:
+            page += makeDiagram(node)
+        page += '\\end{frame}\n'
+        return page
     def __exec__(self):
         while self.state != 'finished':
             self.states[self.state]()
@@ -70,6 +76,8 @@ class Sai:
         Fichier:""")
         self.tree = MoveTree.Tree(filename)
         self.current = self.tree.head
+        info = self.tree.info.data
+        self.frametitle = info['PW'] + ' vs ' + info['PB']
         self.state = 'mainMenu'
     def parcourirFichier(self):
         self.clear()
@@ -90,10 +98,10 @@ class Sai:
         if choix == '1':
             self.fileS = ''
             current = self.current
-            self.fileS = makePage(current,'position')
+            self.fileS = self.makePage(current,'position')
             while current.hasNext():
                 current = current.getChild(0)
-                self.fileS += makePage(current,'diff')
+                self.fileS += self.makePage(current,'diff')
             self.state = 'validateFile'
         if choix == '2':
             self.state = 'findNode'
@@ -168,18 +176,5 @@ class Sai:
         if choix == 'o' or choix == 'O':
             self.state = 'open'
 if __name__ == "__main__":
-    t = MoveTree.Tree('./ShusakuvsInseki.sgf')
-    t = MoveTree.Tree('Variations.sgf')
-    t.head.acceptVisitor(MoveTree.mainlineVisitor())
-    current = t.head.getChild(0)
-    while current.hasNext():
-        current = current.getChild(0)
-        latex = makePage(current,'diff')
-        print latex
-    current = t.head
-    while current.hasNext():
-        current = current.getChild(0)
-        latex = makePage(current,'')
-        print latex
     cyborg = Sai()
     cyborg.__exec__()
