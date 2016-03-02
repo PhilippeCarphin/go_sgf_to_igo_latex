@@ -107,6 +107,16 @@ class Node:
         return self.parent
     def addChild(self,child):
         self.children.append(child)
+    def isBranchPoint(self):
+        if len(self.children) > 1:
+            return True
+        else:
+            return False
+    def isLeaf(self):
+        if len(self.children) == 0:
+            return True
+        else:
+            return False
     def clearChildren(self):
         self.children = []
     def getMainlineToSelf(self):

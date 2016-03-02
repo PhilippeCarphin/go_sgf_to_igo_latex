@@ -90,6 +90,7 @@ class Goban:
         # Check for stone
         if ( self.board.has_key(coord)):
             print 'ERROR There is already a stone there ', coord
+            print self.board
             return {}
         # Resolve captures
         adjacent = self.__getNeighbors__(coord)
@@ -102,13 +103,14 @@ class Goban:
                 numRemoved += 1
                 potentialKo = adj
         # Check legality
+        self.push()
         self.board[coord] = color
         if self.__getLiberties__(coord) == 0:
             print "ERROR suicidal move is illegal"
             del self.board[coord]
+            self.pop()
+        
         # Add stone
-        self.push()
-        self.board[coord] = color
         # remember KO
         if ( numRemoved == 1 and sizeRemoved == 1 ):
             self.ko = potentialKo

@@ -88,10 +88,36 @@ class BeamerMaker:
         while len(nodeList) > 0:
             fileS += self.makePage(nodeList.pop(),'diff')
         return fileS
+    def saveFile(self,string,filename):
+        f = open(filename,'w')
+        f.write(string)
+        f.close()
     def mainline_from(self,node):
         nodeList = self.ml_from(node)
         return self.makeFile(nodeList)
-    
+    def allOptions(self,node,prefix):
+        fileS = ''
+        todo_stack = []
+        for branch in node.children:
+            todo_stack.append((node,branch))
+        uniqueID = 0
+        while len(todo_stack) > 0:
+            # Get Todo from stack
+            todo = todo_stack.pop()
+            branchPoint = todo[0]
+            branch = todo[1]
+            fileS = self.makePage(branchPoint,'position')
+            current = branch
+            fileS += self.makePage(current,'diff')
+            while not current.isLeaf():
+                current = current.getChild(0)
+                fileS += self.makePage(current,'diff')
+                if current.isBranchPoint():
+                    for branch in current.children[1:]:
+                        todo_stack.append((current,branch))
+            uniqueID += 1
+            self.saveFile(fileS,prefix + str(uniqueID) + 'branchPoint' + str(branchPoint.moveNumber) + '_branch' + str(branch))
+            fileS = ''
 class Sai:
     def __init__(self):
         self.states = { 'init':self.introScreen, 'mainMenu':self.mainMenu,\
@@ -261,14 +287,11 @@ class Sai:
         if choix == 'o' or choix == 'O':
             self.state = 'open'
 if __name__ == "__main__":
-    cyborg = Sai()
-    cyborg.__exec__()
-    # mt = MoveTree.Tree('Variations.sgf')
-    # bm = BeamerMaker()
-    # current = mt.head
-    # for i in range(3):
-    #     current = current.getChild(0)
-    # mt.acceptVisitor(MoveTree.mainlineVisitor())
+    # cyborg = Sai()
+    # cyborg.__exec__()
+    mt = MoveTree.Tree('Variations.sgf')
+    bm = BeamerMaker()
+    bm.allOptions(mt.head,'Variations:')
 
     # bm.ml_to(current)
         
