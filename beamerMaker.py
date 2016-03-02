@@ -61,6 +61,24 @@ class BeamerMaker:
             current = current.getChild(0)
             fileS += self.makePage(current,'diff')
         return fileS
+    def ml_to(self,node):
+        path = [node]
+        current = node
+        while current.hasParent():
+            current = current.parent
+            path.append(current)
+        path.reverse()
+        return path
+    def ml_between(self,start,end):
+        path = [node]
+        current = node
+        while current.hasParent() and current != end:
+            current = current.parent
+            path.append(current)
+        path.reverse()
+        return path
+    def makeFile(nodeList,filename):
+        noop
 class Sai:
     def __init__(self):
         self.states = { 'init':self.bonjour, 'mainMenu':self.mainMenu,\
@@ -221,6 +239,14 @@ class Sai:
         if choix == 'o' or choix == 'O':
             self.state = 'open'
 if __name__ == "__main__":
-    cyborg = Sai()
-    cyborg.__exec__()
+    # cyborg = Sai()
+    # cyborg.__exec__()
+    mt = MoveTree.Tree('Variations.sgf')
+    bm = BeamerMaker()
+    current = mt.head
+    for i in range(3):
+        current = current.getChild(0)
+    mt.acceptVisitor(MoveTree.mainlineVisitor())
+
+    bm.ml_to(current)
         

@@ -96,6 +96,11 @@ class Node:
             return True
         else:
             return False
+    def hasParent(self):
+        if self.parent == 0:
+            return False
+        else:
+            return True
     def getChild(self,i=0):
         return self.children[0]
     def getParent(self):
