@@ -3,6 +3,13 @@ import MoveTree
 import os
 import sys
 
+def isInt(string):
+    i = 0
+    while i < len(string):
+        if string[i] not in '0123456789':
+            return False
+        i += 1
+    return True
 def commaList(stoneList):
     commaList = ''
     for stone in stoneList:
@@ -54,54 +61,67 @@ class BeamerMaker:
         page += '\\end{frame}\n'
         return page
     def ml_from(self,node):
-        fileS = ''
+        pathStack = [node]
         current = node
-        fileS = self.makePage(current,'position')
         while current.hasNext():
             current = current.getChild(0)
-            fileS += self.makePage(current,'diff')
-        return fileS
+            pathStack.append(current)
+        return pathStack
+
     def ml_to(self,node):
-        path = [node]
+        pathStack = [node]
         current = node
         while current.hasParent():
             current = current.parent
-            path.append(current)
-        path.reverse()
-        return path
+            pathStack.append(current)
+        return pathStack
     def ml_between(self,start,end):
-        path = [node]
+        pathStack = [node]
         current = node
         while current.hasParent() and current != end:
             current = current.parent
-            path.append(current)
-        path.reverse()
-        return path
-    def makeFile(nodeList,filename):
-        noop
+            pathStack.append(current)
+        return pathStack
+    def makeFile(self,nodeList):
+        fileS = ''
+        fileS = self.makePage(nodeList.pop(),'position')
+        while len(nodeList) > 0:
+            fileS += self.makePage(nodeList.pop(),'diff')
+        return fileS
+    def mainline_from(self,node):
+        nodeList = self.ml_from(node)
+        return self.makeFile(nodeList)
+    
 class Sai:
     def __init__(self):
-        self.states = { 'init':self.bonjour, 'mainMenu':self.mainMenu,\
+        self.states = { 'init':self.introScreen, 'mainMenu':self.mainMenu,\
                 'finished': self.finished, 'findNode':self.trouverNoeud,\
                 'validateFile': self.userValidate, 'saveFile':self.saveFile,\
                 'open':self.ouvrirFichier,'save':self.saveFile,\
                 'findEndNode':self.trouverNoeudFin}
         self.fileS = ''
-        self.state = 'init'
+        self.state = 'open'
         self.bm = BeamerMaker()
     def __exec__(self):
         while self.state != 'finished':
             self.states[self.state]()
     def clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
+        print "=========================================== BeamerMaker v.0.1 ============================================="
     def printCurrent(self):
+        print "============================================== Current Move ==============================================="
         self.current.nodePrint()
+    def printEnd(self):
+        print "================================================ End move ================================================="
+        self.end.nodePrint()
     def clearPrint(self):
         self.clear()
         self.printCurrent()
+        self.printEnd()
     def finished():
         return 0
     def ouvrirFichier(self):
+        self.clear()
         filename = raw_input("""
         Jean-Sebastien, peux-tu me dire quel fichier tu veux ouvir? 
         En passant c'est correct si je t'appelle par ton
@@ -118,6 +138,7 @@ class Sai:
         self.clear()
         self.tree.printInfo()
         self.printCurrent()
+        self.printEnd()
         choix = raw_input(""" >>>> JS, (c'est correct si je t'appelle JS?), je suis pret a produire des
         diagrammes LaTeX vraiment sick pour toi!!
         
@@ -130,7 +151,7 @@ class Sai:
 
         Choix :""")
         if choix == '1':
-            self.fileS = self.bm.ml_from(self.current)
+            self.fileS = self.bm.mainline_from(self.current)
             self.state = 'validateFile'
         if choix == '2':
             self.state = 'findNode'
@@ -138,7 +159,6 @@ class Sai:
             self.state = 'findEndNode'
     def trouverNoeudFin(self):
         self.clearPrint()
-        self.end.nodePrint()
         choix = raw_input(""" Whyyyy is the ice slippery ?
 
         Chercher un noeud de fin par
@@ -150,22 +170,23 @@ class Sai:
         choix : """)
         if choix == 'A' or choix == 'a':
             self.state = 'mainMenu'
-        elif choix == 'E' or choix == 'e':
-            for child in self.end.children:
-                child.nodePrint()
+        # elif choix == 'E' or choix == 'e':
+        #     for child in self.end.children:
+        #         child.nodePrint()
         elif choix == 'C' or choix == 'c':
             searchString = raw_input(""" Jean-Sebastien, dit moi la chaine de
             caracteres a chercher : """)
             self.end = self.findnodeFrom(self.tree.head,searchString)
         else:
-            current = self.current
-            i = 1
-            while i < int(choix):
-                current = current.getChild(0)
-                i += 1
-                if not current.hasNext():
-                    break
-        
+            if isInt(choix):
+                current = self.current
+                i = 1
+                while i < int(choix):
+                    current = current.getChild(0)
+                    i += 1
+                    if not current.hasNext():
+                        break
+                self.end = current
     def trouverNoeud(self):
         self.clearPrint()
         choix = raw_input(""" Mes systemes sont a la fine pointe de la
@@ -179,26 +200,27 @@ class Sai:
         Ton choix:""")
         if choix == 'A' or choix == 'a':
             self.state = 'mainMenu'
-        elif choix == 'E' or choix == 'e':
-            for child in self.current.children:
-                child.nodePrint()
+        # elif choix == 'E' or choix == 'e':
+        #     for child in self.end.children:
+        #         child.nodePrint()
         elif choix == 'C' or choix == 'c':
             searchString = raw_input(""" Jean-Sebastien, dit moi la chaine de
             caracteres a chercher : """)
-            self.current = self.findnodeFrom(self.tree.head,searchString)
+            self.current = self.findnodeFrom(self.current,searchString)
         else:
-            self.current = self.tree.head
-            i = 1
-            while i < int(choix):
-                self.current = self.current.getChild(0)
-                i += 1
-                if not self.current.hasNext():
-                    break
+            if isInt(choix):
+                current = self.tree.head
+                i = 1
+                while i < int(choix):
+                    current = current.getChild(0)
+                    i += 1
+                    if not current.hasNext():
+                        break
+                self.current = current
     def findnodeFrom(self,start,string):
         ts = MoveTree.textSearchVisitor(string)
         start.acceptVisitor(ts)
         return ts.getResult()
-        
     def userValidate(self):
         self.clear()
         print self.fileS
@@ -225,7 +247,7 @@ class Sai:
         f.write(self.fileS)
         f.close()
         self.state = 'mainMenu'
-    def bonjour(self):
+    def introScreen(self):
         self.clear()
         print """
         Bonjour Jean-Sebastien, je suis ton assistant Sai, que puis-je faire pour
@@ -239,14 +261,14 @@ class Sai:
         if choix == 'o' or choix == 'O':
             self.state = 'open'
 if __name__ == "__main__":
-    # cyborg = Sai()
-    # cyborg.__exec__()
-    mt = MoveTree.Tree('Variations.sgf')
-    bm = BeamerMaker()
-    current = mt.head
-    for i in range(3):
-        current = current.getChild(0)
-    mt.acceptVisitor(MoveTree.mainlineVisitor())
+    cyborg = Sai()
+    cyborg.__exec__()
+    # mt = MoveTree.Tree('Variations.sgf')
+    # bm = BeamerMaker()
+    # current = mt.head
+    # for i in range(3):
+    #     current = current.getChild(0)
+    # mt.acceptVisitor(MoveTree.mainlineVisitor())
 
-    bm.ml_to(current)
+    # bm.ml_to(current)
         
