@@ -31,18 +31,12 @@ def makeDiffDiagram(node):
     return diagram
 def putLabels(node):
     noop
-class Sai:
+class BeamerMaker:
     def __init__(self):
-        self.states = { 'init':self.bonjour, 'mainMenu':self.parcourirFichier,\
-                'finished': self.finished, 'findNode':self.trouverNoeud,\
-                'validateFile': self.userValidate, 'saveFile':self.saveFile,\
-                'open':self.ouvrirFichier,'save':self.saveFile,\
-                'findEndNode':self.trouverNoeudFin}
-        self.fileS = ''
-        self.state = 'init'
         self.frameFile = open(os.path.join(os.getcwd(),'framestart.tex')).read()
         self.prediag = open(os.path.join(os.getcwd(),'prediag.tex')).read()
         self.postdiag = open(os.path.join(os.getcwd(), 'postdiag.tex')).read()
+        self.frametitle = 'FrameTitle'
     def makePage(self,node,pageType):
         page = '%%%%%%%%%%%%%%%%%%%% MOVE ' + str(node.moveNumber) + ' %%%%%%%%%%%%%%%%%%%%%%%\n'
         page += '\\begin{frame}\n\n'
@@ -59,6 +53,24 @@ class Sai:
         page += self.postdiag
         page += '\\end{frame}\n'
         return page
+    def ml_from(self,node):
+        fileS = ''
+        current = node
+        fileS = self.makePage(current,'position')
+        while current.hasNext():
+            current = current.getChild(0)
+            fileS += self.makePage(current,'diff')
+        return fileS
+class Sai:
+    def __init__(self):
+        self.states = { 'init':self.bonjour, 'mainMenu':self.mainMenu,\
+                'finished': self.finished, 'findNode':self.trouverNoeud,\
+                'validateFile': self.userValidate, 'saveFile':self.saveFile,\
+                'open':self.ouvrirFichier,'save':self.saveFile,\
+                'findEndNode':self.trouverNoeudFin}
+        self.fileS = ''
+        self.state = 'init'
+        self.bm = BeamerMaker()
     def __exec__(self):
         while self.state != 'finished':
             self.states[self.state]()
@@ -82,9 +94,9 @@ class Sai:
         self.current = self.tree.head
         self.end = self.tree.head
         info = self.tree.info.data
-        self.frametitle = info['PW'] + ' vs ' + info['PB']
+        self.bm.frametitle = info['PW'] + ' vs ' + info['PB']
         self.state = 'mainMenu'
-    def parcourirFichier(self):
+    def mainMenu(self):
         self.clear()
         self.tree.printInfo()
         self.printCurrent()
@@ -100,12 +112,7 @@ class Sai:
 
         Choix :""")
         if choix == '1':
-            self.fileS = ''
-            current = self.current
-            self.fileS = self.makePage(current,'position')
-            while current.hasNext():
-                current = current.getChild(0)
-                self.fileS += self.makePage(current,'diff')
+            self.fileS = self.bm.ml_from(self.current)
             self.state = 'validateFile'
         if choix == '2':
             self.state = 'findNode'
@@ -216,3 +223,4 @@ class Sai:
 if __name__ == "__main__":
     cyborg = Sai()
     cyborg.__exec__()
+        
