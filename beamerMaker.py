@@ -124,7 +124,7 @@ class Sai:
         self.states = { 'init':self.introScreen, 'mainMenu':self.mainMenu,\
                 'finished': self.finished, 'findNode':self.trouverNoeud,\
                 'validateFile': self.userValidate, 'saveFile':self.saveFile,\
-                'open':self.ouvrirFichier,'save':self.saveFile,\
+                'open':self.chooseFile,'save':self.saveFile,\
                 'findEndNode':self.trouverNoeudFin}
         self.fileS = ''
         self.state = 'open'
@@ -134,12 +134,12 @@ class Sai:
             self.states[self.state]()
     def clear(self):
         os.system('cls' if os.name == 'nt' else 'clear')
-        print "=========================================== BeamerMaker v.0.1 ============================================="
+        print "================================= BeamerMaker v.0.1 ==================================="
     def printCurrent(self):
-        print "============================================== Current Move ==============================================="
+        print "================================== Current Move ==================================="
         self.current.nodePrint()
     def printEnd(self):
-        print "================================================ End move ================================================="
+        print "==================================== End move ====================================="
         self.end.nodePrint()
     def clearPrint(self):
         self.clear()
@@ -287,6 +287,42 @@ class Sai:
         choix = 'o'
         if choix == 'o' or choix == 'O':
             self.state = 'open'
+    def chooseFile(self):
+        # Get list of files
+        fileList = os.listdir(os.getcwd())
+
+        # Choose only SGF files
+        sgf_files = []
+        for file in fileList:
+            if file.endswith('sgf'):
+                sgf_files.append(file)
+
+        # Write message
+        print """
+        \" Listen up maggots, Popo's about to teach you the pecking order...
+
+        Choisi parmi les fichiers suivants lequel tu veux ouvrir
+        """
+        # Write list
+        i = 1
+        for f in sgf_files:
+            print "        ",i, ': ',f
+            i += 1
+        # Get number from user
+        choix = raw_input("""
+        Ton choix: """)
+
+        # Open selected file
+        if choix >= len(sgf_files):
+            choix = len(sgf_files) - 1
+        self.tree = MoveTree.Tree(sgf_files[choix])
+        self.current = self.tree.head
+        self.end = self.tree.head
+        info = self.tree.info.data
+        self.bm.frametitle = info['PW'] + ' vs ' + info['PB']
+        self.state = 'mainMenu'
+
+        self.state = 'mainMenu'
 if __name__ == "__main__":
     cyborg = Sai()
     cyborg.__exec__()
