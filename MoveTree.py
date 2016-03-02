@@ -82,7 +82,10 @@ def MakeToken(move):
     return token
 def SGF_to_IGO(sgf_coord, height):
     charX = sgf_coord[0]
-    numY = str( ord(sgf_coord[1]) - ord(a) + 1)
+    if ord(charX) >= ord('i'):
+        charX = chr(ord(sgf_coord[0]) + 1)
+    numY = str( ord(sgf_coord[1]) - ord('a') + 1)
+    numY = str(height - ( ord(sgf_coord[1]) - ord('a')))
     return charX + numY
 ################################################################################
 # Class node.  Base class of move Tree composite pattern
@@ -140,8 +143,7 @@ class Stone:
         self.SGF_coord = SGF_coord
     def igo(self,height):
         charX = self.SGF_coord[0]
-        numY = str(height - ( ord(self.SGF_coord[1]) - ord('a')))
-        return charX + numY
+        return SGF_to_IGO(self.SGF_coord,height)
     def sgf(self):
         """ returns SGF coordinates of stone """
         return self.SGF_coord

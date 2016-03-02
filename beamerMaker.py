@@ -66,6 +66,7 @@ class BeamerMaker:
         while current.hasNext():
             current = current.getChild(0)
             pathStack.append(current)
+        pathStack.reverse()
         return pathStack
 
     def ml_to(self,node):
@@ -287,8 +288,8 @@ class Sai:
         if choix == 'o' or choix == 'O':
             self.state = 'open'
 if __name__ == "__main__":
-    # cyborg = Sai()
-    # cyborg.__exec__()
+    cyborg = Sai()
+    cyborg.__exec__()
     mt = MoveTree.Tree('Variations.sgf')
     bm = BeamerMaker()
     bm.allOptions(mt.head,'Variations:')
