@@ -2,6 +2,21 @@ import Goban
 import MoveTree
 import os
 import sys
+def sgf_list_to_igo(sgf_list):
+    igo_list = []
+    for sgf in sgf_list:
+        igo_list.append(MoveTree.SGF_to_IGO(sgf,19))
+    return igo_list
+def glyphCommand(node,symbol):
+    symbols = {'TR':'\\igotriangle', 'SQ':'\\igosquare','CR':'\\igocircle'}
+    igo_list = commaListStr(sgf_list_to_igo(node.data[symbol]))
+    return '\\gobansymbol[' + symbols[symbol] + ']{' + igo_list + '}\n'
+def glyphCommands(node):
+    commands = ''
+    for key in ['TR','SQ','CR']:
+        if node.data.has_key(key):
+            commands += glyphCommand(node,key)
+    return commands
 def triangles(node):
     command = ''
     if node.data.has_key('TR'):
@@ -35,7 +50,8 @@ def makeDiagram(node):
     whiteStones = commaList(node.goban_data['gobanState']['W'])
     diagram += '\\white{' + whiteStones + '}\n'
     diagram += '\\black{' + blackStones + '}\n'
-    diagram += triangles(node)
+    diagram += '\\cleargobansymbols\n'
+    diagram += glyphCommands(node)
     diagram += '\\showfullgoban\n'
     return diagram
 def makeDiffDiagram(node):
@@ -50,6 +66,8 @@ def makeDiffDiagram(node):
     removedList = commaList(removedStones)
     if len(removedList) > 0:
         diagram += '\\clearintersection{'+ removedList + '}\n'
+    diagram += '\\cleargobansymbols\n'
+    diagram += glyphCommands(node)
     diagram += '\\showfullgoban\n'
     return diagram
 def putLabels(node):
