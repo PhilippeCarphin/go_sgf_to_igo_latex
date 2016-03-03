@@ -56,7 +56,7 @@ def makeDiffDiagram(node):
         removedStones += group
     removedList = commaList(removedStones)
     if len(removedList) > 0:
-        diagram += '\\clearintersection{'+ removedList + '}\n'
+        diagram += '\\clear{'+ removedList + '}\n'
     diagram += '\\cleargobansymbols\n'
     diagram += glyphCommands(node)
     diagram += '\\showfullgoban\n'
@@ -68,7 +68,7 @@ class BeamerMaker:
         self.frameFile = open(os.path.join(os.getcwd(),'framestart.tex')).read()
         self.prediag = open(os.path.join(os.getcwd(),'prediag.tex')).read()
         self.postdiag = open(os.path.join(os.getcwd(), 'postdiag.tex')).read()
-        self.frametitle = 'FrameTitle'
+        self.frametitle = open(os.path.join(os.getcwd(),'frametitle.tex')).read().replace('\n','').replace('\r','')
     def makePage(self,node,pageType):
         page = '%%%%%%%%%%%%%%%%%%%% MOVE ' + str(node.moveNumber) + ' %%%%%%%%%%%%%%%%%%%%%%%\n'
         page += '\\begin{frame}\n\n'
@@ -184,7 +184,6 @@ class Sai:
         self.current = self.tree.head
         self.end = self.tree.head
         info = self.tree.info.data
-        self.bm.frametitle = info['PW'] + ' vs ' + info['PB']
         self.state = 'mainMenu'
     def mainMenu(self):
         self.clear()
@@ -347,7 +346,6 @@ class Sai:
         self.current = self.tree.head
         self.end = self.tree.head
         info = self.tree.info.data
-        self.bm.frametitle = info['PW'] + ' vs ' + info['PB']
         self.state = 'mainMenu'
 
         self.state = 'mainMenu'
