@@ -17,15 +17,6 @@ def glyphCommands(node):
         if node.data.has_key(key):
             commands += glyphCommand(node,key)
     return commands
-def triangles(node):
-    command = ''
-    if node.data.has_key('TR'):
-        sgf_list = node.data['TR']
-        igo_list = []
-        for sgf in sgf_list:
-            igo_list.append(MoveTree.SGF_to_IGO(sgf,19))
-            command = '\\gobansymbol[\\igotriangle]{' + commaListStr(igo_list) + '}\n'
-    return command
 def commaListStr(coordList):
     commaList = ''
     for coord in coordList:
