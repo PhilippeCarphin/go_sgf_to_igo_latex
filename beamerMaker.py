@@ -2,6 +2,20 @@ import Goban
 import MoveTree
 import os
 import sys
+def triangles(node):
+    command = ''
+    if node.data.has_key('TR'):
+        sgf_list = node.data['TR']
+        igo_list = []
+        for sgf in sgf_list:
+            igo_list.append(MoveTree.SGF_to_IGO(sgf,19))
+            command = '\\gobansymbol[\\igotriangle]{' + commaListStr(igo_list) + '}\n'
+    return command
+def commaListStr(coordList):
+    commaList = ''
+    for coord in coordList:
+        commaList += coord + ','
+    return commaList[0:len(commaList)-1]
 
 def isInt(string):
     i = 0
@@ -21,6 +35,7 @@ def makeDiagram(node):
     whiteStones = commaList(node.goban_data['gobanState']['W'])
     diagram += '\\white{' + whiteStones + '}\n'
     diagram += '\\black{' + blackStones + '}\n'
+    diagram += triangles(node)
     diagram += '\\showfullgoban\n'
     return diagram
 def makeDiffDiagram(node):
@@ -33,7 +48,8 @@ def makeDiffDiagram(node):
     for group in node.goban_data['removed']:
         removedStones += group
     removedList = commaList(removedStones)
-    diagram += '\\clearintersection{'+ removedList + '}\n'
+    if len(removedList) > 0:
+        diagram += '\\clearintersection{'+ removedList + '}\n'
     diagram += '\\showfullgoban\n'
     return diagram
 def putLabels(node):
@@ -313,8 +329,11 @@ class Sai:
         Ton choix: """)
 
         # Open selected file
+        choix = int(choix) - 1
         if choix >= len(sgf_files):
             choix = len(sgf_files) - 1
+
+        print sgf_files[choix]
         self.tree = MoveTree.Tree(sgf_files[choix])
         self.current = self.tree.head
         self.end = self.tree.head
