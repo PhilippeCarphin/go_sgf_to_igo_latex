@@ -135,11 +135,16 @@ class BeamerMaker:
         while len(nodeList) > 0:
             fileS += self.makePage(nodeList.pop(),'diff')
         return fileS
+
     def saveFile(self,string,filename):
+        """ Saves a string to a file with the given filename """
         f = open(filename,'w')
         f.write(string)
         f.close()
+
     def mainline_from(self,node):
+        """ Generates the beamer output for the mainline starting at the current
+        node. """
         nodeList = self.ml_from(node)
         return self.makeFile(nodeList)
 
