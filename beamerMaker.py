@@ -145,7 +145,28 @@ class BeamerMaker:
             self.saveFile(fileS,prefix + str(uniqueID) + 'branchPoint' + str(branchPoint.moveNumber) + '_branch' + str(branch))
             fileS = ''
 class Sai:
+    """ Command line interface to the beamer class.  This interface is
+    implemented as state machine with various menus performing different actions
+    and setting the following state.
+
+    Attributes:
+        states : Dictionnary of states with names as keys and function objects
+            as valures
+        state : The current state of the machine
+        fileS : The string of a file returned by a call to beamerMaker.  This
+            file will be shown to the user and saved as a file. 
+        bm : BeamerMaker instance used to generate LaTeX output as per the
+            user's demands
+        tree : Move tree created from an SGF file and eventually with a user
+            interface.
+    """
+
+
+
+
     def __init__(self):
+        """ Defines the dictionnary of states, sets the initial state and
+        creates a BeamerMaker instance """
         self.states = { 'init':self.introScreen, 'mainMenu':self.mainMenu,\
                 'finished': self.finished, 'findNode':self.trouverNoeud,\
                 'validateFile': self.userValidate, 'saveFile':self.saveFile,\
