@@ -1,32 +1,47 @@
 import os
 
 def sgf_list_to_igo(sgf_list):
+    """ Creates a list of igo coordinates from a list of sgf coordinates """
     igo_list = []
     for sgf in sgf_list:
         igo_list.append(MoveTree.SGF_to_IGO(sgf,19))
     return igo_list
+
 def glyphCommand(node,symbol):
+    """ Creates the latex command to add the glyphs of type 'symbol' at the
+    given node """
     symbols = {'TR':'\\igotriangle', 'SQ':'\\igosquare','CR':'\\igocircle'}
     igo_list = commaListStr(sgf_list_to_igo(node.data[symbol]))
     return '\\gobansymbol[' + symbols[symbol] + ']{' + igo_list + '}\n'
+
 def glyphCommands(node):
+    """ Generates the three glyph commands at the node if the node has glyphs of
+    that type """
     commands = ''
     for key in ['TR','SQ','CR']:
         if node.data.has_key(key):
             commands += glyphCommand(node,key)
     return commands
+
 def commaListStr(coordList):
+    """ Generates string with a comma separated list of the contents of the
+    given coordinate list """
     commaList = ''
     for coord in coordList:
         commaList += coord + ','
     return commaList[0:len(commaList)-1]
 
 def commaList(stoneList):
+    """ Generates string with a comma separated list containing the igo-coords
+    of the stones in the list. """
     commaList = ''
     for stone in stoneList:
         commaList += stone.igo(19) + ','
     return commaList[0:len(commaList)-1]
+
 def makeDiagram(node):
+    """ Generates igo output for the diagram of the position at the given
+    node."""
     diagram = '\\cleargoban\n'
     blackStones = commaList(node.goban_data['gobanState']['B'])
     whiteStones = commaList(node.goban_data['gobanState']['W'])
@@ -36,7 +51,10 @@ def makeDiagram(node):
     diagram += glyphCommands(node)
     diagram += '\\showfullgoban\n'
     return diagram
+
 def makeDiffDiagram(node):
+    """ Generates igo output for the diagram by specifying stones to add and
+    stones to remove. """
     diagram = ''
     if node.color == 'W':
         diagram += '\\white{' + node.igo(19) + '}\n'
@@ -52,10 +70,13 @@ def makeDiffDiagram(node):
     diagram += glyphCommands(node)
     diagram += '\\showfullgoban\n'
     return diagram
+
 def putLabels(node):
+    """ Function to add labels like letters and numbers to the diagram. """
     noop
+
 class BeamerMaker:
-    """ Creates the beamer-LaTeX code from go games
+    """ Creates the beamer-LaTeX code from go games 
 
     Attributes: 
         frametitle : string : text content of framestart.tex used to let the
