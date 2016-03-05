@@ -160,53 +160,48 @@ class Sai:
         tree : Move tree created from an SGF file and eventually with a user
             interface.
     """
-
-
-
-
     def __init__(self):
         """ Defines the dictionnary of states, sets the initial state and
         creates a BeamerMaker instance """
         self.states = { 'init':self.introScreen, 'mainMenu':self.mainMenu,\
-                'finished': self.finished, 'findNode':self.trouverNoeud,\
+                'finished': None, 'findNode':self.trouverNoeud,\
                 'validateFile': self.userValidate, 'saveFile':self.saveFile,\
                 'open':self.chooseFile,'save':self.saveFile,\
                 'findEndNode':self.trouverNoeudFin}
         self.fileS = ''
         self.state = 'open'
         self.bm = BeamerMaker()
+
     def __exec__(self):
+        """ Main loop of the state machine.  Calls the function (menu)
+        associated with the current state """
         while self.state != 'finished':
             self.states[self.state]()
+
     def clear(self):
+        """ Clears the screen and displays the heading """
         os.system('cls' if os.name == 'nt' else 'clear')
         print "================================= BeamerMaker v.0.1 ==================================="
+
     def printCurrent(self):
+        """ Displays the current start move """
         print "================================== Current Move ==================================="
         self.current.nodePrint()
+
     def printEnd(self):
+        """ Displays the current end move """
         print "==================================== End move ====================================="
         self.end.nodePrint()
+
     def clearPrint(self):
+        """ Clears the screen and displays the current information """
         self.clear()
         self.printCurrent()
         self.printEnd()
-    def finished():
-        return 0
-    def ouvrirFichier(self):
-        self.clear()
-        filename = raw_input("""
-        Jean-Sebastien, peux-tu me dire quel fichier tu veux ouvir? 
-        En passant c'est correct si je t'appelle par ton
-        prenom?
-        
-        Fichier:""")
-        self.tree = MoveTree.Tree(filename)
-        self.current = self.tree.head
-        self.end = self.tree.head
-        info = self.tree.info.data
-        self.state = 'mainMenu'
+    
     def mainMenu(self):
+        """ Main menu with options for navigating the game tree and creating a
+        mainline starting at the current node """
         self.clear()
         self.tree.printInfo()
         self.printCurrent()
@@ -229,6 +224,7 @@ class Sai:
             self.state = 'findNode'
         if choix == '3':
             self.state = 'findEndNode'
+
     def trouverNoeudFin(self):
         self.clearPrint()
         choix = raw_input(""" Whyyyy is the ice slippery ?
@@ -242,9 +238,6 @@ class Sai:
         choix : """)
         if choix == 'A' or choix == 'a':
             self.state = 'mainMenu'
-        # elif choix == 'E' or choix == 'e':
-        #     for child in self.end.children:
-        #         child.nodePrint()
         elif choix == 'C' or choix == 'c':
             searchString = raw_input(""" Jean-Sebastien, dit moi la chaine de
             caracteres a chercher : """)
@@ -259,6 +252,7 @@ class Sai:
                     if not current.hasNext():
                         break
                 self.end = current
+
     def trouverNoeud(self):
         self.clearPrint()
         choix = raw_input(""" Mes systemes sont a la fine pointe de la
@@ -289,10 +283,12 @@ class Sai:
                     if not current.hasNext():
                         break
                 self.current = current
+
     def findnodeFrom(self,start,string):
         ts = MoveTree.textSearchVisitor(string)
         start.acceptVisitor(ts)
         return ts.getResult()
+
     def userValidate(self):
         self.clear()
         print self.fileS
@@ -306,6 +302,7 @@ class Sai:
             self.state = 'saveFile'
         else:
             self.state = 'mainMenu'
+
     def saveFile(self):
         self.clear()
         name = raw_input(""" >>>> Super! Je suis content d'avoir pu rencontrer
