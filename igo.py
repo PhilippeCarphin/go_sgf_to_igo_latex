@@ -21,13 +21,6 @@ def commaListStr(coordList):
         commaList += coord + ','
     return commaList[0:len(commaList)-1]
 
-def isInt(string):
-    i = 0
-    while i < len(string):
-        if string[i] not in '0123456789':
-            return False
-        i += 1
-    return True
 def commaList(stoneList):
     commaList = ''
     for stone in stoneList:
@@ -62,12 +55,31 @@ def makeDiffDiagram(node):
 def putLabels(node):
     noop
 class BeamerMaker:
+    """ Creates the beamer-LaTeX code from go games
+
+    Attributes: 
+        frametitle : string : text content of framestart.tex used to let the
+            user customize title of beamer frames.
+        prediag : string : text content of prediag.tex lets the user define text
+            that will be inserted right before diagrams.
+        postdiag : string : text content of postdiag.tex placed right after
+            diagrams
+        framestart : string : text content of framestart.tex placed before
+            SGF-commentary.
+    """
+        
     def __init__(self):
+        """ Sets frametitle, framestart, prediag and postdiag with content from
+        corresponding *.tex files """
         self.frameFile = open(os.path.join(os.getcwd(),'framestart.tex')).read()
         self.prediag = open(os.path.join(os.getcwd(),'prediag.tex')).read()
         self.postdiag = open(os.path.join(os.getcwd(), 'postdiag.tex')).read()
         self.frametitle = open(os.path.join(os.getcwd(),'frametitle.tex')).read().replace('\n','').replace('\r','')
+
     def makePage(self,node,pageType):
+        """ Generate a beamer page (frame) from the given node. Frame beginning,
+        SGF commentary, diagram (diff or position) and frame end, with contents
+        of frametitle, framestart, prediag, postdiag added at the right places."""
         page = '%%%%%%%%%%%%%%%%%%%% MOVE ' + str(node.moveNumber) + ' %%%%%%%%%%%%%%%%%%%%%%%\n'
         page += '\\begin{frame}\n\n'
         page += '\\frametitle{' + self.frametitle + '}\n'
@@ -84,6 +96,8 @@ class BeamerMaker:
         page += '\\end{frame}\n'
         return page
     def ml_from(self,node):
+        """ Visits the tree starting at the given node going to first child
+        until a leaf is reached """
         pathStack = [node]
         current = node
         while current.hasNext():
@@ -93,20 +107,29 @@ class BeamerMaker:
         return pathStack
 
     def ml_to(self,node):
+        """ Generates a path of nodes starting at the root of the tree and
+        ending at the given node. """
         pathStack = [node]
         current = node
         while current.hasParent():
             current = current.parent
             pathStack.append(current)
         return pathStack
+
     def ml_between(self,start,end):
+        """ Generates a path of nodes starting at the start node and ending at
+        the end node. """
         pathStack = [node]
         current = node
         while current.hasParent() and current != end:
             current = current.parent
             pathStack.append(current)
         return pathStack
+
     def makeFile(self,nodeList):
+        """ Creates a file from a node list. The file consists of the position
+        at the first node in the list, the diff diagrams for each subsequent
+        node until the end of the list."""
         fileS = ''
         fileS = self.makePage(nodeList.pop(),'position')
         while len(nodeList) > 0:
@@ -119,7 +142,12 @@ class BeamerMaker:
     def mainline_from(self,node):
         nodeList = self.ml_from(node)
         return self.makeFile(nodeList)
+
     def allOptions(self,node,prefix):
+        """ Generates files for many of the options susceptible of being
+        required by the user. In the future the files will have better unique
+        names that will not require the to have a numeric ID to avoid name
+        collisions."""
         fileS = ''
         todo_stack = []
         for branch in node.children:
