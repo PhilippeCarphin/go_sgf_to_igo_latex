@@ -165,7 +165,7 @@ class BeamerMaker:
                 current = current.getChild(0)
                 fileS += self.makePage(current,'diff')
                 if current.isBranchPoint():
-                    for branch in current.children[1:]:
+                    for branch in current.children:
                         todo_stack.append((current,branch))
             uniqueID += 1
             self.saveFile(fileS,prefix + str(uniqueID) + 'branchPoint' + str(branchPoint.moveNumber) + '_branch' + str(branch))
