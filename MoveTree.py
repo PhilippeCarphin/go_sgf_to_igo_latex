@@ -71,15 +71,50 @@ def MakeTree(fileContent):
     root.parent = 0
     return root
 """ Returns the SGF_token corresponding to move """
-def MakeToken(move):
-    token = ''
+def MakeToken(move,turned180 = False):
+    token = ';'
     if move.moveNumber != 0:
-        token += move.color + '[' + str(move.SGF_coord) + ']'
+        if turned180:
+            coord = move.SGF_coord
+            x = ord(coord[0]) - ord('a') + 1
+            y = ord(coord[1]) - ord('a') + 1
+            turned_x = 19 - x + 1
+            turned_y = 19 - y + 1
+            turnedSGF   = chr(turned_x + ord('a') - 1 ) + chr(turned_y + ord('a') - 1)
+            token += move.color + '[' + turnedSGF + ']'
+        else:
+            token += move.color + '[' + str(move.SGF_coord) + ']'
     for key in move.data:
         if not key in ['CR','TR','SQ','LB']:
             token += key
             token += '[' + escape( move.data[key]) + ']'
+        else:
+            token += key
+            token += '[' + move.data[key] + ']'
     return token
+
+def writeSGF(moveTree, turned180 = False):
+    stack = [')', moveTree.info, '(']
+    text = ''
+    while len(stack) > 0:
+        current = stack.pop()
+        if current in ['(',')(',')']:
+            text += current
+        else:
+            text += MakeToken(current,turned180)
+            n = len(current.children)
+            if n > 1:
+                stack.append(')')
+                while n > 1:
+                    n -= 1
+                    stack.append(current.children[n])
+                    stack.append(')(')
+                stack.append(current.children[0])
+                stack.append('(')
+            elif n == 1:
+                stack.append(current.getChild(0))
+    return text
+
 def SGF_to_IGO(sgf_coord, height):
     charX = sgf_coord[0]
     if ord(charX) >= ord('i'):
@@ -226,7 +261,6 @@ class textSearchVisitor:
         else:
             for child in node.children:
                 child.acceptVisitor(self)
-
 ################################################################################
 # Single branch printing visitor
 ################################################################################
@@ -237,12 +271,15 @@ class mainlineVisitor:
         if node.hasNext():
             node.getChild(0).acceptVisitor(self)
 if __name__ == "__main__":
-    moveTree = Tree('Variations.sgf')
-    searchString = '%ALLO'
-    tv = textSearchVisitor(searchString)
-    moveTree.acceptVisitor(nodeVisitor())
-    moveTree.acceptVisitor(tv)
-    tv.getResult().nodePrint()
+    # moveTree = Tree('Variations.sgf')
+    moveTree = Tree('tree.sgf')
+#    searchString = '%ALLO'
+#    tv = textSearchVisitor(searchString)
+#    moveTree.acceptVisitor(nodeVisitor())
+#    moveTree.acceptVisitor(tv)
+#    tv.getResult().nodePrint()
+    print(writeSGF(moveTree))
+    print(writeSGF(moveTree,True))
 
 
 
