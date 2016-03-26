@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import Goban
+from collections import deque
 ################################################################################
 # Utility functions for treating tokens
 ################################################################################
@@ -129,6 +130,7 @@ class Node:
     def __init__(self,parent):
         self.children = []
         self.parent = parent
+        self.childNumber = 0
     def hasNext(self):
         if self.children != []:
             return True
@@ -144,12 +146,22 @@ class Node:
     def getParent(self):
         return self.parent
     def addChild(self,child):
+        child.childNumber = len(self.children)
         self.children.append(child)
+    def hasNextSibling(self):
+        if self.parent == 0:
+            return False
+        return len(self.parent.children) > self.childNumber + 1
+    def getNextSibling(self):
+        if self.hasNextSibling():
+            return self.parent.children[self.childNumber + 1]
     def isBranchPoint(self):
         if len(self.children) > 1:
             return True
         else:
             return False
+    def nextSibling(self):
+        k
     def isLeaf(self):
         if len(self.children) == 0:
             return True
@@ -206,8 +218,8 @@ class Move(Node,Stone):
     def nodePrint(self):
         print '%%% MoveInfo'
         print '%%% Number    : ', self.moveNumber
-        print '%%% Color     : ', self.color
-        print '%%% Coord     : ', self.SGF_coord
+#        print '%%% Color     : ', self.color
+        #print '%%% Coord     : ', self.SGF_coord
         print '%%% Data      : ', self.data
         print '%%% SGF_token : ', MakeToken(self)
         print '%%% GobanState: ', self.goban_data
@@ -220,6 +232,12 @@ class Move(Node,Stone):
     """ returns IGO coordinates of move """
     def labels(self):
         return 'TODO'
+    def __repr__(self):
+        #return self.color + str(self.SGF_coord)
+        if self.data.has_key('C'):
+            return self.data['C']
+        else: 
+            return self.color + str(self.SGF_coord)
 ################################################################################
 # Master class of composite pattern
 ################################################################################
@@ -231,7 +249,7 @@ class Tree:
         self.info = self.head
         self.head = self.head.getChild(0)
         self.head.parent = 0
-        self.acceptVisitor(Goban.stateVisitor())
+        # self.acceptVisitor(Goban.stateVisitor())
 
     def acceptVisitor(self, visitor):
         self.head.acceptVisitor(visitor)
@@ -270,16 +288,110 @@ class mainlineVisitor:
         node.nodePrint()
         if node.hasNext():
             node.getChild(0).acceptVisitor(self)
+def depthFirstVisit(root, function):
+    stack = [root]
+    while len(stack) > 0:
+        current = stack.pop()
+        function(current)
+        for child in reversed(current.children):
+            stack.append(child)
+
+def breadthFirstVisit(root, function):
+    queue = deque([root])
+    print "OK"
+    while len(queue) > 0:
+        for child in current.children:
+            queue.append(child)
+
+def stateVisit3(tree):
+    stack = []
+    done = False
+    board_size = tree.info.data['SZ']
+    goban = Goban.Goban(board_size,board_size)
+    current = tree.head
+    while not done:
+        while current.hasNext():
+            moveDiff = goban.playMove(current)
+            current.goban_data = {}
+            current.goban_data['gobanState'] = goban.getStones()  
+            # print self.goban.board
+            current.goban_data['removed'] = moveDiff['removed']
+            print ( "stateVisit3(): current played ")
+            current.nodePrint()
+            stack.append(current)
+            print "Stack: ", stack
+            current = current.getChild(0)
+        
+        moveDiff = goban.playMove(current)
+        current.goban_data = {}
+        current.goban_data['gobanState'] = goban.getStones()  
+        # print self.goban.board
+        current.goban_data['removed'] = moveDiff['removed']
+        print ( "stateVisit3(): current played Outside While")
+        current.nodePrint()
+        goban.undo()
+        print "Stack: ", stack
+        while not current.hasNextSibling() and len(stack) > 0:
+            goban.undo()
+            current = stack.pop()
+            print "Stack popped: ", stack
+        if len( stack ) == 0:
+            done = True
+        else:
+            current = current.getNextSibling()
+            
+
+
+def stateVisit(tree):
+    board_size = tree.info.data['SZ']
+    goban = Goban.Goban(board_size,board_size)
+    print board_size
+    stack = [tree.head]
+    while len(stack) > 0:
+        current = stack.pop()
+        goban.playMove(current)
+        current.goban_data['gobanState'] = goban.getStones()
+        current.goban_data['removed'] = moveDiff['removed']
+
+        for child in current.children:
+            stac.append(child)
+
+
+def stateVisit2(tree):
+    stack = []
+    current = tree.head
+    board_size = tree.info.data['SZ']
+    goban = Goban.Goban(board_size,board_size)
+    nextMoveNumber = 0
+    if(len(current.children) > 1):
+        nextMoveNumber = 1
+    goban.playMove(current)
+    stack.append((current,nextMoveNumber))
+
+    while current.hasNext():
+        current = current.getChild(0)
+        goban.playMove(current)
+
+
+
+        
+        
+
 if __name__ == "__main__":
     # moveTree = Tree('Variations.sgf')
     moveTree = Tree('tree.sgf')
+    #moveTree = Tree('Attachment-1.sgf')
 #    searchString = '%ALLO'
 #    tv = textSearchVisitor(searchString)
-#    moveTree.acceptVisitor(nodeVisitor())
+    #moveTree.acceptVisitor(nodeVisitor())
 #    moveTree.acceptVisitor(tv)
 #    tv.getResult().nodePrint()
-    print(writeSGF(moveTree))
-    print(writeSGF(moveTree,True))
+#    print(writeSGF(moveTree))
+    #print(writeSGF(moveTree,True))
 
+    stateVisit3(moveTree)
+
+    # depthFirstVisit(moveTree.head, Move.nodePrint)
+    # stateVisit(moveTree)
 
 

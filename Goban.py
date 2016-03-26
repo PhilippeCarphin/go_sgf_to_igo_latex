@@ -126,7 +126,7 @@ class Goban:
         if self.__getLiberties__(coord) == 0:
             print "ERROR suicidal move is illegal"
             del self.board[coord]
-            self.pop()
+            self.undo()
         
         # Add stone
         # remember KO
