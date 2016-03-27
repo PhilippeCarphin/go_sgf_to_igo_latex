@@ -6,6 +6,7 @@ from collections import deque
 ################################################################################
 # Utility functions for treating tokens
 ################################################################################
+listTypes = ['AB','AE','AW','CR','TR','SQ','LB']
 """ Unescapes the characters ] and \ characters """
 def unescape(string):
     return string.replace('\\\\','\\').replace('\\]',']')
@@ -31,7 +32,7 @@ def breakTokenData(typeToken,dataToken):
         while i < len(tokenData):
             tokenData[i] = (tokenData[i][0:2],tokenData[i][3])
             i += 1
-    elif typeToken not in ['AB','AE','AW','CR','TR','SQ']:
+    elif typeToken not in listTypes:
         tokenData = unescape(tokenData[0])
     return tokenData
 """ Returns a move created by the supplied token with specified parent and move
@@ -65,7 +66,8 @@ def MakeTree(fileContent):
             tip = branchPointStack.pop()
         else:
             newMove = createMove(token,tip,moveNumber)
-            moveNumber += 1
+            if newMove.color != 'E':
+                moveNumber += 1
             tip.addChild(newMove)
             tip = newMove
     root = root.getChild(0)
@@ -74,7 +76,7 @@ def MakeTree(fileContent):
 """ Returns the SGF_token corresponding to move """
 def MakeToken(move,turned180 = False):
     token = ';'
-    if move.moveNumber != 0:
+    if move.color in ['W','B']:
         if turned180:
             coord = move.SGF_coord
             x = ord(coord[0]) - ord('a') + 1
@@ -86,12 +88,13 @@ def MakeToken(move,turned180 = False):
         else:
             token += move.color + '[' + str(move.SGF_coord) + ']'
     for key in move.data:
-        if not key in ['AB','AE','AW','CR','TR','SQ','LB']:
+        if not key in listTypes:
             token += key
             token += '[' + escape( move.data[key]) + ']'
         else:
             token += key
-            token += '[' + str(move.data[key]) + ']'
+            for elem in move.data[key]:
+                token += '[' + elem + ']'
     return token
 
 def writeSGF(moveTree, turned180 = False):
