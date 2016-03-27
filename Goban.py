@@ -28,8 +28,8 @@ class Goban:
 
     def __init__(self, width , height):
         self.board = {}
-        self.width = width
-        self.height = height
+        self.width = int(width)
+        self.height = int(height)
         self.ko = (0,0)
         self.positionStack = []
         self.moveStack = []
@@ -238,6 +238,9 @@ def moveTreeTest():
 
 if __name__ == "__main__":
     goban = Goban(19,19)
-    l = goban.__getNeighbors__((18,19))
-    print l
+    try:
+        badSize = Goban('bonjour', "bonjour")
+        print "Non-int-able params not detected"
+    except ValueError:
+        print "Things not changeable to int are detected"
 
