@@ -8,6 +8,24 @@ def Goban_to_SGF(coord):
 """ Goban is used to memorize board state and implement go rules """
 ################################################################################
 class Goban:
+    """ Goban class : Used to keep track of the board position and take into
+    account the rules of Go.
+
+    Attributes:
+        board : Dictionnary in which keys are board coordinates and values are
+            either 'W' or 'B', if board.has_key(coord) returns false, it means that
+            coordinate is empty.
+        height : Integer height of the board
+        width : Integer witdh of the board
+        ko : in case there is a possible ko, this is the coordinates of the last
+            stone that was captured.
+        positionStack : Board positions are pushed to this stack when moves are
+            played and popped when moves are undone.  It is also used to try a
+            move to see if it is legal.  Since we can iterate over the stack, we
+            can implement the moves with an upgraded ko rule wher no position
+            can be repeated.
+        """
+
     def __init__(self, width , height):
         self.board = {}
         self.width = width
@@ -173,9 +191,6 @@ def moveTreeTest():
     mt = MoveTree.Tree('Variations.sgf')
     # mt.head.acceptVisitor(MoveTree.nodeVisitor())
     current = mt.head.getChild(0)
-    current = current.getChild(0)
-    current = current.getChild(0)
-    current = current.getChild(0)
     current = current.getChild(0)
     current = current.getChild(0)
 

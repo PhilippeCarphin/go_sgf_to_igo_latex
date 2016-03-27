@@ -2,27 +2,7 @@ import Goban
 import MoveTree
 import os
 import sys
-def sgf_list_to_igo(sgf_list):
-    igo_list = []
-    for sgf in sgf_list:
-        igo_list.append(MoveTree.SGF_to_IGO(sgf,19))
-    return igo_list
-def glyphCommand(node,symbol):
-    symbols = {'TR':'\\igotriangle', 'SQ':'\\igosquare','CR':'\\igocircle'}
-    igo_list = commaListStr(sgf_list_to_igo(node.data[symbol]))
-    return '\\gobansymbol[' + symbols[symbol] + ']{' + igo_list + '}\n'
-def glyphCommands(node):
-    commands = ''
-    for key in ['TR','SQ','CR']:
-        if node.data.has_key(key):
-            commands += glyphCommand(node,key)
-    return commands
-def commaListStr(coordList):
-    commaList = ''
-    for coord in coordList:
-        commaList += coord + ','
-    return commaList[0:len(commaList)-1]
-
+import igo
 def isInt(string):
     i = 0
     while i < len(string):
@@ -30,162 +10,67 @@ def isInt(string):
             return False
         i += 1
     return True
-def commaList(stoneList):
-    commaList = ''
-    for stone in stoneList:
-        commaList += stone.igo(19) + ','
-    return commaList[0:len(commaList)-1]
-def makeDiagram(node):
-    diagram = '\\cleargoban\n'
-    blackStones = commaList(node.goban_data['gobanState']['B'])
-    whiteStones = commaList(node.goban_data['gobanState']['W'])
-    diagram += '\\white{' + whiteStones + '}\n'
-    diagram += '\\black{' + blackStones + '}\n'
-    diagram += '\\cleargobansymbols\n'
-    diagram += glyphCommands(node)
-    diagram += '\\showfullgoban\n'
-    return diagram
-def makeDiffDiagram(node):
-    diagram = ''
-    if node.color == 'W':
-        diagram += '\\white{' + node.igo(19) + '}\n'
-    else:
-        diagram += '\\black{' + node.igo(19) + '}\n'
-    removedStones = []
-    for group in node.goban_data['removed']:
-        removedStones += group
-    removedList = commaList(removedStones)
-    if len(removedList) > 0:
-        diagram += '\\clear{'+ removedList + '}\n'
-    diagram += '\\cleargobansymbols\n'
-    diagram += glyphCommands(node)
-    diagram += '\\showfullgoban\n'
-    return diagram
-def putLabels(node):
-    noop
-class BeamerMaker:
-    def __init__(self):
-        self.frameFile = open(os.path.join(os.getcwd(),'framestart.tex')).read()
-        self.prediag = open(os.path.join(os.getcwd(),'prediag.tex')).read()
-        self.postdiag = open(os.path.join(os.getcwd(), 'postdiag.tex')).read()
-        self.frametitle = open(os.path.join(os.getcwd(),'frametitle.tex')).read().replace('\n','').replace('\r','')
-    def makePage(self,node,pageType):
-        page = '%%%%%%%%%%%%%%%%%%%% MOVE ' + str(node.moveNumber) + ' %%%%%%%%%%%%%%%%%%%%%%%\n'
-        page += '\\begin{frame}\n\n'
-        page += '\\frametitle{' + self.frametitle + '}\n'
-        page += self.frameFile
-        page += '% % BEGIN SGF COMMENTS % %\n'
-        page += node.getComment() + '\n'
-        page += '% % END SGF COMMENTS % %\n'
-        page += self.prediag
-        if pageType == 'diff':
-            page += makeDiffDiagram(node)
-        else:
-            page += makeDiagram(node)
-        page += self.postdiag
-        page += '\\end{frame}\n'
-        return page
-    def ml_from(self,node):
-        pathStack = [node]
-        current = node
-        while current.hasNext():
-            current = current.getChild(0)
-            pathStack.append(current)
-        pathStack.reverse()
-        return pathStack
 
-    def ml_to(self,node):
-        pathStack = [node]
-        current = node
-        while current.hasParent():
-            current = current.parent
-            pathStack.append(current)
-        return pathStack
-    def ml_between(self,start,end):
-        pathStack = [node]
-        current = node
-        while current.hasParent() and current != end:
-            current = current.parent
-            pathStack.append(current)
-        return pathStack
-    def makeFile(self,nodeList):
-        fileS = ''
-        fileS = self.makePage(nodeList.pop(),'position')
-        while len(nodeList) > 0:
-            fileS += self.makePage(nodeList.pop(),'diff')
-        return fileS
-    def saveFile(self,string,filename):
-        f = open(filename,'w')
-        f.write(string)
-        f.close()
-    def mainline_from(self,node):
-        nodeList = self.ml_from(node)
-        return self.makeFile(nodeList)
-    def allOptions(self,node,prefix):
-        fileS = ''
-        todo_stack = []
-        for branch in node.children:
-            todo_stack.append((node,branch))
-        uniqueID = 0
-        while len(todo_stack) > 0:
-            # Get Todo from stack
-            todo = todo_stack.pop()
-            branchPoint = todo[0]
-            branch = todo[1]
-            fileS = self.makePage(branchPoint,'position')
-            current = branch
-            fileS += self.makePage(current,'diff')
-            while not current.isLeaf():
-                current = current.getChild(0)
-                fileS += self.makePage(current,'diff')
-                if current.isBranchPoint():
-                    for branch in current.children[1:]:
-                        todo_stack.append((current,branch))
-            uniqueID += 1
-            self.saveFile(fileS,prefix + str(uniqueID) + 'branchPoint' + str(branchPoint.moveNumber) + '_branch' + str(branch))
-            fileS = ''
 class Sai:
+    """ Command line interface to the beamer class.  This interface is
+    implemented as state machine with various menus performing different actions
+    and setting the following state.
+
+    Attributes:
+        states : Dictionnary of states with names as keys and function objects
+            as valures
+        state : The current state of the machine
+        fileS : The string of a file returned by a call to beamerMaker.  This
+            file will be shown to the user and saved as a file. 
+        bm : BeamerMaker instance used to generate LaTeX output as per the
+            user's demands
+        tree : Move tree created from an SGF file and eventually with a user
+            interface.
+    """
     def __init__(self):
+        """ Defines the dictionnary of states, sets the initial state and
+        creates a BeamerMaker instance """
         self.states = { 'init':self.introScreen, 'mainMenu':self.mainMenu,\
-                'finished': self.finished, 'findNode':self.trouverNoeud,\
+                'finished': None, 'findNode':self.trouverNoeud,\
                 'validateFile': self.userValidate, 'saveFile':self.saveFile,\
                 'open':self.chooseFile,'save':self.saveFile,\
                 'findEndNode':self.trouverNoeudFin}
         self.fileS = ''
+        self.current = None
+        self.end = None
         self.state = 'open'
-        self.bm = BeamerMaker()
+        self.bm = igo.BeamerMaker()
+
     def __exec__(self):
+        """ Main loop of the state machine.  Calls the function (menu)
+        associated with the current state """
         while self.state != 'finished':
             self.states[self.state]()
+
     def clear(self):
+        """ Clears the screen and displays the heading """
         os.system('cls' if os.name == 'nt' else 'clear')
-        print "================================= BeamerMaker v.0.1 ==================================="
+        print "=============================== IGO-LaTeX v.0.1 ================================="
+
     def printCurrent(self):
+        """ Displays the current start move """
         print "================================== Current Move ==================================="
         self.current.nodePrint()
+
     def printEnd(self):
+        """ Displays the current end move """
         print "==================================== End move ====================================="
         self.end.nodePrint()
+
     def clearPrint(self):
+        """ Clears the screen and displays the current information """
         self.clear()
         self.printCurrent()
         self.printEnd()
-    def finished():
-        return 0
-    def ouvrirFichier(self):
-        self.clear()
-        filename = raw_input("""
-        Jean-Sebastien, peux-tu me dire quel fichier tu veux ouvir? 
-        En passant c'est correct si je t'appelle par ton
-        prenom?
-        
-        Fichier:""")
-        self.tree = MoveTree.Tree(filename)
-        self.current = self.tree.head
-        self.end = self.tree.head
-        info = self.tree.info.data
-        self.state = 'mainMenu'
+    
     def mainMenu(self):
+        """ Main menu with options for navigating the game tree and creating a
+        mainline starting at the current node """
         self.clear()
         self.tree.printInfo()
         self.printCurrent()
@@ -208,6 +93,7 @@ class Sai:
             self.state = 'findNode'
         if choix == '3':
             self.state = 'findEndNode'
+
     def trouverNoeudFin(self):
         self.clearPrint()
         choix = raw_input(""" Whyyyy is the ice slippery ?
@@ -221,9 +107,6 @@ class Sai:
         choix : """)
         if choix == 'A' or choix == 'a':
             self.state = 'mainMenu'
-        # elif choix == 'E' or choix == 'e':
-        #     for child in self.end.children:
-        #         child.nodePrint()
         elif choix == 'C' or choix == 'c':
             searchString = raw_input(""" Jean-Sebastien, dit moi la chaine de
             caracteres a chercher : """)
@@ -238,6 +121,7 @@ class Sai:
                     if not current.hasNext():
                         break
                 self.end = current
+
     def trouverNoeud(self):
         self.clearPrint()
         choix = raw_input(""" Mes systemes sont a la fine pointe de la
@@ -268,10 +152,12 @@ class Sai:
                     if not current.hasNext():
                         break
                 self.current = current
+
     def findnodeFrom(self,start,string):
         ts = MoveTree.textSearchVisitor(string)
         start.acceptVisitor(ts)
         return ts.getResult()
+
     def userValidate(self):
         self.clear()
         print self.fileS
@@ -285,6 +171,7 @@ class Sai:
             self.state = 'saveFile'
         else:
             self.state = 'mainMenu'
+
     def saveFile(self):
         self.clear()
         name = raw_input(""" >>>> Super! Je suis content d'avoir pu rencontrer
@@ -298,6 +185,7 @@ class Sai:
         f.write(self.fileS)
         f.close()
         self.state = 'mainMenu'
+
     def introScreen(self):
         self.clear()
         print """
@@ -311,6 +199,7 @@ class Sai:
         choix = 'o'
         if choix == 'o' or choix == 'O':
             self.state = 'open'
+
     def chooseFile(self):
         # Get list of files
         fileList = os.listdir(os.getcwd())
@@ -323,7 +212,7 @@ class Sai:
 
         # Write message
         print """
-        \" Listen up maggots, Popo's about to teach you the pecking order...
+        \" Listen up maggots, Popo's about to teach you the pecking order...\"
 
         Choisi parmi les fichiers suivants lequel tu veux ouvrir
         """
@@ -335,17 +224,13 @@ class Sai:
         # Get number from user
         choix = raw_input("""
         Ton choix: """)
-
         # Open selected file
         choix = int(choix) - 1
         if choix >= len(sgf_files):
             choix = len(sgf_files) - 1
-
-        print sgf_files[choix]
         self.tree = MoveTree.Tree(sgf_files[choix])
         self.current = self.tree.head
         self.end = self.tree.head
-        info = self.tree.info.data
         self.state = 'mainMenu'
 
         self.state = 'mainMenu'
