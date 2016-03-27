@@ -100,16 +100,11 @@ class Goban:
     def playMove(self,stone):
         color = stone.color
         coord = stone.goban()
+        assert not self.board.has_key(coord), "There is already a stone here"
         # check for Ko
-        if ( coord  == self.ko ):
-            print 'ERROR This move would violate the rule of Ko'
-            return {}
-        self.ko = (0,0)
-        # Check for stone
-        if ( self.board.has_key(coord)):
-            print 'ERROR There is already a stone there ', coord
-            print self.board
-            return {}
+        if not self.ko_legal(stone):
+            stone.nodePrint()
+            assert 0 , "goban.playMove(): ko_rule prevents this move"
         # Resolve captures
         adjacent = self.__getNeighbors__(coord)
         numRemoved = 0
@@ -124,22 +119,67 @@ class Goban:
         self.push()
         self.board[coord] = color
         if self.__getLiberties__(coord) == 0:
-            print "ERROR suicidal move is illegal"
             del self.board[coord]
-            self.pop()
+            assert 0 , "ERROR: suicide move cannot be played"
+            self.undo()
         
         # Add stone
         # remember KO
         if ( numRemoved == 1 and sizeRemoved == 1 ):
             self.ko = potentialKo
         return  { 'removed' : removedStones , 'move' : coord }
+
     def getStones(self):
         stones = {'W':[],'B':[]}
         for coord in self.board:
             color = self.board[coord]
             stones[color].append(MoveTree.Stone(color,Goban_to_SGF(coord)))
         return stones
+    def resolveCaptures(self, stone):
+        # Resolve captures
+        adjacent = self.__getNeighbors__(stone.goban())
+        removedStones = []
+        for adj in adjacent:
+            removed = self.apply_liberty_rule(adj)
+            if removed != None:
+                removedStones.append(removed)
+        return removedStones
+    def apply_liberty_rule(self,coord):
+        if self.board.has_key(coord) and self.__getLiberties__(coord) == 0 :
+            group = self.__getGroup__(coord)
+            self.__removeGroup__(coord)
+            return self.__getGroupStones__(group)
 
+    def play_stone(self,stone):
+        # push
+        # resofve captures
+        # add the stone
+        # resolve captures (if stone is captured, suicide, undo, return)
+        # check_ko_legal (if illegal, undo return )
+        print "HELLO"
+
+
+    """Answers the question 'does the rule of KO prevent me from playing this stone on
+    this board."""
+    def ko_legal(self,stone,rule_set = 'Chinese'):
+        coord = stone.goban()
+        assert not self.board.has_key(coord), "Goban.ko_legal(): Already a stone here"
+        # push, 
+        self.push()
+        # resolveCaptures
+        self.resolveCaptures(stone)
+        # add stone,
+        self.board[coord] = stone.color
+        if rule_set == 'Chinese':
+            for previous_pos in self.positionStack:
+               if previous_pos == self.board:
+                  return False
+        else:
+            # Compare to positionStack[len(positionStack) - 2]
+            if self == self.positionStack[-2]:
+                return False
+        self.undo()
+        return True
 ################################################################################
 """ Visitor vists move tree in parallel with a goban.  Assigns goban state and
 stones removed to each move Node"""
@@ -152,9 +192,7 @@ class stateVisitor:
         moveDiff = self.goban.playMove(node)
         node.goban_data = {}
         node.goban_data['gobanState'] = self.goban.getStones()  
-        # print self.goban.board
         node.goban_data['removed'] = moveDiff['removed']
-        # print node.moveNumber, ' ' , node.SGF_coord, ' ', node.goban_data
         for child in node.children:
             child.acceptVisitor(self)
         self.goban.undo()
@@ -199,4 +237,7 @@ def moveTreeTest():
     mt.acceptVisitor(MoveTree.nodeVisitor())
 
 if __name__ == "__main__":
-    moveTreeTest()
+    goban = Goban(19,19)
+    l = goban.__getNeighbors__((18,19))
+    print l
+
