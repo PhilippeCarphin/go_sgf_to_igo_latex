@@ -31,7 +31,7 @@ def breakTokenData(typeToken,dataToken):
         while i < len(tokenData):
             tokenData[i] = (tokenData[i][0:2],tokenData[i][3])
             i += 1
-    elif typeToken not in ['AB','CR','TR','SQ']:
+    elif typeToken not in ['AB','AE','AW','CR','TR','SQ']:
         tokenData = unescape(tokenData[0])
     return tokenData
 """ Returns a move created by the supplied token with specified parent and move
@@ -86,12 +86,12 @@ def MakeToken(move,turned180 = False):
         else:
             token += move.color + '[' + str(move.SGF_coord) + ']'
     for key in move.data:
-        if not key in ['CR','TR','SQ','LB']:
+        if not key in ['AB','AE','AW','CR','TR','SQ','LB']:
             token += key
             token += '[' + escape( move.data[key]) + ']'
         else:
             token += key
-            token += '[' + move.data[key] + ']'
+            token += '[' + str(move.data[key]) + ']'
     return token
 
 def writeSGF(moveTree, turned180 = False):
@@ -210,9 +210,11 @@ class Stone:
 class Move(Node,Stone):
     def __init__(self,parent):
         Node.__init__(self,parent)
+        Stone.__init__(self)
         self.moveNumber = 0
         self.data = {}
         self.goban_data = {}
+        self.color = 'E'
     def nodePrint(self):
         print '%%% MoveInfo'
         print '%%% Number    : ', self.moveNumber
@@ -310,18 +312,20 @@ def stateVisit(tree):
     while not done:
         while current.hasNext():
             moveDiff = goban.playMove(current)
+            if moveDiff != None:
+                current.goban_data['captured'] = moveDiff['captured']
             current.goban_data['gobanState'] = goban.getStones()  
-            current.goban_data['removed'] = moveDiff['removed']
             stack.append(current)
             current = current.getChild(0)
         
         moveDiff = goban.playMove(current)
+        if moveDiff != None:
+            current.goban_data['captured'] = moveDiff['captured']
         current.goban_data['gobanState'] = goban.getStones()  
-        current.goban_data['removed'] = moveDiff['removed']
         goban.undo()
         while not current.hasNextSibling() and len(stack) > 0:
-            goban.undo()
             current = stack.pop()
+            goban.undo()
         if len( stack ) == 0:
             done = True
         else:
@@ -348,7 +352,7 @@ def stoneList(sgf_coord_list, color):
 
 if __name__ == "__main__":
     # moveTree = Tree('Variations.sgf')
-    moveTree = Tree('tree.sgf')
+    moveTree = Tree('edit.sgf')
     # moveTree = Tree('Attachment-1.sgf')
 #    searchString = '%ALLO'
 #    tv = textSearchVisitor(searchString)

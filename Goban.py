@@ -4,6 +4,11 @@ def Goban_to_SGF(coord):
     charY = chr( coord[1] + ord('a') -1 )
     return charX + charY
 
+def SGF_to_Goban(sgf_coord):
+    x = 1 + ord(sgf_coord[0]) - ord('a')
+    y = 1 + ord(sgf_coord[1]) - ord('a')
+    return (x,y)
+
 ################################################################################
 """ Goban is used to memorize board state and implement go rules """
 ################################################################################
@@ -99,37 +104,55 @@ class Goban:
             groupStones.append(MoveTree.Stone(color,Goban_to_SGF(coord)))
         return groupStones
     """ Updates the state based on a move being played """
-    def playMove(self,stone):
-        color = stone.color
-        coord = stone.goban()
-        assert not self.board.has_key(coord), "There is already a stone here"
-        # check for Ko
-        if not self.ko_legal(stone):
-            stone.nodePrint()
-            assert 0 , "goban.playMove(): ko_rule prevents this move"
-        # Resolve captures
-        adjacent = self.__getNeighbors__(coord)
-        numRemoved = 0
-        removedStones = []
-        for adj in adjacent:
-            if( self.board.has_key(adj) and self.board[adj] != color and self.__getLiberties__(adj) == 1):
-                removedStones.append(self.__getGroupStones__(self.__getGroup__(adj)))
-                sizeRemoved = self.__removeGroup__(adj)
-                numRemoved += 1
-                potentialKo = adj
-        # Check legality
-        self.push()
-        self.board[coord] = color
-        if self.__getLiberties__(coord) == 0:
-            del self.board[coord]
-            assert 0 , "ERROR: suicide move cannot be played"
-            self.undo()
-        
-        # Add stone
-        # remember KO
-        if ( numRemoved == 1 and sizeRemoved == 1 ):
-            self.ko = potentialKo
-        return  { 'removed' : removedStones , 'move' : coord }
+    def playMove(self,move):
+        special = set(move.data.keys()).intersection(['AB','AW','AE'])
+        move.nodePrint()
+        if len(special) > 0:
+            self.push()
+            for key in special:
+                if key == 'AB':
+                    for sgf_coord in move.data[key]:
+                        self.board[SGF_to_Goban(sgf_coord)] = 'B'
+                elif key == 'AW':
+                    for sgf_coord in move.data[key]:
+                        self.board[SGF_to_Goban(sgf_coord)] = 'W'
+                else:
+                    for sgf_coord in move.data[key]:
+                        print "move.data : " , move.data
+                        if self.board.has_key(SGF_to_Goban(sgf_coord)):
+                            del self.board[SGF_to_Goban(sgf_coord)]
+            return None
+        else:
+            color = move.color
+            coord = move.goban()
+            assert not self.board.has_key(coord), "There is already a move here"
+            # check for Ko
+            if not self.ko_legal(move):
+                move.nodePrint()
+                assert 0 , "goban.playMove(): ko_rule prevents this move"
+            # Resolve captures
+            adjacent = self.__getNeighbors__(coord)
+            numRemoved = 0
+            capturedStones = []
+            for adj in adjacent:
+                if( self.board.has_key(adj) and self.board[adj] != color and self.__getLiberties__(adj) == 1):
+                    capturedStones.append(self.__getGroupStones__(self.__getGroup__(adj)))
+                    sizeRemoved = self.__removeGroup__(adj)
+                    numRemoved += 1
+                    potentialKo = adj
+            # Check legality
+            self.push()
+            self.board[coord] = color
+            if self.__getLiberties__(coord) == 0:
+                del self.board[coord]
+                assert 0 , "ERROR: suicide move cannot be played"
+                self.undo()
+
+            # Add move
+            # remember KO
+            if ( numRemoved == 1 and sizeRemoved == 1 ):
+                self.ko = potentialKo
+            return  { 'captured' : capturedStones , 'move' : coord }
 
     def getStones(self):
         stones = {'W':[],'B':[]}
@@ -140,12 +163,12 @@ class Goban:
     def resolveCaptures(self, stone):
         # Resolve captures
         adjacent = self.__getNeighbors__(stone.goban())
-        removedStones = []
+        capturedStones = []
         for adj in adjacent:
-            removed = self.apply_liberty_rule(adj)
-            if removed != None:
-                removedStones.append(removed)
-        return removedStones
+            captured = self.apply_liberty_rule(adj)
+            if captured != None:
+                capturedStones.append(captured)
+        return capturedStones
     def apply_liberty_rule(self,coord):
         if self.board.has_key(coord) and self.__getLiberties__(coord) == 0 :
             group = self.__getGroup__(coord)
@@ -184,7 +207,7 @@ class Goban:
         return True
 ################################################################################
 """ Visitor vists move tree in parallel with a goban.  Assigns goban state and
-stones removed to each move Node"""
+stones captured to each move Node"""
 ################################################################################
 class stateVisitor:
     def __init__(self):
@@ -194,7 +217,7 @@ class stateVisitor:
         moveDiff = self.goban.playMove(node)
         node.goban_data = {}
         node.goban_data['gobanState'] = self.goban.getStones()  
-        node.goban_data['removed'] = moveDiff['removed']
+        node.goban_data['captured'] = moveDiff['captured']
         for child in node.children:
             child.acceptVisitor(self)
         self.goban.undo()
