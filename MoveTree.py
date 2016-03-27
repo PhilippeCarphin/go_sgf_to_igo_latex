@@ -31,7 +31,7 @@ def breakTokenData(typeToken,dataToken):
         while i < len(tokenData):
             tokenData[i] = (tokenData[i][0:2],tokenData[i][3])
             i += 1
-    elif typeToken not in ['CR','TR','SQ']:
+    elif typeToken not in ['AB','CR','TR','SQ']:
         tokenData = unescape(tokenData[0])
     return tokenData
 """ Returns a move created by the supplied token with specified parent and move
@@ -196,8 +196,6 @@ class Stone:
         return self.SGF_coord
     """ returns goban coordinates of stone """
     def goban(self):
-        if self.moveNumber == 0:
-            return 'No SGF coord'
         x = 1 + ord(self.SGF_coord[0]) - ord('a')
         y = 1 + ord(self.SGF_coord[1]) - ord('a')
         return (x,y)
@@ -218,8 +216,8 @@ class Move(Node,Stone):
     def nodePrint(self):
         print '%%% MoveInfo'
         print '%%% Number    : ', self.moveNumber
-#        print '%%% Color     : ', self.color
-        #print '%%% Coord     : ', self.SGF_coord
+        print '%%% Color     : ', self.color
+        print '%%% Coord     : ', self.SGF_coord
         print '%%% Data      : ', self.data
         print '%%% SGF_token : ', MakeToken(self)
         print '%%% GobanState: ', self.goban_data
@@ -233,11 +231,7 @@ class Move(Node,Stone):
     def labels(self):
         return 'TODO'
     def __repr__(self):
-        #return self.color + str(self.SGF_coord)
-        if self.data.has_key('C'):
-            return self.data['C']
-        else: 
-            return self.color + str(self.SGF_coord)
+        return self.color + str(self.SGF_coord)
 ################################################################################
 # Master class of composite pattern
 ################################################################################
@@ -263,7 +257,6 @@ class Tree:
 ################################################################################
 class nodeVisitor:
     def visit(self,node):
-        print ''
         node.nodePrint()
         for child in node.children:
             child.acceptVisitor(self)
@@ -284,7 +277,6 @@ class textSearchVisitor:
 ################################################################################
 class mainlineVisitor:
     def visit(self,node):
-        print ''
         node.nodePrint()
         if node.hasNext():
             node.getChild(0).acceptVisitor(self)
@@ -298,89 +290,66 @@ def depthFirstVisit(root, function):
 
 def breadthFirstVisit(root, function):
     queue = deque([root])
-    print "OK"
     while len(queue) > 0:
         for child in current.children:
             queue.append(child)
 
-def stateVisit3(tree):
+""" Go throught the nodes of a tree and add goban_state information to each node
+"""
+def stateVisit(tree):
     stack = []
     done = False
-    board_size = tree.info.data['SZ']
+    board_size = int(tree.info.data['SZ'])
     goban = Goban.Goban(board_size,board_size)
+    # Place handicap stones
+    if tree.info.data.has_key('AB'):
+        for sgf_coord in tree.info.data['AB']:
+            goban.playMove(Stone('B', sgf_coord))
+    # Traverse move tree
     current = tree.head
     while not done:
         while current.hasNext():
             moveDiff = goban.playMove(current)
-            current.goban_data = {}
             current.goban_data['gobanState'] = goban.getStones()  
-            # print self.goban.board
             current.goban_data['removed'] = moveDiff['removed']
-            print ( "stateVisit3(): current played ")
-            current.nodePrint()
             stack.append(current)
-            print "Stack: ", stack
             current = current.getChild(0)
         
         moveDiff = goban.playMove(current)
-        current.goban_data = {}
         current.goban_data['gobanState'] = goban.getStones()  
-        # print self.goban.board
         current.goban_data['removed'] = moveDiff['removed']
-        print ( "stateVisit3(): current played Outside While")
-        current.nodePrint()
         goban.undo()
-        print "Stack: ", stack
         while not current.hasNextSibling() and len(stack) > 0:
             goban.undo()
             current = stack.pop()
-            print "Stack popped: ", stack
         if len( stack ) == 0:
             done = True
         else:
             current = current.getNextSibling()
-            
 
+def getGobanState(move):
+    stack = [move]
+    current = Move()
 
-def stateVisit(tree):
-    board_size = tree.info.data['SZ']
+    while current.hasParent():
+        stack.append(current.parent)
+        current = current.parent
+
+    board_size = int(tree.info.data['SZ'])
     goban = Goban.Goban(board_size,board_size)
-    print board_size
-    stack = [tree.head]
     while len(stack) > 0:
-        current = stack.pop()
-        goban.playMove(current)
-        current.goban_data['gobanState'] = goban.getStones()
-        current.goban_data['removed'] = moveDiff['removed']
+        goban.playMove(stack.pop())
+    return goban
 
-        for child in current.children:
-            stac.append(child)
-
-
-def stateVisit2(tree):
-    stack = []
-    current = tree.head
-    board_size = tree.info.data['SZ']
-    goban = Goban.Goban(board_size,board_size)
-    nextMoveNumber = 0
-    if(len(current.children) > 1):
-        nextMoveNumber = 1
-    goban.playMove(current)
-    stack.append((current,nextMoveNumber))
-
-    while current.hasNext():
-        current = current.getChild(0)
-        goban.playMove(current)
-
-
-
-        
-        
+def stoneList(sgf_coord_list, color):
+    stoneList = []
+    for sgf_coord in sgf_coord_list:
+        stoneList.append(Stona(color,sgf_coord))
 
 if __name__ == "__main__":
     # moveTree = Tree('Variations.sgf')
     moveTree = Tree('tree.sgf')
-    #moveTree = Tree('Attachment-1.sgf')
+    # moveTree = Tree('Attachment-1.sgf')
 #    searchString = '%ALLO'
 #    tv = textSearchVisitor(searchString)
     #moveTree.acceptVisitor(nodeVisitor())
@@ -389,7 +358,9 @@ if __name__ == "__main__":
 #    print(writeSGF(moveTree))
     #print(writeSGF(moveTree,True))
 
-    stateVisit3(moveTree)
+    stateVisit(moveTree)
+
+    moveTree.acceptVisitor(nodeVisitor())
 
     # depthFirstVisit(moveTree.head, Move.nodePrint)
     # stateVisit(moveTree)

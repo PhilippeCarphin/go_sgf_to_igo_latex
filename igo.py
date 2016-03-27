@@ -37,7 +37,8 @@ def commaList(stoneList):
     commaList = ''
     for stone in stoneList:
         commaList += stone.igo(19) + ','
-    return commaList[0:len(commaList)-1]
+    commaList.pop()
+    return commaList
 
 def makeDiagram(node):
     """ Generates igo output for the diagram of the position at the given
