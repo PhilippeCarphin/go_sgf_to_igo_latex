@@ -7,6 +7,7 @@ from collections import deque
 # Utility functions for treating tokens
 ################################################################################
 listTypes = ['AB','AE','AW','CR','TR','SQ','LB']
+elistTypes = ['LB']
 """ Unescapes the characters ] and \ characters """
 def unescape(string):
     return string.replace('\\\\','\\').replace('\\]',']')
@@ -88,13 +89,17 @@ def MakeToken(move,turned180 = False):
         else:
             token += move.color + '[' + str(move.SGF_coord) + ']'
     for key in move.data:
-        if not key in listTypes:
+        if key in elistTypes:
             token += key
-            token += '[' + escape( move.data[key]) + ']'
-        else:
+            for elem in move.data[key]:
+                token += '[' + elem[0] + ':' + elem[1] + ']'
+        elif key in listTypes:
             token += key
             for elem in move.data[key]:
                 token += '[' + elem + ']'
+        else:
+            token += key
+            token += '[' + escape( move.data[key]) + ']'
     return token
 
 def writeSGF(moveTree, turned180 = False):
