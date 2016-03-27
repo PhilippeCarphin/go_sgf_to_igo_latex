@@ -30,6 +30,8 @@ class Goban:
         self.board = {}
         self.width = int(width)
         self.height = int(height)
+        if self.width < 1 or self.height < 1:
+            raise ValueError
         self.ko = (0,0)
         self.positionStack = []
         self.moveStack = []
@@ -244,3 +246,7 @@ if __name__ == "__main__":
     except ValueError:
         print "Things not changeable to int are detected"
 
+    try: 
+        badNumbers = Goban(0,-1)
+    except ValueError:
+        print "Bad Numbers detected"
