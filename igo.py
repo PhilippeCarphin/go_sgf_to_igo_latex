@@ -37,15 +37,18 @@ def commaList(stoneList):
     commaList = ''
     for stone in stoneList:
         commaList += stone.igo(19) + ','
-    commaList.pop()
-    return commaList
+    return commaList[0:len(commaList)-1]
 
 def makeDiagram(node):
     """ Generates igo output for the diagram of the position at the given
     node."""
     diagram = '\\cleargoban\n'
-    blackStones = commaList(node.goban_data['gobanState']['B'])
-    whiteStones = commaList(node.goban_data['gobanState']['W'])
+    try:
+        blackStones = commaList(node.goban_data['gobanState']['B'])
+        whiteStones = commaList(node.goban_data['gobanState']['W'])
+    except KeyError:
+        print "makeDiagram(): move does not have gobanState"
+        raise KeyError
     diagram += '\\white{' + whiteStones + '}\n'
     diagram += '\\black{' + blackStones + '}\n'
     diagram += '\\cleargobansymbols\n'

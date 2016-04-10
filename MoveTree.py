@@ -253,6 +253,7 @@ class Tree:
         self.info = self.head
         self.head = self.head.getChild(0)
         self.head.parent = 0
+        stateVisit(self)
         # self.acceptVisitor(Goban.stateVisitor())
 
     def acceptVisitor(self, visitor):

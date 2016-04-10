@@ -106,7 +106,6 @@ class Goban:
     """ Updates the state based on a move being played """
     def playMove(self,move):
         special = set(move.data.keys()).intersection(['AB','AW','AE'])
-        move.nodePrint()
         if len(special) > 0:
             self.push()
             for key in special:
