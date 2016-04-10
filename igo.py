@@ -65,7 +65,7 @@ def makeDiffDiagram(node):
     else:
         diagram += '\\black{' + node.igo(19) + '}\n'
     removedStones = []
-    for group in node.goban_data['removed']:
+    for group in node.goban_data['captured']:
         removedStones += group
     removedList = commaList(removedStones)
     if len(removedList) > 0:
