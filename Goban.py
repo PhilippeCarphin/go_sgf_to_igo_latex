@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import MoveTree
 def Goban_to_SGF(coord):
     charX = chr( coord[0] + ord('a') -1 )
@@ -41,10 +42,21 @@ class Goban:
         self.positionStack = []
         self.moveStack = []
         self.currentMove = MoveTree.Move(0)
+
+    """ Saves the current position to a stack of board positions.  This is
+    useful for navigating a move tree and for implementing the upgraded ko
+    rule"""
     def push(self):
         self.positionStack.append(dict(self.board))
+
+    """ Pops an element from the position stack and sets it as the current board
+    position."""
     def undo(self):
         self.board = self.positionStack.pop()
+
+    """ For coordinates given by coord = (x,y) where x and y are two integers,
+    the function returns those of (x+1,y),(x-1,y),(x,y-1),(x,y+1) that are in
+    the board as elements of a list of tuples."""
     def __getNeighbors__(self, coord):
         neighbors = []
         x = coord[0]
@@ -58,6 +70,8 @@ class Goban:
         if(y + 1 <= self.height):
             neighbors.append((x, y + 1))
         return neighbors
+
+    """ Returns the group of stones that the stone at coord is part of."""
     def __getGroup__(self, coord):
         if ( not self.board.has_key(coord) ):
             return []
@@ -81,6 +95,15 @@ class Goban:
         for key in group:
             del self.board[key]
         return len(group)
+    """ Gets the liberties of a group
+    Note: I think that this function will return that the white group in
+    the following position
+    BB
+    BW
+    BWWB
+    BBBB
+    will have two liberties when it has just one.  For now, the algorithm just
+    needs to tell us when the group has 0 liberties or not 0 liberties."""
     def __getLiberties__(self,coord):
         color = self.board[coord]
         queue = self.__getNeighbors__(coord)
@@ -272,3 +295,6 @@ if __name__ == "__main__":
         badNumbers = Goban(0,-1)
     except ValueError:
         print "Bad Numbers detected"
+
+    gobanTest()
+    moveTreeTest()
