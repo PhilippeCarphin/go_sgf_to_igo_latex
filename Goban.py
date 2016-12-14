@@ -188,7 +188,7 @@ class Goban:
     def ko_legal(self,stone,rule_set = 'Chinese'):
         coord = stone.goban()
         assert not self.board.has_key(coord), "Goban.ko_legal(): Already a stone here"
-        # push, 
+        # push,
         self.push()
         # resolveCaptures
         self.resolveCaptures(stone)
@@ -215,7 +215,7 @@ class stateVisitor:
     def visit(self,node):
         moveDiff = self.goban.playMove(node)
         node.goban_data = {}
-        node.goban_data['gobanState'] = self.goban.getStones()  
+        node.goban_data['gobanState'] = self.goban.getStones()
         node.goban_data['captured'] = moveDiff['captured']
         for child in node.children:
             child.acceptVisitor(self)
@@ -237,12 +237,12 @@ def gobanTest():
     goban.playMove('B', (3,4))
     goban.playMove('B', (4,3))
     goban.playMove('B', (5,4))
-    
+
     goban.playMove('W', (3,5))
     goban.playMove('W', (4,6))
     goban.playMove('W', (5,5))
 
-    
+
     goban.playMove('W', (4,4))
     goban.playMove('B', (4,5))
     print 'should be refused for KO'
@@ -268,7 +268,7 @@ if __name__ == "__main__":
     except ValueError:
         print "Things not changeable to int are detected"
 
-    try: 
+    try:
         badNumbers = Goban(0,-1)
     except ValueError:
         print "Bad Numbers detected"
