@@ -21,13 +21,13 @@ def makeFileTokens( string ):
     component = r'(?:[A-Z]*(?:\[.*?[^\\]\]\r?\n?)+)'
     tokenRegex = re.compile(paren + '|' + component + '+', re.DOTALL)
     tokenList = tokenRegex.findall(string)
-    tokenList = tokenList[1:len(tokenList)-1] 
-    return tokenList    
+    tokenList = tokenList[1:len(tokenList)-1]
+    return tokenList
 """ Subdivides token data into the right bits based on the type """
 def breakTokenData(typeToken,dataToken):
     tokenData = re.compile(r'\[(.*?[^\\])\]',re.DOTALL).findall(dataToken)
     if typeToken in ['W','B']:
-        assert 0 
+        assert 0
     elif typeToken == 'LB':
         i = 0
         while i < len(tokenData):
@@ -182,7 +182,7 @@ class Node:
         current = self
         while current.parent != 0:
             mainline.append(current)
-            current = current.getParent() 
+            current = current.getParent()
         mainline.reverse()
         return mainline
     def acceptVisitor(self,visitor):
@@ -323,14 +323,14 @@ def stateVisit(tree):
             moveDiff = goban.playMove(current)
             if moveDiff != None:
                 current.goban_data['captured'] = moveDiff['captured']
-            current.goban_data['gobanState'] = goban.getStones()  
+            current.goban_data['gobanState'] = goban.getStones()
             stack.append(current)
             current = current.getChild(0)
-        
+
         moveDiff = goban.playMove(current)
         if moveDiff != None:
             current.goban_data['captured'] = moveDiff['captured']
-        current.goban_data['gobanState'] = goban.getStones()  
+        current.goban_data['gobanState'] = goban.getStones()
         goban.undo()
         while not current.hasNextSibling() and len(stack) > 0:
             current = stack.pop()
