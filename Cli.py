@@ -26,7 +26,7 @@ def diagram(argv):
                 print "Additional argument can only be variation"
                 sys.exit(2)
             move = move.getChild(int(varNum))
-    string = igo.makeDiagram(move)
+    string = igo.make_diagram(move)
     print string
 
 def makeBeamer(argv):
@@ -54,11 +54,11 @@ def findMove(opt,tree):
     if lookupType in ['--move','-m']:
         current = tree.head
         for i in range(int(arg)):
-            current = current.getChild(0)
+            current = current.get_child(0)
     elif lookupType in ['--find','-f']:
-        tsv = MoveTree.textSearchVisitor(arg)
-        tree.head.acceptVisitor(tsv)
-        current = tsv.getResult()
+        tsv = MoveTree.TextSearchVisitor(arg)
+        tree.head.accept_visitor(tsv)
+        current = tsv.get_result()
     elif lookupType in ['--variation','-v']:
         current = None
     return current

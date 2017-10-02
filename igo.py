@@ -42,7 +42,7 @@ def comma_list_from_stone_list(stone_list):
     of the stones in the list. """
     comma_list = ''
     for stone in stone_list:
-        comma_list += stone.igo(19) + ','
+        comma_list += stone.igo_coord(19) + ','
     return comma_list[0:len(comma_list) - 1]
 
 
@@ -69,9 +69,9 @@ def make_diff_diagram(node):
     stones to remove. """
     diagram = ''
     if node.color == 'W':
-        diagram += '\\white{' + node.igo(19) + '}\n'
+        diagram += '\\white{' + node.igo_coord(19) + '}\n'
     else:
-        diagram += '\\black{' + node.igo(19) + '}\n'
+        diagram += '\\black{' + node.igo_coord(19) + '}\n'
     removed_stones = []
     for group in node.goban_data['captured']:
         removed_stones += group

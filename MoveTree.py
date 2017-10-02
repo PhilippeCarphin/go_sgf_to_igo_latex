@@ -115,7 +115,7 @@ def make_token(move, turned180=False):
             turned_sgf = chr(turned_x + ord('a') - 1) + chr(turned_y + ord('a') - 1)
             token += move.color + '[' + turned_sgf + ']'
         else:
-            token += move.color + '[' + str(move.SGF_coord) + ']'
+            token += move.color + '[' + str(move.sgf_coord) + ']'
     for key in move.data:
         if key in elistTypes:
             token += key
@@ -177,7 +177,6 @@ class Node:
         else:
             return False
 
-    @property
     def has_parent(self):
         if self.parent == 0:
             return False
@@ -245,16 +244,16 @@ class Stone:
         self.color = color
         self.sgf_coord = sgf_coord
 
-    def igo(self, height):
+    def igo_coord(self, height):
         return sgf_to_igo(self.sgf_coord, height)
 
-    def sgf(self):
+    def sgf_coord(self):
         """ returns SGF coordinates of stone """
         return self.sgf_coord
 
     """ returns goban coordinates of stone """
 
-    def goban(self):
+    def goban_coord(self):
         x = 1 + ord(self.sgf_coord[0]) - ord('a')
         y = 1 + ord(self.sgf_coord[1]) - ord('a')
         return x, y
@@ -271,13 +270,12 @@ class Stone:
 # Class Move(Node) Contains move data and methods
 ################################################################################
 class Move(Node, Stone):
-    def __init__(self, parent):
+    def __init__(self, parent, color='E', sgf_coord='XX'):
         Node.__init__(self, parent)
-        Stone.__init__(self)
+        Stone.__init__(self, color, sgf_coord)
         self.moveNumber = 0
         self.data = {}
         self.goban_data = {}
-        self.color = 'E'
 
     def node_print(self):
         print '%%% MoveInfo'
@@ -398,22 +396,22 @@ def state_visit(tree):
     # Place handicap stones
     if 'AB' in tree.info.data:
         for sgf_coord in tree.info.data['AB']:
-            goban.playMove(Stone('B', sgf_coord))
+            goban.play_move(Stone('B', sgf_coord))
     # Traverse move tree
     current = tree.head
     while not done:
         while current.has_next():
-            move_diff = goban.playMove(current)
+            move_diff = goban.play_move(current)
             if move_diff is not None:
                 current.goban_data['captured'] = move_diff['captured']
-            current.goban_data['gobanState'] = goban.getStones()
+            current.goban_data['gobanState'] = goban.get_stones()
             stack.append(current)
             current = current.get_child(0)
 
-        move_diff = goban.playMove(current)
+        move_diff = goban.play_move(current)
         if move_diff is not None:
             current.goban_data['captured'] = move_diff['captured']
-        current.goban_data['gobanState'] = goban.getStones()
+        current.goban_data['gobanState'] = goban.get_stones()
         goban.undo()
         while not current.has_next_sibling() and len(stack) > 0:
             current = stack.pop()

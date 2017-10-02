@@ -55,12 +55,12 @@ class Sai:
     def printCurrent(self):
         """ Displays the current start move """
         print "================================== Current Move ==================================="
-        self.current.nodePrint()
+        self.current.node_print()
 
     def printEnd(self):
         """ Displays the current end move """
         print "==================================== End move ====================================="
-        self.end.nodePrint()
+        self.end.node_print()
 
     def clearPrint(self):
         """ Clears the screen and displays the current information """
@@ -72,7 +72,7 @@ class Sai:
         """ Main menu with options for navigating the game tree and creating a
         mainline starting at the current node """
         self.clear()
-        self.tree.printInfo()
+        self.tree.print_info()
         self.printCurrent()
         self.printEnd()
         choix = raw_input(""" >>>> JS, (c'est correct si je t'appelle JS?), je suis pret a produire des
@@ -116,9 +116,9 @@ class Sai:
                 current = self.current
                 i = 1
                 while i < int(choix):
-                    current = current.getChild(0)
+                    current = current.get_child(0)
                     i += 1
-                    if not current.hasNext():
+                    if not current.has_next():
                         break
                 self.end = current
 
@@ -147,16 +147,16 @@ class Sai:
                 current = self.tree.head
                 i = 1
                 while i < int(choix):
-                    current = current.getChild(0)
+                    current = current.get_child(0)
                     i += 1
-                    if not current.hasNext():
+                    if not current.has_next():
                         break
                 self.current = current
 
     def findnodeFrom(self,start,string):
-        ts = MoveTree.textSearchVisitor(string)
-        start.acceptVisitor(ts)
-        return ts.getResult()
+        ts = MoveTree.TextSearchVisitor(string)
+        start.accept_visitor(ts)
+        return ts.get_result()
 
     def userValidate(self):
         self.clear()
@@ -239,7 +239,7 @@ if __name__ == "__main__":
     cyborg.__exec__()
     mt = MoveTree.Tree('Variations.sgf')
     bm = BeamerMaker()
-    bm.allOptions(mt.head,'Variations:')
+    bm.all_options(mt.head, 'Variations:')
 
     # bm.ml_to(current)
         
