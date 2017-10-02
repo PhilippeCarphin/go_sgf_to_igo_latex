@@ -130,7 +130,6 @@ class Goban:
         # todo test this function in regards to the comment above
         color = self.board[coord]
         queue = self.__getNeighbors__(coord)
-        # print("__get_liberties__() : coord = " + str(coord) + "  queue = " + str(queue))
         seen = [coord]
         liberties = 0
         while len(queue):
@@ -143,11 +142,9 @@ class Goban:
                 for adj in self.__getNeighbors__(neighbor):
                     if adj not in seen:
                         queue.append(adj)
-        # print("__get_liberties__() : coord = " + str(coord) + " returning " + str(liberties))
         return liberties
 
     def __get_group_stones__(self, group):
-        # print("__get_group_stones : group " + str(group))
         group_stones = []
         for coord in group:
             assert coord in self.board, "__get_group_stones() stone should be in board"
@@ -170,7 +167,6 @@ class Goban:
                         self.board[sgf_to_goban(sgf_coord)] = 'W'
                 else:
                     for sgf_coord in move.data[key]:
-                        print "move.data : ", move.data
                         if sgf_coord not in self.board:
                             del self.board[sgf_to_goban(sgf_coord)]
             return None
@@ -187,7 +183,6 @@ class Goban:
                 raise GobanError("Move violates ko rule")
             if self.__get_liberties__(coord) == 0:
                 self.undo()
-                print("Board state : " + str(self.board))
                 raise GobanError("Suicide move " + str(move.goban_coord()) + " cannot be played")
 
             return {'captured': captured_stones, 'move': move.color + str(move.sgf_coord)}
@@ -207,11 +202,7 @@ class Goban:
         return stones
 
     def resolve_captures(self, stone):
-        # print("resolve_captures() called")
-        # Resolve captures
         adjacent = self.__getNeighbors__(stone.goban_coord())
-        # print("Adjacent of " + str(stone.goban_coord()) + " is " + str(adjacent))
-        num_removed_groups = 0
         num_removed_stones = 0
         captured_stones = list()
         for adj in adjacent:
@@ -219,10 +210,8 @@ class Goban:
                     and self.board[adj] != stone.color \
                     and self.__get_liberties__(adj) == 0:
                 adj_group = self.__getGroup__(adj)
-                print(adj_group)
-                captured_stones.append(self.__get_group_stones__(self.__getGroup__(adj)))
+                captured_stones.append(self.__get_group_stones__(adj_group))
                 num_removed_stones += self.__removeGroup__(adj)
-                num_removed_groups += 1
         return captured_stones
 
     def apply_liberty_rule(self, coord):
@@ -230,16 +219,6 @@ class Goban:
             group = self.__getGroup__(coord)
             self.__removeGroup__(coord)
             return group
-
-    def play_stone(self, stone):
-        # push
-        self.push()
-        # resolve captures
-        captured_stones = self.resolve_captures(stone)
-        # add the stone
-        self.board[stone.goban_coord()] = stone.color
-        # resolve captures (if stone is captured, suicide, undo, return)
-        # check_ko_legal (if illegal, undo return )
 
     """Answers the question 'does the rule of KO prevent me from playing this stone on
     this board."""
@@ -282,11 +261,6 @@ class StateVisitor:
 def goban_test():
     test_goban = Goban(19, 19)
     # Todo: Refactor so that play_move only needs to take 'B', goban_coord (tuple)
-    print(test_goban.play_stone(MoveTree.Move(parent=0, color='B', sgf_coord='aa')))
-    print(test_goban.play_stone(MoveTree.Move(parent=0, color='W', sgf_coord='ba')))
-
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='bb')))
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='ab')))
 
     # Position:
     #
@@ -296,19 +270,22 @@ def goban_test():
 
     test_goban.clear_goban()
 
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='of')))
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='pf')))
+    test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='of'))
+    test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='pf'))
 
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='oh')))
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='ph')))
+    test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='oh'))
+    test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='ph'))
 
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='ng')))
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='qg')))
+    test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='ng'))
+    test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='qg'))
 
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='pg')))
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='og')))
-    
-    print(test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='pg')))
+    test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='pg'))
+    test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='og'))
+
+    try:
+        test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='pg'))
+    except GobanError:
+        print("Ko rule violation correctly detected")
 
 
 def move_tree_test():
@@ -317,7 +294,7 @@ def move_tree_test():
     # mt.head.acceptVisitor(MoveTree.nodeVisitor())
     current = mt.head.get_child(0)
     current = current.get_child(0)
-    current = current.get_child(0)
+    # current = current.get_child(0)
 
     current.node_print()
     mt.accept_visitor(StateVisitor())
@@ -338,4 +315,4 @@ if __name__ == "__main__":
         print "Bad Numbers are correctly detected"
 
     goban_test()
-    # move_tree_test()
+    move_tree_test()

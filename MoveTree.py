@@ -81,7 +81,7 @@ def make_tree(file_content):
     root = Node(0)
     tip = root
     branch_point_stack = []
-    move_number = 0
+    move_number = 1
     for token in file_tokens:
         if token == '(':
             branch_point_stack.append(tip)
