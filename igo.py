@@ -1,62 +1,70 @@
 import os
+import MoveTree
+
 
 def sgf_list_to_igo(sgf_list):
     """ Creates a list of igo coordinates from a list of sgf coordinates """
     igo_list = []
     for sgf in sgf_list:
-        igo_list.append(MoveTree.SGF_to_IGO(sgf,19))
+        igo_list.append(MoveTree.sgf_to_igo(sgf, 19))
     return igo_list
 
-def glyphCommand(node,symbol):
+
+def glyph_command(node, symbol):
     """ Creates the latex command to add the glyphs of type 'symbol' at the
     given node """
-    symbols = {'TR':'\\igotriangle', 'SQ':'\\igosquare','CR':'\\igocircle'}
-    igo_list = commaListStr(sgf_list_to_igo(node.data[symbol]))
+    symbols = {'TR': '\\igotriangle', 'SQ': '\\igosquare', 'CR': '\\igocircle'}
+    igo_list = comma_list_from_coord_list(sgf_list_to_igo(node.data[symbol]))
     return '\\gobansymbol[' + symbols[symbol] + ']{' + igo_list + '}\n'
 
-def glyphCommands(node):
+
+def glyph_commands(node):
     """ Generates the three glyph commands at the node if the node has glyphs of
     that type """
     commands = ''
-    for key in ['TR','SQ','CR']:
-        if node.data.has_key(key):
-            commands += glyphCommand(node,key)
+    for key in ['TR', 'SQ', 'CR']:
+        if key in node.data:
+            commands += glyph_command(node, key)
     return commands
 
-def commaListStr(coordList):
+
+def comma_list_from_coord_list(coord_list):
     """ Generates string with a comma separated list of the contents of the
     given coordinate list """
-    commaList = ''
-    for coord in coordList:
-        commaList += coord + ','
-    return commaList[0:len(commaList)-1]
+    comma_list = ''
+    for coord in coord_list:
+        comma_list += coord + ','
+    return comma_list[0:len(comma_list) - 1]
 
-def commaList(stoneList):
-    """ Generates string with a comma separated list containing the igo-coords
+
+def comma_list_from_stone_list(stone_list):
+    """ Generates string with a comma separated list containing the igo-coordinates
     of the stones in the list. """
-    commaList = ''
-    for stone in stoneList:
-        commaList += stone.igo(19) + ','
-    return commaList[0:len(commaList)-1]
+    comma_list = ''
+    for stone in stone_list:
+        comma_list += stone.igo(19) + ','
+    return comma_list[0:len(comma_list) - 1]
 
-def makeDiagram(node):
+
+def make_diagram(node):
     """ Generates igo output for the diagram of the position at the given
     node."""
     diagram = '\\cleargoban\n'
     try:
-        blackStones = commaList(node.goban_data['gobanState']['B'])
-        whiteStones = commaList(node.goban_data['gobanState']['W'])
+        black_stones = comma_list_from_stone_list(node.goban_data['gobanState']['B'])
+        white_stones = comma_list_from_stone_list(node.goban_data['gobanState']['W'])
     except KeyError:
         print "makeDiagram(): move does not have gobanState"
         raise KeyError
-    diagram += '\\white{' + whiteStones + '}\n'
-    diagram += '\\black{' + blackStones + '}\n'
+    diagram += '\\white{' + white_stones + '}\n'
+    diagram += '\\black{' + black_stones + '}\n'
     diagram += '\\cleargobansymbols\n'
-    diagram += glyphCommands(node)
+    diagram += glyph_commands(node)
     diagram += '\\showfullgoban\n'
     return diagram
 
-def makeDiffDiagram(node):
+
+def make_diff_diagram(node):
     """ Generates igo output for the diagram by specifying stones to add and
     stones to remove. """
     diagram = ''
@@ -64,139 +72,145 @@ def makeDiffDiagram(node):
         diagram += '\\white{' + node.igo(19) + '}\n'
     else:
         diagram += '\\black{' + node.igo(19) + '}\n'
-    removedStones = []
+    removed_stones = []
     for group in node.goban_data['captured']:
-        removedStones += group
-    removedList = commaList(removedStones)
-    if len(removedList) > 0:
-        diagram += '\\clear{'+ removedList + '}\n'
+        removed_stones += group
+    removed_list = comma_list_from_stone_list(removed_stones)
+    if len(removed_list) > 0:
+        diagram += '\\clear{' + removed_list + '}\n'
     diagram += '\\cleargobansymbols\n'
-    diagram += glyphCommands(node)
+    diagram += glyph_commands(node)
     diagram += '\\showfullgoban\n'
     return diagram
 
-def putLabels(node):
-    """ Function to add labels like letters and numbers to the diagram. """
-    noop
+
+# def put_labels(node):
+#     """ Function to add labels like letters and numbers to the diagram. """
+#     pass
+
 
 class BeamerMaker:
     """ Creates the beamer-LaTeX code from go games 
 
     Attributes: 
-        frametitle : string : text content of framestart.tex used to let the
+        frame_title : string : text content of framestart.tex used to let the
             user customize title of beamer frames.
-        prediag : string : text content of prediag.tex lets the user define text
+        pre_diagram : string : text content of prediag.tex lets the user define text
             that will be inserted right before diagrams.
-        postdiag : string : text content of postdiag.tex placed right after
+        post_diagram : string : text content of postdiag.tex placed right after
             diagrams
-        framestart : string : text content of framestart.tex placed before
+        frame_start : string : text content of framestart.tex placed before
             SGF-commentary.
     """
-        
+
     def __init__(self):
         """ Sets frametitle, framestart, prediag and postdiag with content from
         corresponding *.tex files """
-        self.frameFile = open(os.path.join(os.getcwd(),'framestart.tex')).read()
-        self.prediag = open(os.path.join(os.getcwd(),'prediag.tex')).read()
-        self.postdiag = open(os.path.join(os.getcwd(), 'postdiag.tex')).read()
-        self.frametitle = open(os.path.join(os.getcwd(),'frametitle.tex')).read().replace('\n','').replace('\r','')
+        self.frame_start = open(os.path.join(os.getcwd(), 'framestart.tex')).read()
+        self.pre_diagram = open(os.path.join(os.getcwd(), 'prediag.tex')).read()
+        self.post_diagram = open(os.path.join(os.getcwd(), 'postdiag.tex')).read()
+        self.frame_title = open(os.path.join(os.getcwd(), 'frametitle.tex')).read().replace('\n', '').replace('\r', '')
 
-    def makePage(self,node,pageType):
+    def make_page(self, node, page_type):
         """ Generate a beamer page (frame) from the given node. Frame beginning,
         SGF commentary, diagram (diff or position) and frame end, with contents
         of frametitle, framestart, prediag, postdiag added at the right places."""
         page = '%%%%%%%%%%%%%%%%%%%% MOVE ' + str(node.moveNumber) + ' %%%%%%%%%%%%%%%%%%%%%%%\n'
         page += '\\begin{frame}\n\n'
-        page += '\\frametitle{' + self.frametitle + '}\n'
-        page += self.frameFile
+        page += '\\frametitle{' + self.frame_title + '}\n'
+        page += self.frame_start
         page += '% % BEGIN SGF COMMENTS % %\n'
-        page += node.getComment() + '\n'
+        page += node.get_comment() + '\n'
         page += '% % END SGF COMMENTS % %\n'
-        page += self.prediag
-        if pageType == 'diff':
-            page += makeDiffDiagram(node)
+        page += self.pre_diagram
+        if page_type == 'diff':
+            page += make_diff_diagram(node)
         else:
-            page += makeDiagram(node)
-        page += self.postdiag
+            page += make_diagram(node)
+        page += self.post_diagram
         page += '\\end{frame}\n'
         return page
-    def ml_from(self,node):
+
+    @staticmethod
+    def ml_from(node):
         """ Visits the tree starting at the given node going to first child
         until a leaf is reached """
-        pathStack = [node]
+        path_stack = [node]
         current = node
-        while current.hasNext():
-            current = current.getChild(0)
-            pathStack.append(current)
-        pathStack.reverse()
-        return pathStack
+        while current.has_next():
+            current = current.get_child(0)
+            path_stack.append(current)
+        path_stack.reverse()
+        return path_stack
 
-    def ml_to(self,node):
+    @staticmethod
+    def ml_to(node):
         """ Generates a path of nodes starting at the root of the tree and
         ending at the given node. """
-        pathStack = [node]
+        path_stack = [node]
         current = node
-        while current.hasParent():
+        while current.has_parent:
             current = current.parent
-            pathStack.append(current)
-        return pathStack
+            path_stack.append(current)
+        return path_stack
 
-    def ml_between(self,start,end):
+    @staticmethod
+    def ml_between(start, end):
         """ Generates a path of nodes starting at the start node and ending at
         the end node. """
-        pathStack = [node]
-        current = node
-        while current.hasParent() and current != end:
+        path_stack = [start]
+        current = start
+        while current.has_parent and current != end:
             current = current.parent
-            pathStack.append(current)
-        return pathStack
+            path_stack.append(current)
+        return path_stack
 
-    def makeFile(self,nodeList):
+    def make_file(self, node_list):
         """ Creates a file from a node list. The file consists of the position
         at the first node in the list, the diff diagrams for each subsequent
         node until the end of the list."""
-        fileS = ''
-        fileS = self.makePage(nodeList.pop(),'position')
-        while len(nodeList) > 0:
-            fileS += self.makePage(nodeList.pop(),'diff')
-        return fileS
+        file_str = self.make_page(node_list.pop(), 'position')
+        while len(node_list) > 0:
+            file_str += self.make_page(node_list.pop(), 'diff')
+        return file_str
 
-    def saveFile(self,string,filename):
+    @staticmethod
+    def save_file(string, filename):
         """ Saves a string to a file with the given filename """
-        f = open(filename,'w')
+        f = open(filename, 'w')
         f.write(string)
         f.close()
 
-    def mainline_from(self,node):
+    @staticmethod
+    def mainline_from(self, node):
         """ Generates the beamer output for the mainline starting at the current
         node. """
-        nodeList = self.ml_from(node)
-        return self.makeFile(nodeList)
+        node_list = BeamerMaker.ml_from(node)
+        return self.make_file(node_list)
 
-    def allOptions(self,node,prefix):
+    def all_options(self, node, prefix):
         """ Generates files for many of the options susceptible of being
         required by the user. In the future the files will have better unique
         names that will not require the to have a numeric ID to avoid name
         collisions."""
-        fileS = ''
         todo_stack = []
         for branch in node.children:
-            todo_stack.append((node,branch))
-        uniqueID = 0
+            todo_stack.append((node, branch))
+        unique_id = 0
         while len(todo_stack) > 0:
-            # Get Todo from stack
             todo = todo_stack.pop()
-            branchPoint = todo[0]
+            branch_point = todo[0]
             branch = todo[1]
-            fileS = self.makePage(branchPoint,'position')
+            file_str = self.make_page(branch_point, 'position')
             current = branch
-            fileS += self.makePage(current,'diff')
-            while not current.isLeaf():
-                current = current.getChild(0)
-                fileS += self.makePage(current,'diff')
-                if current.isBranchPoint():
+            file_str += self.make_page(current, 'diff')
+            while not current.is_leaf():
+                current = current.get_child(0)
+                file_str += self.make_page(current, 'diff')
+                if current.is_branch_point():
                     for branch in current.children:
-                        todo_stack.append((current,branch))
-            uniqueID += 1
-            self.saveFile(fileS,prefix + str(uniqueID) + 'branchPoint' + str(branchPoint.moveNumber) + '_branch' + str(branch))
-            fileS = ''
+                        todo_stack.append((current, branch))
+                        unique_id += 1
+            BeamerMaker.save_file(file_str,
+                                  prefix + str(unique_id) + 'branch_point'
+                                  + str(branch_point.moveNumber) + '_branch' + str(branch))
