@@ -124,6 +124,7 @@ def writeSGF(moveTree, turned180 = False):
                 stack.append(current.getChild(0))
     return text
 
+
 def SGF_to_IGO(sgf_coord, height):
     charX = sgf_coord[0]
     if ord(charX) >= ord('i'):
@@ -360,22 +361,19 @@ def stoneList(sgf_coord_list, color):
         stoneList.append(Stona(color,sgf_coord))
 
 if __name__ == "__main__":
-    # moveTree = Tree('Variations.sgf')
-    moveTree = Tree('edit.sgf')
-    # moveTree = Tree('Attachment-1.sgf')
-#    searchString = '%ALLO'
-#    tv = textSearchVisitor(searchString)
-    #moveTree.acceptVisitor(nodeVisitor())
-#    moveTree.acceptVisitor(tv)
-#    tv.getResult().nodePrint()
-#    print(writeSGF(moveTree))
-    #print(writeSGF(moveTree,True))
-
-    stateVisit(moveTree)
-
-    moveTree.acceptVisitor(nodeVisitor())
-
-    # depthFirstVisit(moveTree.head, Move.nodePrint)
-    # stateVisit(moveTree)
-
-
+# moveTree = Tree('Variations.sgf')
+# moveTree = Tree('edit.sgf')
+# moveTree = Tree('Attachment-1.sgf')
+# searchString = '%ALLO'
+# tv = textSearchVisitor(searchString)
+# moveTree.acceptVisitor(nodeVisitor())
+# moveTree.acceptVisitor(tv)
+# tv.getResult().nodePrint()
+# print(writeSGF(moveTree))
+# print(writeSGF(moveTree,True))
+# stateVisit(moveTree)
+# moveTree.acceptVisitor(nodeVisitor())
+# depthFirstVisit(moveTree.head, Move.nodePrint)
+# stateVisit(moveTree)
+    moveTree = Tree('nassima_phil.sgf')
+    print(writeSGF(moveTree,True))
