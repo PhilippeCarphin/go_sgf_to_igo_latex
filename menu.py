@@ -1,5 +1,5 @@
-import Goban
-import MoveTree
+import goban
+import movetree
 import os
 import sys
 import igo
@@ -154,7 +154,7 @@ class Sai:
                 self.current = current
 
     def findnodeFrom(self,start,string):
-        ts = MoveTree.TextSearchVisitor(string)
+        ts = movetree.TextSearchVisitor(string)
         start.accept_visitor(ts)
         return ts.get_result()
 
@@ -228,7 +228,7 @@ class Sai:
         choix = int(choix) - 1
         if choix >= len(sgf_files):
             choix = len(sgf_files) - 1
-        self.tree = MoveTree.Tree(sgf_files[choix])
+        self.tree = movetree.Tree(sgf_files[choix])
         self.current = self.tree.head
         self.end = self.tree.head
         self.state = 'mainMenu'
@@ -237,7 +237,7 @@ class Sai:
 if __name__ == "__main__":
     cyborg = Sai()
     cyborg.__exec__()
-    mt = MoveTree.Tree('Variations.sgf')
+    mt = movetree.Tree('Variations.sgf')
     bm = BeamerMaker()
     bm.all_options(mt.head, 'Variations:')
 

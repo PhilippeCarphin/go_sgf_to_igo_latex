@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import igo
-import MoveTree
+import movetree
 import sys, getopt
 
 options = "m:f:v:"
@@ -15,7 +15,7 @@ def diagram(argv):
         print "specify exactly one move: diagram filename (-m moveNumber | -f searchString) [-v variation]"
         sys.exit(2)
     else :
-        mt = MoveTree.Tree(sgf_file)
+        mt = movetree.Tree(sgf_file)
         moveOpt = opts[0]
         move = findMove(moveOpt,mt)
         if len(opts) > 1:
@@ -34,7 +34,7 @@ def makeBeamer(argv):
     argv = argv[1:]
     opts , args = getopt.getopt(argv,options,longopts)
     bm = igo.BeamerMaker()
-    mt = MoveTree.Tree(sgf_file)
+    mt = movetree.Tree(sgf_file)
     if len(opts) >= 1:
         moveOpt = opts[0]
         startMove = findMove(moveOpt,mt)
@@ -56,7 +56,7 @@ def findMove(opt,tree):
         for i in range(int(arg)):
             current = current.get_child(0)
     elif lookupType in ['--find','-f']:
-        tsv = MoveTree.TextSearchVisitor(arg)
+        tsv = movetree.TextSearchVisitor(arg)
         tree.head.accept_visitor(tsv)
         current = tsv.get_result()
     elif lookupType in ['--variation','-v']:

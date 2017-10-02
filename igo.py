@@ -1,12 +1,12 @@
 import os
-import MoveTree
+import movetree
 
 
 def sgf_list_to_igo(sgf_list):
     """ Creates a list of igo coordinates from a list of sgf coordinates """
     igo_list = []
     for sgf in sgf_list:
-        igo_list.append(MoveTree.sgf_to_igo(sgf, 19))
+        igo_list.append(movetree.sgf_to_igo(sgf, 19))
     return igo_list
 
 

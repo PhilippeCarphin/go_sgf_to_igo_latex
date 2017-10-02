@@ -1,8 +1,11 @@
 import os
 import re
-import Goban
+import goban
 # for breadth_first_visit()
 # from collections import deque
+
+import unittest
+
 
 ################################################################################
 # Utility functions for treating tokens
@@ -392,30 +395,30 @@ def state_visit(tree):
     stack = []
     done = False
     board_size = int(tree.info.data['SZ'])
-    goban = Goban.Goban(board_size, board_size)
+    my_goban = goban.Goban(board_size, board_size)
     # Place handicap stones
     if 'AB' in tree.info.data:
         for sgf_coord in tree.info.data['AB']:
-            goban.play_move(Stone('B', sgf_coord))
+            my_goban.play_move(Stone('B', sgf_coord))
     # Traverse move tree
     current = tree.head
     while not done:
         while current.has_next():
-            move_diff = goban.play_move(current)
+            move_diff = my_goban.play_move(current)
             if move_diff is not None:
                 current.goban_data['captured'] = move_diff['captured']
-            current.goban_data['gobanState'] = goban.get_stones()
+            current.goban_data['gobanState'] = my_goban.get_stones()
             stack.append(current)
             current = current.get_child(0)
 
-        move_diff = goban.play_move(current)
+        move_diff = my_goban.play_move(current)
         if move_diff is not None:
             current.goban_data['captured'] = move_diff['captured']
-        current.goban_data['gobanState'] = goban.get_stones()
-        goban.undo()
+        current.goban_data['gobanState'] = my_goban.get_stones()
+        my_goban.undo()
         while not current.has_next_sibling() and len(stack) > 0:
             current = stack.pop()
-            goban.undo()
+            my_goban.undo()
         if len(stack) == 0:
             done = True
         else:

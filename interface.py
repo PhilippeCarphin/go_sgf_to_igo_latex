@@ -1,4 +1,4 @@
-import MoveTree
+import movetree
 from Tkinter import *
 from Tkinter import Tk
 import tkFileDialog    
@@ -12,7 +12,7 @@ class mainUI:
 
     def openfile(self):
         filename = tkFileDialog.askopenfilename()
-        self.tree = MoveTree.Tree(filename)
+        self.tree = movetree.Tree(filename)
         
 if __name__ == "__main__":
     myUI = mainUI()

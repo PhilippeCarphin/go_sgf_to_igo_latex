@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import MoveTree
+import movetree
 
 
 def goban_to_sgf(goban_coord):
@@ -47,14 +47,14 @@ class Goban:
         self.ko = (0, 0)
         self.positionStack = []
         self.moveStack = []
-        self.currentMove = MoveTree.Move(0)
+        self.currentMove = movetree.Move(0)
 
     def clear_goban(self):
         self.board = dict()
         self.positionStack = []
         self.moveStack = []
         self.ko = (0, 0)
-        self.currentMove = MoveTree.Move(0)
+        self.currentMove = movetree.Move(0)
 
     """ Saves the current position to a stack of board positions.  This is
     useful for navigating a move tree and for implementing the upgraded ko
@@ -149,7 +149,7 @@ class Goban:
         for coord in group:
             assert coord in self.board, "__get_group_stones() stone should be in board"
             color = self.board[coord]
-            group_stones.append(MoveTree.Stone(color, goban_to_sgf(coord)))
+            group_stones.append(movetree.Stone(color, goban_to_sgf(coord)))
         return group_stones
 
     """ Updates the state based on a move being played """
@@ -198,7 +198,7 @@ class Goban:
         stones = {'W': [], 'B': []}
         for coord in self.board:
             color = self.board[coord]
-            stones[color].append(MoveTree.Stone(color, goban_to_sgf(coord)))
+            stones[color].append(movetree.Stone(color, goban_to_sgf(coord)))
         return stones
 
     def resolve_captures(self, stone):
@@ -270,27 +270,27 @@ def goban_test():
 
     test_goban.clear_goban()
 
-    test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='of'))
-    test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='pf'))
+    test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='of'))
+    test_goban.play_move(movetree.Move(parent=0, color='W', sgf_coord='pf'))
 
-    test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='oh'))
-    test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='ph'))
+    test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='oh'))
+    test_goban.play_move(movetree.Move(parent=0, color='W', sgf_coord='ph'))
 
-    test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='ng'))
-    test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='qg'))
+    test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='ng'))
+    test_goban.play_move(movetree.Move(parent=0, color='W', sgf_coord='qg'))
 
-    test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='pg'))
-    test_goban.play_move(MoveTree.Move(parent=0, color='W', sgf_coord='og'))
+    test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='pg'))
+    test_goban.play_move(movetree.Move(parent=0, color='W', sgf_coord='og'))
 
     try:
-        test_goban.play_move(MoveTree.Move(parent=0, color='B', sgf_coord='pg'))
+        test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='pg'))
     except GobanError:
         print("Ko rule violation correctly detected")
 
 
 def move_tree_test():
     print 'Creating Move Tree'
-    mt = MoveTree.Tree('nassima_phil.sgf')
+    mt = movetree.Tree('nassima_phil.sgf')
     # mt.head.acceptVisitor(MoveTree.nodeVisitor())
     current = mt.head.get_child(0)
     current = current.get_child(0)
@@ -298,7 +298,7 @@ def move_tree_test():
 
     current.node_print()
     mt.accept_visitor(StateVisitor())
-    mt.accept_visitor(MoveTree.NodeVisitor())
+    mt.accept_visitor(movetree.NodeVisitor())
 
 
 if __name__ == "__main__":
