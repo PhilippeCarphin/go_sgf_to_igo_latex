@@ -1,91 +1,119 @@
 import os
-import sys
 import re
 import Goban
-from collections import deque
+# for breadth_first_visit()
+# from collections import deque
+
 ################################################################################
 # Utility functions for treating tokens
 ################################################################################
-listTypes = ['AB','AE','AW','CR','TR','SQ','LB']
+listTypes = ['AB', 'AE', 'AW', 'CR', 'TR', 'SQ', 'LB']
 elistTypes = ['LB']
-""" Unescapes the characters ] and \ characters """
-def unescape(string):
-    return string.replace('\\\\','\\').replace('\\]',']')
+
+""" Un-escapes the characters ] and \ characters """
+
+
+def un_escape(string):
+    return string.replace('\\\\', '\\').replace('\\]', ']')
+
+
 """ Escapes the characters ] and \ characters """
+
+
 def escape(string):
-    return string.replace('\\','\\\\').replace(']','\\]')
+    return string.replace('\\', '\\\\').replace(']', '\\]')
+
+
 """ Returns a list of tokens that are either a perentheses, a move, or the
 info thing at the start. Extracted by regexp from string """
-def makeFileTokens( string ):
+
+
+def make_file_tokens(string):
     paren = r'[()]'
     component = r'(?:[A-Z]*(?:\[.*?[^\\]\]\r?\n?)+)'
-    tokenRegex = re.compile(paren + '|' + component + '+', re.DOTALL)
-    tokenList = tokenRegex.findall(string)
-    tokenList = tokenList[1:len(tokenList)-1]
-    return tokenList
+    token_regex = re.compile(paren + '|' + component + '+', re.DOTALL)
+    token_list = token_regex.findall(string)
+    token_list = token_list[1:len(token_list) - 1]
+    return token_list
+
+
 """ Subdivides token data into the right bits based on the type """
-def breakTokenData(typeToken,dataToken):
-    tokenData = re.compile(r'\[(.*?[^\\])\]',re.DOTALL).findall(dataToken)
-    if typeToken in ['W','B']:
+
+
+def break_token_data(type_token, data_token):
+    token_data = re.compile(r'\[(.*?[^\\])\]', re.DOTALL).findall(data_token)
+    if type_token in ['W', 'B']:
         assert 0
-    elif typeToken == 'LB':
+    elif type_token == 'LB':
         i = 0
-        while i < len(tokenData):
-            tokenData[i] = (tokenData[i][0:2],tokenData[i][3])
+        while i < len(token_data):
+            token_data[i] = (token_data[i][0:2], token_data[i][3])
             i += 1
-    elif typeToken not in listTypes:
-        tokenData = unescape(tokenData[0])
-    return tokenData
+    elif type_token not in listTypes:
+        token_data = un_escape(token_data[0])
+    return token_data
+
+
 """ Returns a move created by the supplied token with specified parent and move
 number """
-def createMove(token,Parent,moveNumber):
-    move = Move(Parent)
-    move.moveNumber = moveNumber
+
+
+def create_move(token, parent, move_number):
+    move = Move(parent)
+    move.moveNumber = move_number
     component = r'([A-Z]+)((?:\[.*?[^\\]\]\r?\n?)+)'
-    subtokens = re.compile(component,re.DOTALL).findall(token)
-    for subtok in subtokens:
-        if subtok[0] == 'W' or subtok[0] == 'B':
-            move.color = subtok[0]
-            move.SGF_coord = subtok[1][1:3]
+    sub_tokens = re.compile(component, re.DOTALL).findall(token)
+    for sub_token in sub_tokens:
+        if sub_token[0] == 'W' or sub_token[0] == 'B':
+            move.color = sub_token[0]
+            move.sgf_coord = sub_token[1][1:3]
         else:
-            move.data[subtok[0]] = breakTokenData(subtok[0],subtok[1])
+            move.data[sub_token[0]] = break_token_data(sub_token[0], sub_token[1])
     return move
+
+
 """ Returns the head of a move tree based on the content of an SGF_file """
-def MakeTree(fileContent):
+
+
+def make_tree(file_content):
     """ More elegant way of doing it """
-    fileTokens = makeFileTokens(fileContent)
+    file_tokens = make_file_tokens(file_content)
     root = Node(0)
     tip = root
-    branchPointStack = []
-    moveNumber = 0
-    for token in fileTokens:
+    branch_point_stack = []
+    move_number = 0
+    for token in file_tokens:
         if token == '(':
-            branchPointStack.append(tip)
-            branchPointStack.append(moveNumber)
+            branch_point_stack.append(tip)
+            branch_point_stack.append(move_number)
         elif token == ')':
-            moveNumber = branchPointStack.pop()
-            tip = branchPointStack.pop()
+            move_number = branch_point_stack.pop()
+            tip = branch_point_stack.pop()
         else:
-            newMove = createMove(token,tip,moveNumber)
-            if newMove.color != 'E':
-                moveNumber += 1
-            tip.addChild(newMove)
-            tip = newMove
-    root = root.getChild(0)
+            new_move = create_move(token, tip, move_number)
+            if new_move.color != 'E':
+                move_number += 1
+            tip.add_child(new_move)
+            tip = new_move
+    root = root.get_child(0)
     root.parent = 0
     return root
+
+
 """ Returns the SGF_token corresponding to move """
-def MakeToken(move,turned180 = False):
+
+
+def make_token(move, turned180=False):
     token = ';'
-    if move.color in ['W','B']:
+    if move.color in ['W', 'B']:
         if turned180:
-            coord = move.SGF_coord
+            coord = move.sgf_coord
             x = ord(coord[0]) - ord('a') + 1
             y = ord(coord[1]) - ord('a') + 1
             turned_x = 19 - x + 1
             turned_y = 19 - y + 1
-            turnedSGF   = chr(turned_x + ord('a') - 1 ) + chr(turned_y + ord('a') - 1)
-            token += move.color + '[' + turnedSGF + ']'
+            turned_sgf = chr(turned_x + ord('a') - 1) + chr(turned_y + ord('a') - 1)
+            token += move.color + '[' + turned_sgf + ']'
         else:
             token += move.color + '[' + str(move.SGF_coord) + ']'
     for key in move.data:
@@ -99,18 +127,19 @@ def MakeToken(move,turned180 = False):
                 token += '[' + elem + ']'
         else:
             token += key
-            token += '[' + escape( move.data[key]) + ']'
+            token += '[' + escape(move.data[key]) + ']'
     return token
 
-def writeSGF(moveTree, turned180 = False):
-    stack = [')', moveTree.info, '(']
+
+def write_sgf(move_tree, turned180=False):
+    stack = [')', move_tree.info, '(']
     text = ''
     while len(stack) > 0:
         current = stack.pop()
-        if current in ['(',')(',')']:
+        if current in ['(', ')(', ')']:
             text += current
         else:
-            text += MakeToken(current,turned180)
+            text += make_token(current, turned180)
             n = len(current.children)
             if n > 1:
                 stack.append(')')
@@ -121,259 +150,315 @@ def writeSGF(moveTree, turned180 = False):
                 stack.append(current.children[0])
                 stack.append('(')
             elif n == 1:
-                stack.append(current.getChild(0))
+                stack.append(current.get_child(0))
     return text
 
 
-def SGF_to_IGO(sgf_coord, height):
-    charX = sgf_coord[0]
-    if ord(charX) >= ord('i'):
-        charX = chr(ord(sgf_coord[0]) + 1)
-    numY = str( ord(sgf_coord[1]) - ord('a') + 1)
-    numY = str(height - ( ord(sgf_coord[1]) - ord('a')))
-    return charX + numY
+def sgf_to_igo(sgf_coord, height):
+    char_x = sgf_coord[0]
+    if ord(char_x) >= ord('i'):
+        char_x = chr(ord(sgf_coord[0]) + 1)
+    num_y = str(height - (ord(sgf_coord[1]) - ord('a')))
+    return char_x + num_y
+
+
 ################################################################################
 # Class node.  Base class of move Tree composite pattern
 ################################################################################
 class Node:
-    def __init__(self,parent):
+    def __init__(self, parent):
         self.children = []
         self.parent = parent
         self.childNumber = 0
-    def hasNext(self):
-        if self.children != []:
+
+    def has_next(self):
+        if self.children:
             return True
         else:
             return False
-    def hasParent(self):
+
+    @property
+    def has_parent(self):
         if self.parent == 0:
             return False
         else:
             return True
-    def getChild(self,i=0):
-        return self.children[0]
-    def getParent(self):
+
+    def get_child(self, i=0):
+        return self.children[i]
+
+    def get_parent(self):
         return self.parent
-    def addChild(self,child):
+
+    def add_child(self, child):
         child.childNumber = len(self.children)
         self.children.append(child)
-    def hasNextSibling(self):
+
+    def has_next_sibling(self):
         if self.parent == 0:
             return False
         return len(self.parent.children) > self.childNumber + 1
-    def getNextSibling(self):
-        if self.hasNextSibling():
+
+    def get_next_sibling(self):
+        if self.has_next_sibling():
             return self.parent.children[self.childNumber + 1]
-    def isBranchPoint(self):
+
+    def is_branch_point(self):
         if len(self.children) > 1:
             return True
         else:
             return False
-    def nextSibling(self):
-        k
-    def isLeaf(self):
+
+    # def nextSibling(self):
+    #    k
+
+    def is_leaf(self):
         if len(self.children) == 0:
             return True
         else:
             return False
-    def clearChildren(self):
+
+    def clear_children(self):
         self.children = []
-    def getMainlineToSelf(self):
-        mainline= []
+
+    def get_mainline_to_self(self):
+        mainline = []
         current = self
         while current.parent != 0:
             mainline.append(current)
-            current = current.getParent()
+            current = current.get_parent()
         mainline.reverse()
         return mainline
-    def acceptVisitor(self,visitor):
+
+    def accept_visitor(self, visitor):
         visitor.visit(self)
-    def nodePrint(self):
+
+    def node_print(self):
         print 'Node'
+
+
 ################################################################################
 # Class Stone.  Represents a stone on the goban
 ################################################################################
 class Stone:
-    def __init__(self,color = 0, SGF_coord = 'XX'):
+    def __init__(self, color=None, sgf_coord='XX'):
         self.color = color
-        self.SGF_coord = SGF_coord
-    def igo(self,height):
-        charX = self.SGF_coord[0]
-        return SGF_to_IGO(self.SGF_coord,height)
+        self.sgf_coord = sgf_coord
+
+    def igo(self, height):
+        return sgf_to_igo(self.sgf_coord, height)
+
     def sgf(self):
         """ returns SGF coordinates of stone """
-        return self.SGF_coord
+        return self.sgf_coord
+
     """ returns goban coordinates of stone """
+
     def goban(self):
-        x = 1 + ord(self.SGF_coord[0]) - ord('a')
-        y = 1 + ord(self.SGF_coord[1]) - ord('a')
-        return (x,y)
+        x = 1 + ord(self.sgf_coord[0]) - ord('a')
+        y = 1 + ord(self.sgf_coord[1]) - ord('a')
+        return x, y
+
     def __str__(self):
-        return self.color + str(self.SGF_coord)
+        return str(self.color) + self.sgf_coord
+
     def __repr__(self):
-        return self.color + str(self.SGF_coord)
+        return str(self.color) + self.sgf_coord
         # return self.color + self.igo(19)
+
+
 ################################################################################
 # Class Move(Node) Contains move data and methods
 ################################################################################
-class Move(Node,Stone):
-    def __init__(self,parent):
-        Node.__init__(self,parent)
+class Move(Node, Stone):
+    def __init__(self, parent):
+        Node.__init__(self, parent)
         Stone.__init__(self)
         self.moveNumber = 0
         self.data = {}
         self.goban_data = {}
         self.color = 'E'
-    def nodePrint(self):
+
+    def node_print(self):
         print '%%% MoveInfo'
         print '%%% Number    : ', self.moveNumber
         print '%%% Color     : ', self.color
-        print '%%% Coord     : ', self.SGF_coord
+        print '%%% Coord     : ', self.sgf_coord
         print '%%% Data      : ', self.data
-        print '%%% SGF_token : ', MakeToken(self)
+        print '%%% SGF_token : ', make_token(self)
         print '%%% GobanState: ', self.goban_data
         print '%%% Children  : ', self.children
-    def getComment(self):
-        if self.data.has_key('C'):
+
+    def get_comment(self):
+        if 'C' in self.data:
             return self.data['C']
-        else :
+        else:
             return ''
+
     """ returns IGO coordinates of move """
-    def labels(self):
-        return 'TODO'
+
+    # def labels(self):
+    #     # TODO
+    #     return 'TODO'
+
     def __repr__(self):
-        return self.color + str(self.SGF_coord)
+        return self.color + str(self.sgf_coord)
+
+
 ################################################################################
 # Master class of composite pattern
 ################################################################################
 class Tree:
-    def __init__(self,filename):
-        filePath = os.path.join(os.getcwd(),filename)
-        fileContent = open(filePath).read()
-        self.head = MakeTree(fileContent)
+    def __init__(self, filename):
+        file_path = os.path.join(os.getcwd(), filename)
+        file_content = open(file_path).read()
+        self.head = make_tree(file_content)
         self.info = self.head
-        self.head = self.head.getChild(0)
+        self.head = self.head.get_child(0)
         self.head.parent = 0
-        stateVisit(self)
+        state_visit(self)
         # self.acceptVisitor(Goban.stateVisitor())
 
-    def acceptVisitor(self, visitor):
-        self.head.acceptVisitor(visitor)
+    def accept_visitor(self, visitor):
+        self.head.accept_visitor(visitor)
 
-    def printInfo(self):
+    def print_info(self):
         print '%%%% GAME INFO'
         for key in self.info.data:
-            print( '%%% ' + key + ' : ' + self.info.data[key])
+            print('%%% ' + key + ' : ' + self.info.data[key])
+
+
 ################################################################################
-# Preorder printing visitor
+# Pre order printing visitor
 ################################################################################
-class nodeVisitor:
-    def visit(self,node):
-        node.nodePrint()
+class NodeVisitor:
+    def __init__(self):
+        pass
+
+    def visit(self, node):
+        node.node_print()
         for child in node.children:
-            child.acceptVisitor(self)
-class textSearchVisitor:
-    def __init__(self,searchString):
-        self.searchString = searchString
+            child.accept_visitor(self)
+
+
+class TextSearchVisitor:
+    def __init__(self, search_string):
+        self.searchString = search_string
         self.result = Move(0)
-    def getResult(self):
+
+    def get_result(self):
         return self.result
-    def visit(self,node):
-        if self.searchString in node.getComment():
+
+    def visit(self, node):
+        if self.searchString in node.get_comment():
             self.result = node
         else:
             for child in node.children:
-                child.acceptVisitor(self)
+                child.accept_visitor(self)
+
+
 ################################################################################
 # Single branch printing visitor
 ################################################################################
-class mainlineVisitor:
-    def visit(self,node):
-        node.nodePrint()
-        if node.hasNext():
-            node.getChild(0).acceptVisitor(self)
-def depthFirstVisit(root, function):
+class MainlineVisitor:
+    def __init__(self):
+        pass
+
+    def visit(self, node):
+        node.node_print()
+        if node.has_next():
+            node.get_child(0).accept_visitor(self)
+
+
+def depth_first_visit(root, f):
     stack = [root]
     while len(stack) > 0:
         current = stack.pop()
-        function(current)
+        f(current)
         for child in reversed(current.children):
             stack.append(child)
 
-def breadthFirstVisit(root, function):
-    queue = deque([root])
-    while len(queue) > 0:
-        for child in current.children:
-            queue.append(child)
+
+# def breadth_first_visit(root, f):
+#     queue = deque([root])
+#     while len(queue) > 0:
+#         for child in current.children:
+#             queue.append(child)
+#
 
 """ Go throught the nodes of a tree and add goban_state information to each node
 """
-def stateVisit(tree):
+
+
+def state_visit(tree):
     stack = []
     done = False
     board_size = int(tree.info.data['SZ'])
-    goban = Goban.Goban(board_size,board_size)
+    goban = Goban.Goban(board_size, board_size)
     # Place handicap stones
-    if tree.info.data.has_key('AB'):
+    if 'AB' in tree.info.data:
         for sgf_coord in tree.info.data['AB']:
             goban.playMove(Stone('B', sgf_coord))
     # Traverse move tree
     current = tree.head
     while not done:
-        while current.hasNext():
-            moveDiff = goban.playMove(current)
-            if moveDiff != None:
-                current.goban_data['captured'] = moveDiff['captured']
+        while current.has_next():
+            move_diff = goban.playMove(current)
+            if move_diff is not None:
+                current.goban_data['captured'] = move_diff['captured']
             current.goban_data['gobanState'] = goban.getStones()
             stack.append(current)
-            current = current.getChild(0)
+            current = current.get_child(0)
 
-        moveDiff = goban.playMove(current)
-        if moveDiff != None:
-            current.goban_data['captured'] = moveDiff['captured']
+        move_diff = goban.playMove(current)
+        if move_diff is not None:
+            current.goban_data['captured'] = move_diff['captured']
         current.goban_data['gobanState'] = goban.getStones()
         goban.undo()
-        while not current.hasNextSibling() and len(stack) > 0:
+        while not current.has_next_sibling() and len(stack) > 0:
             current = stack.pop()
             goban.undo()
-        if len( stack ) == 0:
+        if len(stack) == 0:
             done = True
         else:
-            current = current.getNextSibling()
+            current = current.get_next_sibling()
 
-def getGobanState(move):
-    stack = [move]
-    current = Move()
 
-    while current.hasParent():
-        stack.append(current.parent)
-        current = current.parent
+# def get_goban_state(move):
+#     stack = [move]
+#     current = Move(0)
+#
+#     while current.has_parent:
+#         stack.append(current.parent)
+#         current = current.parent
+#
+#     board_size = int(tree.info.data['SZ'])
+#     goban = Goban.Goban(board_size, board_size)
+#     while len(stack) > 0:
+#         goban.playMove(stack.pop())
+#     return goban
+#
+#
+# def stoneList(sgf_coord_list, color):
+#     stoneList = []
+#     for sgf_coord in sgf_coord_list:
+#         stoneList.append(Stona(color, sgf_coord))
 
-    board_size = int(tree.info.data['SZ'])
-    goban = Goban.Goban(board_size,board_size)
-    while len(stack) > 0:
-        goban.playMove(stack.pop())
-    return goban
-
-def stoneList(sgf_coord_list, color):
-    stoneList = []
-    for sgf_coord in sgf_coord_list:
-        stoneList.append(Stona(color,sgf_coord))
 
 if __name__ == "__main__":
-# moveTree = Tree('Variations.sgf')
-# moveTree = Tree('edit.sgf')
-# moveTree = Tree('Attachment-1.sgf')
-# searchString = '%ALLO'
-# tv = textSearchVisitor(searchString)
-# moveTree.acceptVisitor(nodeVisitor())
-# moveTree.acceptVisitor(tv)
-# tv.getResult().nodePrint()
-# print(writeSGF(moveTree))
-# print(writeSGF(moveTree,True))
-# stateVisit(moveTree)
-# moveTree.acceptVisitor(nodeVisitor())
-# depthFirstVisit(moveTree.head, Move.nodePrint)
-# stateVisit(moveTree)
+    # moveTree = Tree('Variations.sgf')
+    # moveTree = Tree('edit.sgf')
+    # moveTree = Tree('Attachment-1.sgf')
+    # searchString = '%ALLO'
+    # tv = textSearchVisitor(searchString)
+    # moveTree.acceptVisitor(nodeVisitor())
+    # moveTree.acceptVisitor(tv)
+    # tv.getResult().nodePrint()
+    # print(writeSGF(moveTree))
+    # print(writeSGF(moveTree,True))
+    # stateVisit(moveTree)
+    # moveTree.acceptVisitor(nodeVisitor())
+    # depthFirstVisit(moveTree.head, Move.nodePrint)
+    # stateVisit(moveTree)
     moveTree = Tree('nassima_phil.sgf')
-    print(writeSGF(moveTree,True))
+    print(write_sgf(moveTree, True))
