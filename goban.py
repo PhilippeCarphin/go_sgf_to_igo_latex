@@ -205,7 +205,8 @@ class Goban:
             return {'captured': captured_stones, 'move': move.color + str(move.sgf_coord)}
 
     def put_stone(self, color, coord):
-        assert coord not in self.board, "There is already a move here"
+        if coord in self.board:
+            raise GobanError("Already a stone there")
         self.board[coord] = color
 
     def in_atari(self, coord):

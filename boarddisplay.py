@@ -40,6 +40,26 @@ class BoardCanvas:
         self.side_length = 0
         self.stone_size = 0
         self.draw_position()
+        self.canvas.bind("<Button-1>", self.clicked_event)
+        self.turn = 'B'
+        self.goban = goban.Goban(19,19)
+
+    def clicked_event(self, event):
+        goban_coord = self.position_to_goban_coord(event.x, event.y)
+        m = movetree.Move(0, color=self.turn, sgf_coord=goban.goban_to_sgf(goban_coord))
+        try:
+            self.goban.play_move(m)
+        except goban.GobanError as e:
+            print("Goban error with move " + str(m) + ' : ' + str(e))
+            return
+        self.turn = 'B' if self.turn == 'W' else 'W'
+        self.position = self.goban.board
+        self.draw_position()
+
+    def position_to_goban_coord(self, x, y):
+        goban_coord = (int(0.5 + (x + self.cell_size / 2.0) / self.cell_size),
+                       int(0.5 + (y + self.cell_size // 2) / self.cell_size))
+        return goban_coord
 
     def set_position(self, my_goban):
         self.position = my_goban
@@ -88,16 +108,16 @@ if __name__ == "__main__":
     bc = BoardCanvas(root)
 
     # Charger le fichier d'une partie de Go
-    moveTree = movetree.Tree("test_files/expected_write_sgf.sgf")
-
+    # moveTree = movetree.Tree("test_files/expected_write_sgf.sgf")
+    #
     # Naviguer l'arbre jusqu'a la fin
-    current = moveTree.head
-    main_goban = goban.Goban(19,19)
-    while current.has_next():
-        main_goban.play_move(current)
-        current = current.get_child(0)
-
-    my_position = main_goban.board
-    bc.set_position(my_position)
+    # current = moveTree.head
+    # main_goban = goban.Goban(19,19)
+    # while current.has_next():
+    #     main_goban.play_move(current)
+    #     current = current.get_child(0)
+    #
+    # my_position = main_goban.board
+    # bc.set_position(my_position)
     root.mainloop()
     
