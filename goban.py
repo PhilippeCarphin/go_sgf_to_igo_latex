@@ -310,17 +310,15 @@ def goban_test():
 
 
 def move_tree_test():
-    print('Creating Move Tree')
     mt = movetree.Tree('nassima_phil.sgf')
-    # mt.head.acceptVisitor(MoveTree.nodeVisitor())
+    gb = Goban(19, 19)
     current = mt.head.get_child(0)
-    current = current.get_child(0)
-    # current = current.get_child(0)
+    gb.play_move(current)
+    while current.has_next():
+        current = current.get_child(0)
+        gb.play_move(current)
 
-    current.node_print()
-    mt.accept_visitor(StateVisitor())
-    mt.accept_visitor(movetree.NodeVisitor())
-
+    BoardCanvas.display_board(gb.board)
 
 if __name__ == "__main__":
     goban = Goban(19, 19)

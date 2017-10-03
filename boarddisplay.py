@@ -58,7 +58,7 @@ class BoardCanvas:
 
     def position_to_goban_coord(self, x, y):
         goban_coord = (int(0.5 + (x + self.cell_size / 2.0) / self.cell_size),
-                       int(0.5 + (y + self.cell_size // 2) / self.cell_size))
+                       int(0.5 + (y + self.cell_size / 2.0) / self.cell_size))
         return goban_coord
 
     def set_position(self, my_goban):
