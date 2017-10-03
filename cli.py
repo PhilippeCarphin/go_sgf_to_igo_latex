@@ -2,69 +2,75 @@
 
 import igo
 import movetree
-import sys, getopt
+import sys
+import getopt
 
 options = "m:f:v:"
-longopts = ["move=","find=","variation="]
+long_opts = ["move=", "find=", "variation="]
+
 
 def diagram(argv):
     sgf_file = argv[0]
     argv = argv[1:]
-    opts , args = getopt.getopt(argv,options,longopts)
+    opts, args = getopt.getopt(argv, options, long_opts)
     if len(opts) < 1:
-        print "specify exactly one move: diagram filename (-m moveNumber | -f searchString) [-v variation]"
+        print("specify exactly one move: diagram filename (-m moveNumber | -f searchString) [-v variation]")
         sys.exit(2)
-    else :
+    else:
         mt = movetree.Tree(sgf_file)
-        moveOpt = opts[0]
-        move = findMove(moveOpt,mt)
+        move_opt = opts[0]
+        move = find_move(move_opt, mt)
         if len(opts) > 1:
-            varOpt = opts[1]
-            if varOpt[0] in ['--variation','-v']:
-                varNum = varOpt[1]
+            var_opt = opts[1]
+            if var_opt[0] in ['--variation', '-v']:
+                var_num = var_opt[1]
             else:
-                print "Additional argument can only be variation"
+                print("Additional argument can only be variation")
                 sys.exit(2)
-            move = move.getChild(int(varNum))
+            move = move.getChild(int(var_num))
     string = igo.make_diagram(move)
-    print string
+    print(string)
 
-def makeBeamer(argv):
+
+def make_beamer(argv):
     sgf_file = argv[0]
     argv = argv[1:]
-    opts , args = getopt.getopt(argv,options,longopts)
+    opts, args = getopt.getopt(argv, options, long_opts)
     bm = igo.BeamerMaker()
     mt = movetree.Tree(sgf_file)
+    file_string = ''
     if len(opts) >= 1:
-        moveOpt = opts[0]
-        startMove = findMove(moveOpt,mt)
-        fileString = bm.mainline_from(startMove)
-        if len(opts) == 2 and opts[1][0] in ['--variation','-v']:
-            varNum = opts[1][1]
-            secondMove = startMove.getChild(int(varNum))
-            nodeList = [startMove] + bm.ml_from(secondMove)
-        
-    
-    print fileString
+        move_opt = opts[0]
+        start_move = find_move(move_opt, mt)
+        file_string = bm.mainline_from(start_move)
+        if len(opts) == 2 and opts[1][0] in ['--variation', '-v']:
+            pass
+            # var_num = opts[1][1]
+            # second_move = start_move.getChild(int(var_num))
+            # node_list = [start_move] + bm.ml_from(second_move)
+    print(file_string)
 
 
-def findMove(opt,tree):
-    lookupType = opt[0]
+def find_move(opt, tree):
+    lookup_type = opt[0]
     arg = opt[1]
-    if lookupType in ['--move','-m']:
+    current = None
+    if lookup_type in ['--move', '-m']:
         current = tree.head
         for i in range(int(arg)):
             current = current.get_child(0)
-    elif lookupType in ['--find','-f']:
+    elif lookup_type in ['--find', '-f']:
         tsv = movetree.TextSearchVisitor(arg)
         tree.head.accept_visitor(tsv)
         current = tsv.get_result()
-    elif lookupType in ['--variation','-v']:
+    elif lookup_type in ['--variation', '-v']:
         current = None
     return current
 
+
 def rotate(opts):
     filename = opts[0]
+    move_tree = None
     try:
         move_tree = movetree.Tree(filename)
     except IOError:
@@ -74,19 +80,20 @@ def rotate(opts):
     if len(opts) > 1 and opts[1] == '--output':
         output_file = opts[2]
         with open(output_file, 'w') as f:
-            f.write(output, True)
+            f.write(output)
     else:
         print(output)
 
+
 command = sys.argv[1]
 if command == 'beamer':
-    exit(makeBeamer(sys.argv[2:]))
+    exit(make_beamer(sys.argv[2:]))
 elif command == 'diagram':
     exit(diagram(sys.argv[2:]))
 elif command == 'rotate':
     exit(rotate(sys.argv[2:]))
 else:
-    print("Invalid command ",command)
+    print("Invalid command ", command)
 
 # Produce a diagram of the position at move three.
     # ./Cli.py diagram Variations.sgf -m 3
@@ -94,7 +101,7 @@ else:
 # Produce a diagram of the position at move containing "%MARKER"
     # ./Cli.py diagram Variations.sgf -f honor
 
-# Produce beamer pages for move containting %Marker1 to leaf.
+# Produce beamer pages for move containing %Marker1 to leaf.
     # ./Cli.py beamer Variations.sgf -f honor
 
 # Produce beamer pages for move containing %marker to end
@@ -103,10 +110,4 @@ else:
 
 # Produce beamer pages for move containing marker %Marker variation 2
 
-
-
 # Diagrams or beamer pages, or beamer page.
-
-
-
-

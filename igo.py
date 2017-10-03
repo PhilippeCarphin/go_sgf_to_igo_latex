@@ -181,7 +181,6 @@ class BeamerMaker:
         f.write(string)
         f.close()
 
-    @staticmethod
     def mainline_from(self, node):
         """ Generates the beamer output for the mainline starting at the current
         node. """
