@@ -50,16 +50,16 @@ class Sai:
     def clear(self):
         """ Clears the screen and displays the heading """
         os.system('cls' if os.name == 'nt' else 'clear')
-        print "=============================== IGO-LaTeX v.0.1 ================================="
+        print("=============================== IGO-LaTeX v.0.1 =================================")
 
     def printCurrent(self):
         """ Displays the current start move """
-        print "================================== Current Move ==================================="
+        print("================================== Current Move ===================================")
         self.current.node_print()
 
     def printEnd(self):
         """ Displays the current end move """
-        print "==================================== End move ====================================="
+        print("==================================== End move =====================================")
         self.end.node_print()
 
     def clearPrint(self):
@@ -75,7 +75,7 @@ class Sai:
         self.tree.print_info()
         self.printCurrent()
         self.printEnd()
-        choix = raw_input(""" >>>> JS, (c'est correct si je t'appelle JS?), je suis pret a produire des
+        choix = input(""" >>>> JS, (c'est correct si je t'appelle JS?), je suis pret a produire des
         diagrammes LaTeX vraiment sick pour toi!!
         
         Je peux produire plusieurs sortes de diagrammes pour toi. Choisis le
@@ -96,7 +96,7 @@ class Sai:
 
     def trouverNoeudFin(self):
         self.clearPrint()
-        choix = raw_input(""" Whyyyy is the ice slippery ?
+        choix = input(""" Whyyyy is the ice slippery ?
 
         Chercher un noeud de fin par
         
@@ -108,7 +108,7 @@ class Sai:
         if choix == 'A' or choix == 'a':
             self.state = 'mainMenu'
         elif choix == 'C' or choix == 'c':
-            searchString = raw_input(""" Jean-Sebastien, dit moi la chaine de
+            searchString = input(""" Jean-Sebastien, dit moi la chaine de
             caracteres a chercher : """)
             self.end = self.findnodeFrom(self.tree.head,searchString)
         else:
@@ -124,7 +124,7 @@ class Sai:
 
     def trouverNoeud(self):
         self.clearPrint()
-        choix = raw_input(""" Mes systemes sont a la fine pointe de la
+        choix = input(""" Mes systemes sont a la fine pointe de la
         technologie.  J'ai donc plusieurs facons de trouver des noeuds
 
         C: par commentaire
@@ -139,7 +139,7 @@ class Sai:
         #     for child in self.end.children:
         #         child.nodePrint()
         elif choix == 'C' or choix == 'c':
-            searchString = raw_input(""" Jean-Sebastien, dit moi la chaine de
+            searchString = input(""" Jean-Sebastien, dit moi la chaine de
             caracteres a chercher : """)
             self.current = self.findnodeFrom(self.current,searchString)
         else:
@@ -160,8 +160,8 @@ class Sai:
 
     def userValidate(self):
         self.clear()
-        print self.fileS
-        choix = raw_input(""" >>>> Voici le code genere, est-ce qu'il te plait? 
+        print(self.fileS)
+        choix = input(""" >>>> Voici le code genere, est-ce qu'il te plait? 
 
         o : oui
         n : non
@@ -174,7 +174,7 @@ class Sai:
 
     def saveFile(self):
         self.clear()
-        name = raw_input(""" >>>> Super! Je suis content d'avoir pu rencontrer
+        name = input(""" >>>> Super! Je suis content d'avoir pu rencontrer
         tes exigences.
 
         Quel nom veux-tu donner au fichier?
@@ -188,14 +188,14 @@ class Sai:
 
     def introScreen(self):
         self.clear()
-        print """
+        print("""
         Bonjour Jean-Sebastien, je suis ton assistant Sai, que puis-je faire pour
         toi aujoutd'hui?
 
         Ouvrir Fichier SGF : O
 
-        """
-        choix = raw_input(" Ton choix :")
+        """)
+        choix = input(" Ton choix :")
         choix = 'o'
         if choix == 'o' or choix == 'O':
             self.state = 'open'
@@ -211,18 +211,18 @@ class Sai:
                 sgf_files.append(file)
 
         # Write message
-        print """
+        print(""""
         \" Listen up maggots, Popo's about to teach you the pecking order...\"
 
         Choisi parmi les fichiers suivants lequel tu veux ouvrir
-        """
+        """)
         # Write list
         i = 1
         for f in sgf_files:
-            print "        ",i, ': ',f
+            print("        ",i, ': ',f)
             i += 1
         # Get number from user
-        choix = raw_input("""
+        choix = input("""
         Ton choix: """)
         # Open selected file
         choix = int(choix) - 1
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     cyborg = Sai()
     cyborg.__exec__()
     mt = movetree.Tree('Variations.sgf')
-    bm = BeamerMaker()
+    bm = igo.BeamerMaker()
     bm.all_options(mt.head, 'Variations:')
 
     # bm.ml_to(current)

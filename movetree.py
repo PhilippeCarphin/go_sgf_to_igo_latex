@@ -236,7 +236,7 @@ class Node:
         visitor.visit(self)
 
     def node_print(self):
-        print 'Node'
+        print('Node')
 
 
 ################################################################################
@@ -281,14 +281,14 @@ class Move(Node, Stone):
         self.goban_data = {}
 
     def node_print(self):
-        print '%%% MoveInfo'
-        print '%%% Number    : ', self.moveNumber
-        print '%%% Color     : ', self.color
-        print '%%% Coord     : ', self.sgf_coord
-        print '%%% Data      : ', self.data
-        print '%%% SGF_token : ', make_token(self)
-        print '%%% GobanState: ', self.goban_data
-        print '%%% Children  : ', self.children
+        print('%%% MoveInfo')
+        print('%%% Number    : ', self.moveNumber)
+        print('%%% Color     : ', self.color)
+        print('%%% Coord     : ', self.sgf_coord)
+        print('%%% Data      : ', self.data)
+        print('%%% SGF_token : ', make_token(self))
+        print('%%% GobanState: ', self.goban_data)
+        print('%%% Children  : ', self.children)
 
     def get_comment(self):
         if 'C' in self.data:
@@ -324,7 +324,7 @@ class Tree:
         self.head.accept_visitor(visitor)
 
     def print_info(self):
-        print '%%%% GAME INFO'
+        print('%%%% GAME INFO')
         for key in self.info.data:
             print('%%% ' + key + ' : ' + self.info.data[key])
 
@@ -425,41 +425,6 @@ def state_visit(tree):
             current = current.get_next_sibling()
 
 
-# def get_goban_state(move):
-#     stack = [move]
-#     current = Move(0)
-#
-#     while current.has_parent:
-#         stack.append(current.parent)
-#         current = current.parent
-#
-#     board_size = int(tree.info.data['SZ'])
-#     goban = Goban.Goban(board_size, board_size)
-#     while len(stack) > 0:
-#         goban.playMove(stack.pop())
-#     return goban
-#
-#
-# def stoneList(sgf_coord_list, color):
-#     stoneList = []
-#     for sgf_coord in sgf_coord_list:
-#         stoneList.append(Stona(color, sgf_coord))
-
-
 if __name__ == "__main__":
-    # moveTree = Tree('Variations.sgf')
-    # moveTree = Tree('edit.sgf')
-    # moveTree = Tree('Attachment-1.sgf')
-    # searchString = '%ALLO'
-    # tv = textSearchVisitor(searchString)
-    # moveTree.acceptVisitor(nodeVisitor())
-    # moveTree.acceptVisitor(tv)
-    # tv.getResult().nodePrint()
-    # print(writeSGF(moveTree))
-    # print(writeSGF(moveTree,True))
-    # stateVisit(moveTree)
-    # moveTree.acceptVisitor(nodeVisitor())
-    # depthFirstVisit(moveTree.head, Move.nodePrint)
-    # stateVisit(moveTree)
     moveTree = Tree('nassima_phil.sgf')
-    print(write_sgf(moveTree, True))
+    print(write_sgf(moveTree, False))

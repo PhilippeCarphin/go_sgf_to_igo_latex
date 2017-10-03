@@ -289,7 +289,7 @@ def goban_test():
 
 
 def move_tree_test():
-    print 'Creating Move Tree'
+    print('Creating Move Tree')
     mt = movetree.Tree('nassima_phil.sgf')
     # mt.head.acceptVisitor(MoveTree.nodeVisitor())
     current = mt.head.get_child(0)
@@ -305,14 +305,14 @@ if __name__ == "__main__":
     goban = Goban(19, 19)
     try:
         badSize = Goban('bonjour', "bonjour")
-        print "Non-int-able params not detected"
+        print("Non-int-able params not detected")
     except ValueError:
-        print "Things not changeable to int are correctly detected"
+        print("Things not changeable to int are correctly detected")
 
     try:
         badNumbers = Goban(0, -1)
     except ValueError:
-        print "Bad Numbers are correctly detected"
+        print("Bad Numbers are correctly detected")
 
     goban_test()
     move_tree_test()

@@ -54,7 +54,7 @@ def make_diagram(node):
         black_stones = comma_list_from_stone_list(node.goban_data['gobanState']['B'])
         white_stones = comma_list_from_stone_list(node.goban_data['gobanState']['W'])
     except KeyError:
-        print "makeDiagram(): move does not have gobanState"
+        print("makeDiagram(): move does not have gobanState")
         raise KeyError
     diagram += '\\white{' + white_stones + '}\n'
     diagram += '\\black{' + black_stones + '}\n'
