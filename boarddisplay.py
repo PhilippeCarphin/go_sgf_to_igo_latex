@@ -31,10 +31,10 @@ class BoardCanvas(Canvas, object):
         position : dictionary with key being board coordinates and values are
             'B' or 'W' """
     def __init__(self, master):
-        Canvas.__init__(self, master)
+        Canvas.__init__(self, master, bd=3, cursor='circle', relief='sunken')
         self.cell_size = 25
-        self.bind('<Configure>', lambda e: self.draw_position())
-        self.bind("<Button-1>", self.clicked_event)
+        self.bind('<Configure>', self.configure_event)
+        self.bind("<Button>", self.clicked_event)
         self.side_length = 0
         self.stone_size = 0
         self.goban = goban.Goban(19, 19)
@@ -42,7 +42,11 @@ class BoardCanvas(Canvas, object):
         self.pack()
         self.turn = 'B' # TODO Should be a property of goban class
 
+    def configure_event(self, event):
+        self.draw_position()
+
     def clicked_event(self, event):
+        print(str(event))
         goban_coord = self.position_to_goban_coord(event.x, event.y)
         m = movetree.Move(0, color=self.turn, sgf_coord=goban.goban_to_sgf(goban_coord))
         try:
