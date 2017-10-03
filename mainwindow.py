@@ -1,6 +1,6 @@
 import movetree
 import goban
-import boarddisplay
+import boardcanvas
 import movetreecanvas
 from tkinter import *
 
@@ -8,7 +8,7 @@ class MainWindow(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
         self.title("Phil's SGF viewer")
-        self.board_canvas = boarddisplay.BoardCanvas(self)
+        self.board_canvas = boardcanvas.BoardCanvas(self)
         self.move_tree_canvas = movetreecanvas.MoveTreeCanvas(self)
         self.bind('<Key>', self.key_pressed_dispatch)
         self.key_map = {'a': self.undo_key,

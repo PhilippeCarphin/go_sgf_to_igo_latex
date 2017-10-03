@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import movetree
-from boarddisplay import BoardCanvas
+from boardcanvas import BoardCanvas
 """ Copyright 2016, 2017 Philippe Carphin"""
 
 """ This file is part of go_sgf_to_igo_latex.

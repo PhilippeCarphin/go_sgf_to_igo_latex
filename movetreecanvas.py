@@ -1,6 +1,6 @@
 import movetree
 import goban
-import boarddisplay
+import boardcanvas
 from tkinter import *
 
 
@@ -31,7 +31,7 @@ class MoveTreeCanvas(Canvas, object):
 
 if __name__ == '__main__':
     root = Tk()
-    bc = boarddisplay.BoardCanvas(root)
+    bc = boardcanvas.BoardCanvas(root)
     mtc = MoveTreeCanvas(root)
     root.minsize(400, 400)
     root.mainloop()
