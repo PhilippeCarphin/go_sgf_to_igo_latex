@@ -312,7 +312,11 @@ class Move(Node, Stone):
 class Tree:
     def __init__(self, filename):
         file_path = os.path.join(os.getcwd(), filename)
-        file_content = open(file_path).read()
+        try:
+            file_content = open(file_path).read()
+        except IOError:
+            raise IOError('No such file ' + file_path)
+
         self.head = make_tree(file_content)
         self.info = self.head
         self.head = self.head.get_child(0)

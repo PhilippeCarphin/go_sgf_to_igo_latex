@@ -63,11 +63,28 @@ def findMove(opt,tree):
         current = None
     return current
 
+def rotate(opts):
+    filename = opts[0]
+    try:
+        move_tree = movetree.Tree(filename)
+    except IOError:
+        print('Invalid filename ' + filename)
+        exit(1)
+    output = movetree.write_sgf(move_tree, True)
+    if len(opts) > 1 and opts[1] == '--output':
+        output_file = opts[2]
+        with open(output_file, 'w') as f:
+            f.write(output, True)
+    else:
+        print(output)
+
 command = sys.argv[1]
 if command == 'beamer':
-    makeBeamer(sys.argv[2:])
+    exit(makeBeamer(sys.argv[2:]))
 elif command == 'diagram':
-    diagram(sys.argv[2:])
+    exit(diagram(sys.argv[2:]))
+elif command == 'rotate':
+    exit(rotate(sys.argv[2:]))
 else:
     print("Invalid command ",command)
 
