@@ -109,19 +109,16 @@ class Goban:
     def __getGroup__(self, coord):
         assert coord in self.board, "__getGroup() : coord " + str(coord) + " must be in board"
         color = self.board[coord]
-        group = [coord]
-        queue = self.__getNeighbors__(coord)
+        group = set()
+        group.add(coord)
+        stack = self.__getNeighbors__(coord)
         seen = [coord]
-        while len(queue):
-            neighbor = queue.pop()
+        while len(stack):
+            neighbor = stack.pop()
             seen.append(neighbor)
-            if neighbor not in self.board:
-                continue
-            if neighbor not in group and self.board[neighbor] == color:
-                group.append(neighbor)
-                for coord in self.__getNeighbors__(neighbor):
-                    if not (coord in seen):
-                        queue.append(coord)
+            if neighbor in self.board and self.board[neighbor] == color:
+                group.add(neighbor)
+                stack += [n for n in self.__getNeighbors__(neighbor) if n not in seen]
         return group
 
     def __removeGroup__(self, coord):
