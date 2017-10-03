@@ -323,7 +323,7 @@ class Tree:
         self.head = self.head.get_child(0)
         self.head.parent = 0
         state_visit(self)
-        # self.acceptVisitor(Goban.stateVisitor())
+        self.accept_visitor(goban.StateVisitor())
 
     def accept_visitor(self, visitor):
         self.head.accept_visitor(visitor)
