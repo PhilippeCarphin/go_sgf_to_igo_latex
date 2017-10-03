@@ -30,11 +30,11 @@ This package can rotate SGF files which is nice if your opponent was the one
 writing the moves to one of your games.  Simply open a terminal and navigate to
 where the SGF that you want to rotate is.  Then enter the command
 
-python3 cli.py filename > target-filename
+python3 cli.py rotate filename > target-filename
 
 or
 
-python3 cli.py filename --output target-filename.
+python3 cli.py rotate filename --output target-filename.
 
 
 
