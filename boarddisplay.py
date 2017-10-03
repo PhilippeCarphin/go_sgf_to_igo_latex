@@ -36,7 +36,7 @@ class BoardCanvas:
         self.canvas = Canvas(self.parent)
         self.position = {}
         self.canvas.pack()
-        self.parent.bind('<Configure>', lambda e: self.draw_position())
+        self.canvas.bind('<Configure>', lambda e: self.draw_position())
         self.side_length = 0
         self.stone_size = 0
         self.draw_position()
