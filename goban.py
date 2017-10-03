@@ -303,7 +303,7 @@ def goban_test():
     except GobanError:
         print("Ko rule violation correctly detected")
 
-    BoardCanvas.display_board(test_goban.board)
+    BoardCanvas.display_goban(test_goban)
 
 
 def move_tree_test():
@@ -315,7 +315,7 @@ def move_tree_test():
         current = current.get_child(0)
         gb.play_move(current)
 
-    BoardCanvas.display_board(gb.board)
+    BoardCanvas.display_goban(gb)
 
 if __name__ == "__main__":
     goban = Goban(19, 19)

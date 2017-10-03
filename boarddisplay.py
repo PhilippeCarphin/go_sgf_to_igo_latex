@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with Foobar.  If not, see <http://www.gnu.org/licenses/>."""
 
 
-class BoardCanvas:
+class BoardCanvas(Canvas, object):
     """ Class board canvas.  This class manages a canvas and displays a goban
     position
 
@@ -30,19 +30,17 @@ class BoardCanvas:
         canvas : Tk canvas object to draw in
         position : dictionary with key being board coordinates and values are
             'B' or 'W' """
-    def __init__(self, parent):
+    def __init__(self, master):
+        Canvas.__init__(self, master)
         self.cell_size = 25
-        self.parent = parent
-        self.canvas = Canvas(self.parent)
-        self.position = {}
-        self.canvas.pack()
-        self.canvas.bind('<Configure>', lambda e: self.draw_position())
+        self.bind('<Configure>', lambda e: self.draw_position())
+        self.bind("<Button-1>", self.clicked_event)
         self.side_length = 0
         self.stone_size = 0
-        self.draw_position()
-        self.canvas.bind("<Button-1>", self.clicked_event)
-        self.turn = 'B'
         self.goban = goban.Goban(19, 19)
+        self.draw_position()
+        self.pack()
+        self.turn = 'B' # TODO Should be a property of goban class
 
     def clicked_event(self, event):
         goban_coord = self.position_to_goban_coord(event.x, event.y)
@@ -65,41 +63,41 @@ class BoardCanvas:
         self.position = my_goban
 
     def draw_position(self):
-        self.canvas.delete('all')
+        self.delete('all')
         self.update_dimensions()
         self.draw_lines()
         self.draw_star_points()
         self.draw_stones()
 
     def update_dimensions(self):
-        self.side_length = min(self.parent.winfo_height(), self.parent.winfo_width()) - 15
-        self.canvas.config(height=self.side_length, width=self.side_length)
+        self.side_length = min(self.master.winfo_height(), self.master.winfo_width()) - 15
+        self.config(height=self.side_length, width=self.side_length)
         self.stone_size = (self.cell_size * 23) // 13
         self.cell_size = self.side_length // 19
 
     def draw_stones(self):
-        for goban_coord in self.position:
+        for goban_coord in self.goban.board:
             self.draw_stone(goban_coord)
 
     def draw_stone(self, goban_coord):
         x = goban_coord[0] * self.cell_size - self.cell_size // 2
         y = goban_coord[1] * self.cell_size - self.cell_size // 2
-        color = self.position[goban_coord]
+        color = self.goban.board[goban_coord]
         x_offset = 0
         y_offset = 3
         text = u'\u25CB' if color == 'W'else u'\u25CF'
         if color == 'W':
-            self.canvas.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', self.stone_size - 5),
+            self.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', self.stone_size - 5),
                                     fill='white')
-        self.canvas.create_text(x + x_offset, y - y_offset, text=text, font=('Arial', self.stone_size), fill='black')
+        self.create_text(x + x_offset, y - y_offset, text=text, font=('Arial', self.stone_size), fill='black')
 
     def draw_lines(self):
         max_pos = 18 * self.cell_size + self.cell_size // 2
         min_pos = self.cell_size // 2
         for i in range(19):
             current_dim = i * self.cell_size + self.cell_size // 2
-            self.canvas.create_line(current_dim, min_pos, current_dim, max_pos)
-            self.canvas.create_line(min_pos, current_dim, max_pos, current_dim)
+            self.create_line(current_dim, min_pos, current_dim, max_pos)
+            self.create_line(min_pos, current_dim, max_pos, current_dim)
 
     def draw_star_points(self):
         x_offset = 0
@@ -108,16 +106,15 @@ class BoardCanvas:
             for j in [3, 9, 15]:
                 x = i * self.cell_size + self.cell_size // 2
                 y = j * self.cell_size + self.cell_size // 2
-                self.canvas.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
+                self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
                                         font=('Arial', int(self.stone_size / 5)), fill='black')
 
     @classmethod
-    def display_board(cls, position):
+    def display_goban(cls, goban):
         root = Tk()
         root.minsize(400,400)
         bc = BoardCanvas(root)
-        bc.goban.board = position
-        bc.position = position
+        bc.goban = goban
         bc.draw_position()
         root.mainloop()
 
