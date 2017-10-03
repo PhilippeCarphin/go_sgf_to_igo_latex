@@ -1,7 +1,7 @@
+""" Copyright 2016, 2017 Philippe Carphin"""
 import movetree
 import goban
 from tkinter import *
-
 
 class BoardCanvas:
     """ Class board canvas.  This class manages a canvas and displays a goban
@@ -26,7 +26,6 @@ class BoardCanvas:
         self.position = my_goban
 
     def draw_position(self):
-        print(self.position)
         self.canvas.delete('all')
         # Regler la grandeur du canevas pour qu'il remplisse le parent
         side_length = min( self.parent.winfo_height(), self.parent.winfo_width()) - 15

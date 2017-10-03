@@ -1,3 +1,5 @@
+""" Copyright 2016, 2017 Philippe Carphin"""
+
 import movetree
 import os
 import igo
