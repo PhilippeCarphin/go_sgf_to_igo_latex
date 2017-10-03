@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import movetree
-
+from boarddisplay import BoardCanvas
 """ Copyright 2016, 2017 Philippe Carphin"""
 
 """ This file is part of go_sgf_to_igo_latex.
@@ -266,18 +266,19 @@ class StateVisitor:
     def __init__(self):
         self.goban = Goban(19, 19)
 
-    def visit(self, node):
-        move_diff = self.goban.play_move(node)
-        node.goban_data = dict()
-        node.goban_data['gobanState'] = self.goban.get_stones()
-        node.goban_data['captured'] = move_diff['captured']
-        for child in node.children:
+    def visit(self, move):
+        move_diff = self.goban.play_move(move)
+        move.goban_data = dict()
+        move.goban_data['gobanState'] = self.goban.get_stones()
+        move.goban_data['captured'] = move_diff['captured']
+        for child in move.children:
             child.accept_visitor(self)
         self.goban.undo()
 
 
 def goban_test():
     test_goban = Goban(19, 19)
+    """ If I had thought about this class before the whole move tree thing, how would I have done things differently"""
     # Todo: Refactor so that play_move only needs to take 'B', goban_coord (tuple)
 
     # Position:
@@ -304,6 +305,8 @@ def goban_test():
         test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='pg'))
     except GobanError:
         print("Ko rule violation correctly detected")
+
+    BoardCanvas.display_board(test_goban.board)
 
 
 def move_tree_test():

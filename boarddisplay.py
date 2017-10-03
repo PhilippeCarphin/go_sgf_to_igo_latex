@@ -25,7 +25,7 @@ class BoardCanvas:
     position
 
     Attributes:
-        cellsize : the sidelenght of the squares on the board
+        cell_size : the side lenght of the squares on the board
         parent : the parent Tk composite object
         canvas : Tk canvas object to draw in
         position : dictionary with key being board coordinates and values are
@@ -42,7 +42,7 @@ class BoardCanvas:
         self.draw_position()
         self.canvas.bind("<Button-1>", self.clicked_event)
         self.turn = 'B'
-        self.goban = goban.Goban(19,19)
+        self.goban = goban.Goban(19, 19)
 
     def clicked_event(self, event):
         goban_coord = self.position_to_goban_coord(event.x, event.y)
@@ -68,6 +68,7 @@ class BoardCanvas:
         self.canvas.delete('all')
         self.update_dimensions()
         self.draw_lines()
+        self.draw_star_points()
         self.draw_stones()
 
     def update_dimensions(self):
@@ -87,6 +88,9 @@ class BoardCanvas:
         x_offset = 0
         y_offset = 3
         text = u'\u25CB' if color == 'W'else u'\u25CF'
+        if color == 'W':
+            self.canvas.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', self.stone_size - 5),
+                                    fill='white')
         self.canvas.create_text(x + x_offset, y - y_offset, text=text, font=('Arial', self.stone_size), fill='black')
 
     def draw_lines(self):
@@ -97,27 +101,31 @@ class BoardCanvas:
             self.canvas.create_line(current_dim, min_pos, current_dim, max_pos)
             self.canvas.create_line(min_pos, current_dim, max_pos, current_dim)
 
+    def draw_star_points(self):
+        x_offset = 0
+        y_offset = 1
+        for i in [3, 9, 15]:
+            for j in [3, 9, 15]:
+                x = i * self.cell_size + self.cell_size // 2
+                y = j * self.cell_size + self.cell_size // 2
+                self.canvas.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
+                                        font=('Arial', int(self.stone_size / 5)), fill='black')
+
+    @classmethod
+    def display_board(cls, position):
+        root = Tk()
+        root.minsize(400,400)
+        bc = BoardCanvas(root)
+        bc.goban.board = position
+        bc.position = position
+        bc.draw_position()
+        root.mainloop()
+
 
 if __name__ == "__main__":
     # Creation d'une fenetre principale
     root = Tk()
-    
-    root.minsize(400,400)
-    # Creation d'un objet boardCanvas et je lui assigne comme parent la fenetre
-    # root.
+    root.minsize(400, 400)
     bc = BoardCanvas(root)
-
-    # Charger le fichier d'une partie de Go
-    # moveTree = movetree.Tree("test_files/expected_write_sgf.sgf")
-    #
-    # Naviguer l'arbre jusqu'a la fin
-    # current = moveTree.head
-    # main_goban = goban.Goban(19,19)
-    # while current.has_next():
-    #     main_goban.play_move(current)
-    #     current = current.get_child(0)
-    #
-    # my_position = main_goban.board
-    # bc.set_position(my_position)
     root.mainloop()
     
