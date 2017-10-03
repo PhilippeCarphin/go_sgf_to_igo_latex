@@ -313,7 +313,8 @@ class Tree:
     def __init__(self, filename):
         file_path = os.path.join(os.getcwd(), filename)
         try:
-            file_content = open(file_path).read()
+            with open(file_path) as f:
+                file_content = f.read()
         except IOError:
             raise IOError('No such file ' + file_path)
 
