@@ -12,3 +12,5 @@
 *.sgf
 *.txt
 .idea
+build
+dist

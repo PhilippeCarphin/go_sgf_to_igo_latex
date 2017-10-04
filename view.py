@@ -1,6 +1,5 @@
 from boardcanvas import BoardCanvas
 from movetreecanvas import MoveTreeCanvas
-from mainwindow import MainWindow
 
 class View(object):
     def __init__(self, master):

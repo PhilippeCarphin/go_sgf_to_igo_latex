@@ -1,5 +1,3 @@
-import movetree
-import goban
 from tkinter import *
 
 """ Copyright 2016, 2017 Philippe Carphin"""

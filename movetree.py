@@ -333,6 +333,7 @@ class Tree:
             with open(file_path) as f:
                 file_content = f.read()
         except IOError:
+            print("No such file " + filename)
             raise IOError('No such file ' + file_path)
 
         self.head = make_tree(file_content)

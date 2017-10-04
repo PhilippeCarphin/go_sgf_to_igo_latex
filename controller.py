@@ -1,7 +1,3 @@
-import movetree
-import goban
-import boardcanvas
-import movetreecanvas
 from view import View
 from model import Model
 from tkinter import *
@@ -29,7 +25,6 @@ class Controller(Tk):
 
     def new_function(self, event):
         print("b key pressed")
-
 
 if __name__ == "__main__":
     controller = Controller()
