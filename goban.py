@@ -188,7 +188,12 @@ class Goban:
             self.push()
             color = move.color
             coord = move.goban_coord()
-            self.put_stone(color, coord)
+
+            try:
+                self.put_stone(color, coord)
+            except GobanError as e:
+                self.undo()
+                raise e
 
             captured_stones = self.resolve_captures(move)
 
