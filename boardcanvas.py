@@ -30,48 +30,23 @@ class BoardCanvas(Canvas, object):
         canvas : Tk canvas object to draw in
         position : dictionary with key being board coordinates and values are
             'B' or 'W' """
-    def __init__(self, master):
+    def __init__(self, master, goban_width=19, goban_height=19):
         Canvas.__init__(self, master, bd=3, cursor='circle', relief='sunken')
+        # todo : start using goban_width and goban_height for board drawing
+        # todo : consider the idea of board_canvas having a goban (which will have a width and a height)
+        self.goban_width = goban_width
+        self.goban_height = goban_height
         self.cell_size = 25
         self.bind('<Configure>', self.configure_event)
-        self.bind("<Button>", self.clicked_event)
         self.side_length = 0
         self.stone_size = 0
-        self.goban = goban.Goban(19, 19)
+        self.position = {}
         self.draw_position()
         self.pack()
-        self.turn = 'B' # TODO Should be a property of goban class
 
     def configure_event(self, event):
-        self.draw_position()
-
-    def clicked_event(self, event):
-        print(str(event))
-        goban_coord = self.position_to_goban_coord(event.x, event.y)
-        m = movetree.Move(0, color=self.turn, sgf_coord=goban.goban_to_sgf(goban_coord))
-        try:
-            self.goban.play_move(m)
-        except goban.GobanError as e:
-            print("Goban error with move " + str(m) + ' : ' + str(e))
-            return
-        self.turn = 'B' if self.turn == 'W' else 'W'
-        self.position = self.goban.board
-        self.draw_position()
-
-    def position_to_goban_coord(self, x, y):
-        goban_coord = (int(0.5 + (x + self.cell_size / 2.0) / self.cell_size),
-                       int(0.5 + (y + self.cell_size / 2.0) / self.cell_size))
-        return goban_coord
-
-    def set_position(self, my_goban):
-        self.position = my_goban
-
-    def draw_position(self):
-        self.delete('all')
         self.update_dimensions()
-        self.draw_lines()
-        self.draw_star_points()
-        self.draw_stones()
+        self.draw_position()
 
     def update_dimensions(self):
         self.side_length = min(self.master.winfo_height(), self.master.winfo_width()) - 15
@@ -79,21 +54,49 @@ class BoardCanvas(Canvas, object):
         self.stone_size = (self.cell_size * 23) // 13
         self.cell_size = self.side_length // 19
 
-    def draw_stones(self):
-        for goban_coord in self.goban.board:
-            self.draw_stone(goban_coord)
+    def position_to_goban_coord(self, x, y):
+        return int(0.5 + (x + self.cell_size / 2.0) / self.cell_size),\
+               int(0.5 + (y + self.cell_size / 2.0) / self.cell_size)
 
-    def draw_stone(self, goban_coord):
-        x = goban_coord[0] * self.cell_size - self.cell_size // 2
-        y = goban_coord[1] * self.cell_size - self.cell_size // 2
-        color = self.goban.board[goban_coord]
+    def goban_coord_to_position(self, goban_coord):
+        return goban_coord[0] * self.cell_size - self.cell_size // 2,\
+               goban_coord[1] * self.cell_size - self.cell_size // 2
+
+    def set_position(self, my_goban):
+        self.position = my_goban
+
+    def draw_position(self):
+        self.delete('all')
+        self.draw_board()
+        self.draw_stones()
+
+    def draw_stones(self):
+        for goban_coord in self.position:
+            self.draw_stone(goban_coord, self.position[goban_coord])
+
+    def draw_stone(self, goban_coord, color):
+        x, y = self.goban_coord_to_position(goban_coord)
+        if color == 'W':
+            self.draw_white_stone(x, y)
+        else:
+            self.draw_black_stone(x, y)
+
+    # todo Replace this with importing a picture
+    def draw_black_stone(self, x, y):
         x_offset = 0
         y_offset = 3
-        text = u'\u25CB' if color == 'W'else u'\u25CF'
-        if color == 'W':
-            self.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', self.stone_size - 5),
-                                    fill='white')
-        self.create_text(x + x_offset, y - y_offset, text=text, font=('Arial', self.stone_size), fill='black')
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', self.stone_size), fill='black')
+
+    # todo Replace this with importing a picture
+    def draw_white_stone(self, x, y):
+        x_offset = 0
+        y_offset = 3
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', self.stone_size - 5), fill='white')
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CB', font=('Arial', self.stone_size), fill='black')
+
+    def draw_board(self):
+        self.draw_lines()
+        self.draw_star_points()
 
     def draw_lines(self):
         max_pos = 18 * self.cell_size + self.cell_size // 2
@@ -113,12 +116,12 @@ class BoardCanvas(Canvas, object):
                 self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
                                         font=('Arial', int(self.stone_size / 5)), fill='black')
 
-    @classmethod
+    @classmethod # for displaying position in tests
     def display_goban(cls, goban):
         root = Tk()
         root.minsize(400,400)
         bc = BoardCanvas(root)
-        bc.goban = goban
+        bc.position = goban.board
         bc.draw_position()
         root.mainloop()
 
