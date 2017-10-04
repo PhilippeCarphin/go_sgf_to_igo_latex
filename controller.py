@@ -3,6 +3,7 @@ from model import Model
 import igo
 from tkinter import *
 
+
 class Controller(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
@@ -11,8 +12,8 @@ class Controller(Tk):
         self.model = Model()
         self.bind('<Key>', self.key_pressed_dispatch)
         self.key_map = {'a': self.undo_key,
-                        'b' : self.make_beamer_slide,
-                        'c' : self.make_diagram}
+                        'b': self.make_beamer_slide,
+                        'c': self.make_diagram}
         self.bm = igo.BeamerMaker()
 
     def make_beamer_slide(self, event):

@@ -1,6 +1,7 @@
 from boardcanvas import BoardCanvas
 from movetreecanvas import MoveTreeCanvas
 
+
 class View(object):
     def __init__(self, master):
         # todo use a frame eventually to contain the canvases
