@@ -189,6 +189,11 @@ class Goban:
             color = move.color
             coord = move.goban_coord()
 
+            if coord[0] < 1 or coord[0] > self.width \
+                or coord[1] < 1 or coord[1] > self.height:
+                self.undo()
+                raise GobanError("Outside of playable area")
+
             try:
                 self.put_stone(color, coord)
             except GobanError as e:

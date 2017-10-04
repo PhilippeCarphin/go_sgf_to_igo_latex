@@ -29,7 +29,7 @@ class BoardCanvas(Canvas, object):
         position : dictionary with key being board coordinates and values are
             'B' or 'W' """
     def __init__(self, master, goban_width=19, goban_height=19):
-        Canvas.__init__(self, master, bd=3, cursor='circle', relief='sunken')
+        Canvas.__init__(self, master, bd=0, cursor='circle', relief='sunken')
         # todo : start using goban_width and goban_height for board drawing
         # todo : consider the idea of board_canvas having a goban (which will have a width and a height)
         self.goban_width = goban_width
@@ -49,16 +49,16 @@ class BoardCanvas(Canvas, object):
     def update_dimensions(self):
         self.side_length = min(self.master.winfo_height(), self.master.winfo_width()) - 15
         self.config(height=self.side_length, width=self.side_length)
-        self.stone_size = (self.cell_size * 23) // 13
-        self.cell_size = self.side_length // 19
+        self.stone_size = (self.cell_size * 23) / 13
+        self.cell_size = self.side_length / 19
 
     def position_to_goban_coord(self, x, y):
         return int(0.5 + (x + self.cell_size / 2.0) / self.cell_size),\
                int(0.5 + (y + self.cell_size / 2.0) / self.cell_size)
 
     def goban_coord_to_position(self, goban_coord):
-        return goban_coord[0] * self.cell_size - self.cell_size // 2,\
-               goban_coord[1] * self.cell_size - self.cell_size // 2
+        return goban_coord[0] * self.cell_size - self.cell_size / 2,\
+               goban_coord[1] * self.cell_size - self.cell_size / 2
 
     def set_position(self, my_goban):
         self.position = my_goban
@@ -83,14 +83,14 @@ class BoardCanvas(Canvas, object):
     def draw_black_stone(self, x, y):
         x_offset = 0
         y_offset = 3
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', self.stone_size), fill='black')
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', int(self.stone_size)), fill='black')
 
     # todo Replace this with importing a picture
     def draw_white_stone(self, x, y):
         x_offset = 0
         y_offset = 3
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', self.stone_size - 5), fill='white')
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CB', font=('Arial', self.stone_size), fill='black')
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', int(self.stone_size) - 5), fill='white')
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CB', font=('Arial', int(self.stone_size)), fill='black')
 
     def draw_board(self):
         self.draw_lines()
