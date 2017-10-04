@@ -1,5 +1,6 @@
 from view import View
 from model import Model
+import igo
 from tkinter import *
 
 class Controller(Tk):
@@ -10,7 +11,17 @@ class Controller(Tk):
         self.model = Model()
         self.bind('<Key>', self.key_pressed_dispatch)
         self.key_map = {'a': self.undo_key,
-                        'b' : self.new_function}
+                        'b' : self.make_beamer_slide,
+                        'c' : self.make_diagram}
+        self.bm = igo.BeamerMaker()
+
+    def make_beamer_slide(self, event):
+        diag = self.bm.make_page_from_postion(self.model.goban.board)
+        print(diag)
+
+    def make_diagram(self, event):
+        diag = igo.make_diagram_from_position(self.model.goban.board)
+        print(diag)
 
     def key_pressed_dispatch(self, event):
         self.key_map[event.char](event)
@@ -27,5 +38,8 @@ class Controller(Tk):
         print("b key pressed")
 
 if __name__ == "__main__":
-    controller = Controller()
-    controller.mainloop()
+    try:
+        controller = Controller()
+        controller.mainloop()
+    except:
+        input()

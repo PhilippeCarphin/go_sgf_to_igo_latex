@@ -1,5 +1,6 @@
 import os
 import movetree
+import goban
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -18,7 +19,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Foobar.  If not, see <http://www.gnu.org/licenses/>."""
 
+def goban_to_sgf(goban_coord):
+    char_x = chr(goban_coord[0] + ord('a') - 1)
+    char_y = chr(goban_coord[1] + ord('a') - 1)
+    return char_x + char_y
 
+def goban_to_igo(goban_coord, height=19):
+    char_x = chr(ord('a') + goban_coord[0] - 1)
+    if ord(char_x) >= ord('i'):
+        char_x = chr(ord('a') + goban_coord[0])
+    num_y = str(height - (ord(chr(ord('a') + goban_coord[1] - 1)) - ord('a')))
+    return char_x + num_y
 
 def sgf_list_to_igo(sgf_list):
     """ Creates a list of igo coordinates from a list of sgf coordinates """
@@ -81,6 +92,17 @@ def make_diagram(node):
     diagram += '\\showfullgoban\n'
     return diagram
 
+def make_diagram_from_position(position):
+    black_igo_coords = [goban_to_igo(goban_coord) for goban_coord in position if position[goban_coord] == 'B']
+    white_igo_coords = [goban_to_igo(goban_coord) for goban_coord in position if position[goban_coord] == 'W']
+    black_comma_list = comma_list_from_coord_list(black_igo_coords)
+    white_comma_list = comma_list_from_coord_list(white_igo_coords)
+    diagram = '\\cleargoban\n'
+    diagram += '\\black{' + black_comma_list + '}\n'
+    diagram += '\\white{' + white_comma_list + '}\n'
+    diagram += '\\cleargobansymbols\n'
+    diagram += '\\showfullgoban\n'
+    return diagram
 
 def make_diff_diagram(node):
     """ Generates igo output for the diagram by specifying stones to add and
@@ -129,6 +151,9 @@ class BeamerMaker:
         self.post_diagram = open(os.path.join(os.getcwd(), 'postdiag.tex')).read()
         self.frame_title = open(os.path.join(os.getcwd(), 'frametitle.tex')).read().replace('\n', '').replace('\r', '')
 
+    def position_to_stone_lists(self, position):
+        white_stones = []
+
     def make_page(self, node, page_type):
         """ Generate a beamer page (frame) from the given node. Frame beginning,
         SGF commentary, diagram (diff or position) and frame end, with contents
@@ -148,6 +173,21 @@ class BeamerMaker:
         page += self.post_diagram
         page += '\\end{frame}\n'
         return page
+
+    def make_page_from_postion(self, position):
+        """ Generate a beamer page (frame) from the given node. Frame beginning,
+        SGF commentary, diagram (diff or position) and frame end, with contents
+        of frametitle, framestart, prediag, postdiag added at the right places."""
+        page = '%%%%%%%%%%%%%%%%%%%% ' + "Diagram" + ' %%%%%%%%%%%%%%%%%%%%%%%\n'
+        page += '\\begin{frame}\n\n'
+        page += '\\frametitle{' + self.frame_title + '}\n'
+        page += self.frame_start
+        page += self.pre_diagram
+        page += make_diagram_from_position(position)
+        page += self.post_diagram
+        page += '\\end{frame}\n'
+        return page
+
 
     @staticmethod
     def ml_from(node):

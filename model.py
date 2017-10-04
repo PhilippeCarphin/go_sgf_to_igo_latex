@@ -5,7 +5,7 @@ class Model(object):
     def __init__(self, goban_width=19, goban_height=19):
         self.goban = Goban(goban_width, goban_height)
         # todo if filename == Node, then some default empty but initialized tree.
-        self.move_tree = Tree('nassima_phil.sgf')
+        self.move_tree = None # Tree('nassima_phil.sgf')
         self.turn = 'B'
 
     def play_move(self, goban_coord):
