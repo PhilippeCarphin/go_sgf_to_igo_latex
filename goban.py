@@ -202,7 +202,7 @@ class Goban:
                 raise GobanError("Move violates ko rule")
             if self.__get_liberties__(coord) == 0:
                 self.undo()
-                raise GobanError("Suicide move " + str(move.goban_coord()) + " cannot be played")
+                raise GobanError("Suicide move cannot be played")
 
             return {'captured': captured_stones, 'move': move.color + str(move.sgf_coord)}
 

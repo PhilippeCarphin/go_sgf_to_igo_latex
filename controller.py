@@ -27,7 +27,10 @@ class Controller(Tk):
         self.key_map[event.char](event)
 
     def board_clicked(self, goban_coord):
-        self.model.play_move(goban_coord)
+        try:
+            self.model.play_move(goban_coord)
+        except Exception as e:
+            print("Error when playing at " + str(goban_coord) + " : " + str(e))
         self.view.show_position(self.model.goban.board)
 
     def undo_key(self, event):

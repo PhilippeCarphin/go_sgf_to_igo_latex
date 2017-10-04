@@ -12,8 +12,7 @@ class Model(object):
         try:
             self.goban.play_move(Move(0, self.turn, goban_to_sgf(goban_coord)))
         except GobanError as e:
-            print("Unable to do move : " + str(e))
-            return
+            raise e
         # todo add a move in the move tree
         self.toggle_turn()
 
