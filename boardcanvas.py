@@ -23,26 +23,26 @@ class BoardCanvas(Canvas, object):
     position
 
     Attributes:
-        cell_size : the side lenght of the squares on the board
-        parent : the parent Tk composite object
-        canvas : Tk canvas object to draw in
+        cell_size : the side length of the squares on the board
+        master : the parent Tk composite object
         position : dictionary with key being board coordinates and values are
             'B' or 'W' """
     def __init__(self, master, goban_width=19, goban_height=19):
+        self.master = master
         Canvas.__init__(self, master, bd=0, cursor='circle', relief='sunken')
         # todo : start using goban_width and goban_height for board drawing
         # todo : consider the idea of board_canvas having a goban (which will have a width and a height)
         self.goban_width = goban_width
         self.goban_height = goban_height
         self.cell_size = 25
-        self.bind('<Configure>', self.configure_event)
+        self.bind('<Configure>', lambda e: self.configure_event)
         self.side_length = 0
         self.stone_size = 0
         self.position = {}
         self.draw_position()
         self.pack()
 
-    def configure_event(self, event):
+    def configure_event(self):
         self.update_dimensions()
         self.draw_position()
 
@@ -89,8 +89,10 @@ class BoardCanvas(Canvas, object):
     def draw_white_stone(self, x, y):
         x_offset = 0
         y_offset = 3
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF', font=('Arial', int(self.stone_size) - 5), fill='white')
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CB', font=('Arial', int(self.stone_size)), fill='black')
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
+                         font=('Arial', int(self.stone_size) - 5), fill='white')
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CB',
+                         font=('Arial', int(self.stone_size)), fill='black')
 
     def draw_board(self):
         self.draw_lines()
@@ -112,22 +114,13 @@ class BoardCanvas(Canvas, object):
                 x = i * self.cell_size + self.cell_size // 2
                 y = j * self.cell_size + self.cell_size // 2
                 self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
-                                        font=('Arial', int(self.stone_size / 5)), fill='black')
+                                 font=('Arial', int(self.stone_size / 5)), fill='black')
 
-    @classmethod # for displaying position in tests
+    @classmethod  # for displaying position in tests
     def display_goban(cls, goban):
         root = Tk()
-        root.minsize(400,400)
+        root.minsize(400, 400)
         bc = BoardCanvas(root)
         bc.position = goban.board
         bc.draw_position()
         root.mainloop()
-
-
-if __name__ == "__main__":
-    # Creation d'une fenetre principale
-    root = Tk()
-    root.minsize(400, 400)
-    bc = BoardCanvas(root)
-    root.mainloop()
-    
