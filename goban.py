@@ -162,48 +162,29 @@ class Goban:
 
     """ Updates the state based on a move being played """
 
-    def play_move(self, move):
-        special = set(move.data.keys()).intersection(['AB', 'AW', 'AE'])
-        if len(special) > 0:
-            self.push()
-            for key in special:
-                if key == 'AB':
-                    for sgf_coord in move.data[key]:
-                        self.board[sgf_to_goban(sgf_coord)] = 'B'
-                elif key == 'AW':
-                    for sgf_coord in move.data[key]:
-                        self.board[sgf_to_goban(sgf_coord)] = 'W'
-                else:
-                    for sgf_coord in move.data[key]:
-                        if sgf_coord not in self.board:
-                            del self.board[sgf_to_goban(sgf_coord)]
-            return None
-        else:
-            self.push()
-            color = move.color
-            coord = move.goban_coord()
+    def play_move(self, color, goban_coord):
+        self.push()
 
-            if coord[0] < 1 or coord[0] > self.width \
-                or coord[1] < 1 or coord[1] > self.height:
-                self.undo()
-                raise GobanError("Outside of playable area")
+        if goban_coord[0] < 1 or goban_coord[0] > self.width or goban_coord[1] < 1 or goban_coord[1] > self.height:
+            self.undo()
+            raise GobanError("Outside of playable area")
 
-            try:
-                self.put_stone(color, coord)
-            except GobanError as e:
-                self.undo()
-                raise e
+        try:
+            self.put_stone(color, goban_coord)
+        except GobanError as e:
+            self.undo()
+            raise e
 
-            captured_stones = self.resolve_captures(move)
+        captured_stones = self.resolve_captures(goban_coord)
 
-            if not self.ko_legal():
-                self.undo()
-                raise GobanError("Move violates ko rule")
-            if self.__get_liberties__(coord) == 0:
-                self.undo()
-                raise GobanError("Suicide move cannot be played")
+        if not self.ko_legal():
+            self.undo()
+            raise GobanError("Move violates ko rule")
+        if self.__get_liberties__(goban_coord) == 0:
+            self.undo()
+            raise GobanError("Suicide move cannot be played")
 
-            return {'captured': captured_stones, 'move': move.color + str(move.sgf_coord)}
+        return {'captured': captured_stones, 'move': color + str(goban_to_sgf(goban_coord))}
 
     def put_stone(self, color, coord):
         if coord in self.board:
@@ -220,13 +201,13 @@ class Goban:
             stones[color].append(movetree.Stone(color, goban_to_sgf(coord)))
         return stones
 
-    def resolve_captures(self, stone):
-        adjacent = self.__getNeighbors__(stone.goban_coord())
+    def resolve_captures(self, goban_coord):
+        adjacent = self.__getNeighbors__(goban_coord)
         num_removed_stones = 0
         captured_stones = list()
         for adj in adjacent:
             if adj in self.board \
-                    and self.board[adj] != stone.color \
+                    and self.board[adj] != self.board[goban_coord] \
                     and self.__get_liberties__(adj) == 0:
                 adj_group = self.__getGroup__(adj)
                 captured_stones.append(self.__get_group_stones__(adj_group))
@@ -268,7 +249,7 @@ class StateVisitor:
         self.goban = Goban(19, 19)
 
     def visit(self, move):
-        move_diff = self.goban.play_move(move)
+        move_diff = self.goban.play_move(move.color, move.goban_coord())
         move.goban_data = dict()
         move.goban_data['gobanState'] = self.goban.get_stones()
         move.goban_data['captured'] = move_diff['captured']
@@ -290,20 +271,20 @@ def goban_test():
 
     test_goban.clear_goban()
 
-    test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='of'))
-    test_goban.play_move(movetree.Move(parent=0, color='W', sgf_coord='pf'))
+    test_goban.play_move(color='B', goban_coord=sgf_to_goban('of'))
+    test_goban.play_move(color='W', goban_coord=sgf_to_goban('pf'))
 
-    test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='oh'))
-    test_goban.play_move(movetree.Move(parent=0, color='W', sgf_coord='ph'))
+    test_goban.play_move(color='B', goban_coord=sgf_to_goban('oh'))
+    test_goban.play_move(color='W', goban_coord=sgf_to_goban('ph'))
 
-    test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='ng'))
-    test_goban.play_move(movetree.Move(parent=0, color='W', sgf_coord='qg'))
+    test_goban.play_move(color='B', goban_coord=sgf_to_goban('ng'))
+    test_goban.play_move(color='W', goban_coord=sgf_to_goban('qg'))
 
-    test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='pg'))
-    test_goban.play_move(movetree.Move(parent=0, color='W', sgf_coord='og'))
+    test_goban.play_move(color='B', goban_coord=sgf_to_goban('pg'))
+    test_goban.play_move(color='W', goban_coord=sgf_to_goban('og'))
 
     try:
-        test_goban.play_move(movetree.Move(parent=0, color='B', sgf_coord='pg'))
+        test_goban.play_move(color='B', goban_coord=sgf_to_goban('pg'))
     except GobanError:
         print("Ko rule violation correctly detected")
 
@@ -314,10 +295,10 @@ def move_tree_test():
     mt = movetree.Tree('nassima_phil.sgf')
     gb = Goban(19, 19)
     current = mt.head.get_child(0)
-    gb.play_move(current)
+    gb.play_move(current.color, current.goban_coord())
     while current.has_next():
         current = current.get_child(0)
-        gb.play_move(current)
+        gb.play_move(current.color, current.goban_coord())
 
     BoardCanvas.display_goban(gb)
 

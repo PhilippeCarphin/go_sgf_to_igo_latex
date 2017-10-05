@@ -427,14 +427,14 @@ def state_visit(tree):
     current = tree.head
     while not done:
         while current.has_next():
-            move_diff = my_goban.play_move(current)
+            move_diff = my_goban.play_move(current.color, current.goban_coord())
             if move_diff is not None:
                 current.goban_data['captured'] = move_diff['captured']
             current.goban_data['gobanState'] = my_goban.get_stones()
             stack.append(current)
             current = current.get_child(0)
 
-        move_diff = my_goban.play_move(current)
+        move_diff = my_goban.play_move(current.color, current.goban_coord())
         if move_diff is not None:
             current.goban_data['captured'] = move_diff['captured']
         current.goban_data['gobanState'] = my_goban.get_stones()
