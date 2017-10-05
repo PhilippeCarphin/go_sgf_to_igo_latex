@@ -341,7 +341,7 @@ class Tree:
         self.head = self.head.get_child(0)
         self.head.parent = 0
         state_visit(self)
-        self.accept_visitor(goban.StateVisitor())
+        # self.accept_visitor(goban.StateVisitor())
 
     def accept_visitor(self, visitor):
         self.head.accept_visitor(visitor)
@@ -412,8 +412,6 @@ def depth_first_visit(root, f):
 
 """ Go throught the nodes of a tree and add goban_state information to each node
 """
-
-
 def state_visit(tree):
     stack = []
     done = False
@@ -446,6 +444,25 @@ def state_visit(tree):
             done = True
         else:
             current = current.get_next_sibling()
+
+################################################################################
+""" Visitor vists move tree in parallel with a goban.  Assigns goban state and
+stones captured to each move Node"""
+
+
+################################################################################
+class StateVisitor:
+    def __init__(self):
+        self.goban = goban.Goban(19, 19)
+
+    def visit(self, move):
+        move_diff = self.goban.play_move(move.color, move.goban_coord())
+        move.goban_data = dict()
+        move.goban_data['gobanState'] = self.goban.get_stones()
+        move.goban_data['captured'] = move_diff['captured']
+        for child in move.children:
+            child.accept_visitor(self)
+        self.goban.undo()
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 #!/usr/bin/python
+# TODO Make it so that goban doesn't need to import move_tree
 import movetree
-from boardcanvas import BoardCanvas
+
 """ Copyright 2016, 2017 Philippe Carphin"""
 
 """ This file is part of go_sgf_to_igo_latex.
@@ -124,16 +125,6 @@ class Goban:
     def __remove_stone(self, coord):
         del self.board[coord]
 
-    """ Gets the liberties of a group
-    Note: I think that this function will return that the white group in
-    the following position
-    BB
-    BW
-    BWWB
-    BBBB
-    will have two liberties when it has just one.  For now, the algorithm just
-    needs to tell us when the group has 0 liberties or not 0 liberties."""
-
     def __get_liberties__(self, coord):
         # todo test this function in regards to the comment above
         color = self.board[coord]
@@ -164,26 +155,21 @@ class Goban:
 
     def play_move(self, color, goban_coord):
         self.push()
-
         if goban_coord[0] < 1 or goban_coord[0] > self.width or goban_coord[1] < 1 or goban_coord[1] > self.height:
             self.undo()
             raise GobanError("Outside of playable area")
-
         try:
             self.put_stone(color, goban_coord)
         except GobanError as e:
             self.undo()
             raise e
-
         captured_stones = self.resolve_captures(goban_coord)
-
         if not self.ko_legal():
             self.undo()
             raise GobanError("Move violates ko rule")
         if self.__get_liberties__(goban_coord) == 0:
             self.undo()
             raise GobanError("Suicide move cannot be played")
-
         return {'captured': captured_stones, 'move': color + str(goban_to_sgf(goban_coord))}
 
     def put_stone(self, color, coord):
@@ -236,84 +222,3 @@ class Goban:
 
 class GobanError(Exception):
     pass
-
-
-################################################################################
-""" Visitor vists move tree in parallel with a goban.  Assigns goban state and
-stones captured to each move Node"""
-
-
-################################################################################
-class StateVisitor:
-    def __init__(self):
-        self.goban = Goban(19, 19)
-
-    def visit(self, move):
-        move_diff = self.goban.play_move(move.color, move.goban_coord())
-        move.goban_data = dict()
-        move.goban_data['gobanState'] = self.goban.get_stones()
-        move.goban_data['captured'] = move_diff['captured']
-        for child in move.children:
-            child.accept_visitor(self)
-        self.goban.undo()
-
-
-def goban_test():
-    test_goban = Goban(19, 19)
-    """ If I had thought about this class before the whole move tree thing, how would I have done things differently"""
-    # Todo: Refactor so that play_move only needs to take 'B', goban_coord (tuple)
-
-    # Position:
-    #
-    # |WB
-    # |BW
-    # ---
-
-    test_goban.clear_goban()
-
-    test_goban.play_move(color='B', goban_coord=sgf_to_goban('of'))
-    test_goban.play_move(color='W', goban_coord=sgf_to_goban('pf'))
-
-    test_goban.play_move(color='B', goban_coord=sgf_to_goban('oh'))
-    test_goban.play_move(color='W', goban_coord=sgf_to_goban('ph'))
-
-    test_goban.play_move(color='B', goban_coord=sgf_to_goban('ng'))
-    test_goban.play_move(color='W', goban_coord=sgf_to_goban('qg'))
-
-    test_goban.play_move(color='B', goban_coord=sgf_to_goban('pg'))
-    test_goban.play_move(color='W', goban_coord=sgf_to_goban('og'))
-
-    try:
-        test_goban.play_move(color='B', goban_coord=sgf_to_goban('pg'))
-    except GobanError:
-        print("Ko rule violation correctly detected")
-
-    BoardCanvas.display_goban(test_goban)
-
-
-def move_tree_test():
-    mt = movetree.Tree('nassima_phil.sgf')
-    gb = Goban(19, 19)
-    current = mt.head.get_child(0)
-    gb.play_move(current.color, current.goban_coord())
-    while current.has_next():
-        current = current.get_child(0)
-        gb.play_move(current.color, current.goban_coord())
-
-    BoardCanvas.display_goban(gb)
-
-if __name__ == "__main__":
-    goban = Goban(19, 19)
-    try:
-        badSize = Goban('bonjour', "bonjour")
-        print("Non-int-able params not detected")
-    except ValueError:
-        print("Things not changeable to int are correctly detected")
-
-    try:
-        badNumbers = Goban(0, -1)
-    except ValueError:
-        print("Bad Numbers are correctly detected")
-
-    goban_test()
-    move_tree_test()
