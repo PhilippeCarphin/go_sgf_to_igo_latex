@@ -35,14 +35,14 @@ class BoardCanvas(Canvas, object):
         self.goban_width = goban_width
         self.goban_height = goban_height
         self.cell_size = 25
-        self.bind('<Configure>', lambda e: self.configure_event)
+        self.bind('<Configure>', self.configure_event)
         self.side_length = 0
         self.stone_size = 0
         self.position = {}
         self.draw_position()
         self.pack()
 
-    def configure_event(self):
+    def configure_event(self,event):
         self.update_dimensions()
         self.draw_position()
 
