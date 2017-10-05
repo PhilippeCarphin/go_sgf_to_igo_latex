@@ -403,24 +403,14 @@ def depth_first_visit(root, f):
             stack.append(child)
 
 
-# def breadth_first_visit(root, f):
-#     queue = deque([root])
-#     while len(queue) > 0:
-#         for child in current.children:
-#             queue.append(child)
-#
-
-""" Go throught the nodes of a tree and add goban_state information to each node
-"""
 def state_visit(tree):
+    """ Go through the nodes of a tree and add goban_state information to each node
+    """
     stack = []
     done = False
     board_size = int(tree.info.data['SZ'])
     my_goban = goban.Goban(board_size, board_size)
-    # Place handicap stones
-    if 'AB' in tree.info.data:
-        for sgf_coord in tree.info.data['AB']:
-            my_goban.play_move(Stone('B', sgf_coord))
+    # todo Place handicap stones
     # Traverse move tree
     current = tree.head
     while not done:

@@ -42,12 +42,11 @@ class Goban:
     account the rules of Go.
 
     Attributes:
-        board : Dictionnary in which keys are board coordinates and values are
+        board : Dictionary in which keys are board coordinates and values are
             either 'W' or 'B', if board.has_key(coord) returns false, it means that
             coordinate is empty.
         height : Integer height of the board
-        width : Integer witdh of the board
-        ko : in case there is a possible ko, this is the coordinates of the last
+        width : Integer width of the board
             stone that was captured.
         positionStack : Board positions are pushed to this stack when moves are
             played and popped when moves are undone.  It is also used to try a

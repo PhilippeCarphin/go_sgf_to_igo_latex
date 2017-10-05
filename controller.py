@@ -27,7 +27,7 @@ class Controller(Tk):
     def key_pressed_dispatch(self, event):
         try:
             self.key_map[event.char]()
-        except KeyError as e:
+        except KeyError:
             print("Unknown key " + event.char)
             return
 
@@ -42,8 +42,6 @@ class Controller(Tk):
         self.model.undo_move()
         self.view.show_position(self.model.goban.board)
 
-    def new_function(self):
-        print("b key pressed")
 
 if __name__ == "__main__":
     try:

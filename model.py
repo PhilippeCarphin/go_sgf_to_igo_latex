@@ -1,5 +1,4 @@
-from movetree import Move
-from goban import Goban, goban_to_sgf
+from goban import Goban
 
 
 class Model(object):

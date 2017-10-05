@@ -1,7 +1,7 @@
 import movetree
-from Tkinter import *
-from Tkinter import Tk
-import tkFileDialog    
+from tkinter import *
+from tkinter import Tk
+from tkinter import tkFileDialog
 
 class mainUI:
     def __init__(self):
