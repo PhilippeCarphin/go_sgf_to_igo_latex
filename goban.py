@@ -61,17 +61,11 @@ class Goban:
         self.height = int(height)
         if self.width < 1 or self.height < 1:
             raise ValueError
-        self.ko = (0, 0)
         self.positionStack = []
-        self.moveStack = []
-        self.currentMove = movetree.Move(0)
 
     def clear_goban(self):
         self.board = dict()
         self.positionStack = []
-        self.moveStack = []
-        self.ko = (0, 0)
-        self.currentMove = movetree.Move(0)
 
     """ Saves the current position to a stack of board positions.  This is
     useful for navigating a move tree and for implementing the upgraded ko
