@@ -1,4 +1,4 @@
-from goban import Goban
+from goban import Goban, GobanError
 
 
 class Model(object):
@@ -16,9 +16,8 @@ class Model(object):
     def undo_move(self):
         try:
             self.goban.undo()
-        except IndexError as e:
-            print("Unable to undo move : " + str(e))
-            return
+        except GobanError as e:
+            raise e
         self.toggle_turn()
 
     def toggle_turn(self):

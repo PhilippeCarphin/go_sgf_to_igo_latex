@@ -78,7 +78,13 @@ class Goban:
     position."""
 
     def undo(self):
-        self.board = self.positionStack.pop()
+        try:
+            self.board = self.positionStack.pop()
+        except IndexError as e:
+            if not self.positionStack:
+                raise GobanError("Goban error : " + str(e))
+            else:
+                raise e
 
     """ For coordinates given by coord = (x,y) where x and y are two integers,
     the function returns those of (x+1,y),(x-1,y),(x,y-1),(x,y+1) that are in
@@ -156,7 +162,7 @@ class Goban:
         self.push()
         if goban_coord[0] < 1 or goban_coord[0] > self.width or goban_coord[1] < 1 or goban_coord[1] > self.height:
             self.undo()
-            raise GobanError("Outside of playable area")
+            raise GobanError("GobanError : Outside of playable area")
         try:
             self.put_stone(color, goban_coord)
         except GobanError as e:
@@ -165,15 +171,15 @@ class Goban:
         captured_stones = self.resolve_captures(goban_coord)
         if not self.ko_legal():
             self.undo()
-            raise GobanError("Move violates ko rule")
+            raise GobanError("GobanError : Move violates ko rule")
         if self.__get_liberties__(goban_coord) == 0:
             self.undo()
-            raise GobanError("Suicide move cannot be played")
+            raise GobanError("GobanError : Suicide move cannot be played")
         return {'captured': captured_stones, 'move': color + str(goban_to_sgf(goban_coord))}
 
     def put_stone(self, color, coord):
         if coord in self.board:
-            raise GobanError("Already a stone there")
+            raise GobanError("GobanError : Already a stone there")
         self.board[coord] = color
 
     def in_atari(self, coord):

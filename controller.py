@@ -28,7 +28,7 @@ class Controller(Tk):
         try:
             self.key_map[event.char]()
         except KeyError:
-            print("Unknown key " + event.char)
+            print("No handler for key " + ("enter" if event.keycode == 13 else event.char) + "(" + str(event.keycode) + ")")
             return
 
     def board_clicked(self, goban_coord):
@@ -39,7 +39,10 @@ class Controller(Tk):
         self.view.show_position(self.model.goban.board)
 
     def undo_key(self):
-        self.model.undo_move()
+        try:
+            self.model.undo_move()
+        except Exception as e:
+            print("Error when undoing " + str(e))
         self.view.show_position(self.model.goban.board)
 
 
