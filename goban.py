@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # TODO Make it so that goban doesn't need to import move_tree
 import movetree
-
+from operator import add
 """ Copyright 2016, 2017 Philippe Carphin"""
 
 """ This file is part of go_sgf_to_igo_latex.
@@ -32,6 +32,9 @@ def sgf_to_goban(sgf_coord):
     return x, y
 
 
+RULESET_CHINESE = 1
+RULESET_JAPANESE = 2
+
 ################################################################################
 """ Goban is used to memorize board state and implement go rules """
 
@@ -56,26 +59,20 @@ class Goban:
         """
 
     def __init__(self, width, height):
+        if width < 1 or height < 1:
+            raise ValueError
         self.board = {}
         self.width = int(width)
         self.height = int(height)
-        if self.width < 1 or self.height < 1:
-            raise ValueError
         self.positionStack = []
+        self.rule_set = RULESET_CHINESE
 
     def clear_goban(self):
         self.board = dict()
         self.positionStack = []
 
-    """ Saves the current position to a stack of board positions.  This is
-    useful for navigating a move tree and for implementing the upgraded ko
-    rule"""
-
     def push(self):
         self.positionStack.append(dict(self.board))
-
-    """ Pops an element from the position stack and sets it as the current board
-    position."""
 
     def undo(self):
         try:
@@ -86,104 +83,114 @@ class Goban:
             else:
                 raise e
 
-    """ For coordinates given by coord = (x,y) where x and y are two integers,
-    the function returns those of (x+1,y),(x-1,y),(x,y-1),(x,y+1) that are in
-    the board as elements of a list of tuples."""
-
-    def __getNeighbors__(self, coord):
-        neighbors = []
-        x = coord[0]
-        y = coord[1]
-        if 1 <= x - 1:
-            neighbors.append((x - 1, y))
-        if x + 1 <= self.width:
-            neighbors.append((x + 1, y))
-        if 1 <= y - 1:
-            neighbors.append((x, y - 1))
-        if y + 1 <= self.height:
-            neighbors.append((x, y + 1))
-        return neighbors
-
-    """ Returns the group of stones that the stone at coord is part of."""
-
-    def __getGroup__(self, coord):
-        assert coord in self.board, "__getGroup() : coord " + str(coord) + " must be in board"
-        color = self.board[coord]
-        group = set()
-        group.add(coord)
-        stack = self.__getNeighbors__(coord)
-        seen = [coord]
-        while len(stack):
-            neighbor = stack.pop()
-            seen.append(neighbor)
-            if neighbor in self.board and self.board[neighbor] == color:
-                group.add(neighbor)
-                stack += [n for n in self.__getNeighbors__(neighbor) if n not in seen]
-        return group
-
-    def __removeGroup__(self, coord):
-        group = self.__getGroup__(coord)
-        for key in group:
-            del self.board[key]
-        return len(group)
-
-    def __remove_stone(self, coord):
-        del self.board[coord]
-
-    def __get_liberties__(self, coord):
-        # todo test this function in regards to the comment above
-        color = self.board[coord]
-        queue = self.__getNeighbors__(coord)
-        seen = [coord]
-        liberties = 0
-        while len(queue):
-            neighbor = queue.pop()
-            seen.append(neighbor)
-            if neighbor not in self.board:
-                liberties += 1
-                continue
-            if self.board[neighbor] == color:
-                for adj in self.__getNeighbors__(neighbor):
-                    if adj not in seen:
-                        queue.append(adj)
-        return liberties
-
-    def __get_group_stones__(self, group):
-        group_stones = []
-        for coord in group:
-            assert coord in self.board, "__get_group_stones() stone should be in board"
-            color = self.board[coord]
-            group_stones.append(movetree.Stone(color, goban_to_sgf(coord)))
-        return group_stones
-
-    """ Updates the state based on a move being played """
-
-    def play_move(self, color, goban_coord):
-        self.push()
-        if goban_coord[0] < 1 or goban_coord[0] > self.width or goban_coord[1] < 1 or goban_coord[1] > self.height:
-            self.undo()
-            raise GobanError("GobanError : Outside of playable area")
-        try:
-            self.put_stone(color, goban_coord)
-        except GobanError as e:
-            self.undo()
-            raise e
-        captured_stones = self.resolve_captures(goban_coord)
-        if not self.ko_legal():
-            self.undo()
-            raise GobanError("GobanError : Move violates ko rule")
-        if self.__get_liberties__(goban_coord) == 0:
-            self.undo()
-            raise GobanError("GobanError : Suicide move cannot be played")
-        return {'captured': captured_stones, 'move': color + str(goban_to_sgf(goban_coord))}
+    def get_neighbors(self, coord):
+        x, y = coord
+        return [t for t in [(x-1, y), (x+1, y), (x, y-1), (x, y+1)] if self.in_board(t)]
 
     def put_stone(self, color, coord):
         if coord in self.board:
             raise GobanError("GobanError : Already a stone there")
         self.board[coord] = color
 
+    def remove_stone(self, coord):
+        del self.board[coord]
+
+    def get_group(self, coord):
+        """ Returns the group of stones that the stone at coord is part of."""
+        assert coord in self.board, "__getGroup() : coord " + str(coord) + " must be in board"
+        color = self.color_at(coord)
+        group = {coord}
+        to_visit = [coord]
+        visited = []
+        while to_visit:
+            current = to_visit.pop()
+            visited.append(current)
+            if self.color_at(current) == color:
+                group.add(current)
+                to_visit += [n for n in self.get_neighbors(current) if n not in visited]
+        return group
+
+    def color_at(self, coord):
+        return 'E' if coord not in self.board else self.board[coord]
+
+    def remove_group(self, group):
+        for goban_coord in group:
+            self.remove_stone(goban_coord)
+
+    def get_liberties(self, goban_coord):
+        group = self.get_group(goban_coord)
+        return self.get_group_liberties(group)
+
+    def get_group_liberties(self, group):
+        seen = set()
+        for goban_coord in group:
+            seen |= {n for n in self.get_neighbors(goban_coord) if n not in self.board}
+        return len(seen)
+
+    def get_group_stones(self, group):
+        return [movetree.Stone(self.board[coord], goban_to_sgf(coord)) for coord in group]
+
+    def in_board(self, goban_coord):
+        return 1 <= goban_coord[0] <= self.width and 1 <= goban_coord[1] <= self.height
+
+    def resolve_capture(self, goban_coord):
+        group = self.get_group(goban_coord)
+        captured_stones = []
+        if self.get_group_liberties(group) == 0:
+            captured_stones = self.get_group_stones(group)
+            self.remove_group(group)
+        return captured_stones
+
+    def resolve_captures_adj_captures(self, goban_coord):
+        color = self.board[goban_coord]
+        captured_stones = list()
+        for adj in filter(lambda n: n in self.board and self.board[n] != color, self.get_neighbors(goban_coord)):
+            captured_stones += self.resolve_capture(adj)
+        return captured_stones
+
+    def ko_legal(self):
+        if self.rule_set == RULESET_CHINESE:
+            for previous_pos in self.positionStack:
+                if previous_pos == self.board:
+                    return False
+        elif self.rule_set == RULESET_JAPANESE:
+            if len(self.positionStack) > 2 and self.board == self.positionStack[-2]:
+                return False
+        return True
+
+    def play_move(self, color, goban_coord):
+        if not self.in_board(goban_coord):
+            raise GobanError("GobanError : Outside of playable area")
+
+        self.push()
+
+        try:
+            self.put_stone(color, goban_coord)
+        except GobanError as e:
+            self.undo()
+            raise e
+
+        captured_stones = self.resolve_captures_adj_captures(goban_coord)
+
+        if not self.ko_legal():
+            self.undo()
+            raise GobanError('GobanError : Move violates ko rule')
+
+        if self.rule_set == RULESET_CHINESE:
+            captured_stones += self.resolve_capture(goban_coord)
+        elif self.rule_set == RULESET_JAPANESE:
+            if self.get_liberties(goban_coord) == 0:
+                self.undo()
+                raise GobanError("GobanError : Suicide move cannot be played")
+
+        return {'captured': captured_stones, 'move': color + str(goban_to_sgf(goban_coord))}
+
+    def print_stack(self):
+        for pos in self.positionStack:
+            print("        " + str(pos))
+
     def in_atari(self, coord):
-        return self.__get_liberties__(coord) == 1
+        return self.get_liberties(coord) == 1
 
     def get_stones(self):
         stones = {'W': [], 'B': []}
@@ -191,38 +198,6 @@ class Goban:
             color = self.board[coord]
             stones[color].append(movetree.Stone(color, goban_to_sgf(coord)))
         return stones
-
-    def resolve_captures(self, goban_coord):
-        adjacent = self.__getNeighbors__(goban_coord)
-        num_removed_stones = 0
-        captured_stones = list()
-        for adj in adjacent:
-            if adj in self.board \
-                    and self.board[adj] != self.board[goban_coord] \
-                    and self.__get_liberties__(adj) == 0:
-                adj_group = self.__getGroup__(adj)
-                captured_stones.append(self.__get_group_stones__(adj_group))
-                num_removed_stones += self.__removeGroup__(adj)
-        return captured_stones
-
-    def apply_liberty_rule(self, coord):
-        if coord in self.board and self.__get_liberties__(coord) == 0:
-            group = self.__getGroup__(coord)
-            self.__removeGroup__(coord)
-            return group
-
-    """Answers the question 'does the rule of KO prevent me from playing this stone on
-    this board."""
-
-    def ko_legal(self):
-        for previous_pos in self.positionStack:
-            if previous_pos == self.board:
-                return False
-        return True
-
-    def print_stack(self):
-        for pos in self.positionStack:
-            print("        " + str(pos))
 
 
 class GobanError(Exception):

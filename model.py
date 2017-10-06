@@ -9,7 +9,7 @@ class Model(object):
         self.turn = 'B'
 
     def play_move(self, goban_coord):
-        self.goban.play_move(self.turn, goban_coord)
+        print(self.goban.play_move(self.turn, goban_coord))
         # todo add a move in the move tree
         self.toggle_turn()
 
