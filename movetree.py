@@ -137,17 +137,17 @@ def make_token(move, turned180=False):
         else:
             token += move.color + '[' + str(move.sgf_coord) + ']'
     for key in move.data:
+        token += key + '['
         if key in elistTypes:
-            token += key
             for elem in move.data[key]:
-                token += '[' + elem[0] + ':' + elem[1] + ']'
+                token += ':'.join(elem)
         elif key in listTypes:
-            token += key
+            token += ''.join(move.data[key])
             for elem in move.data[key]:
-                token += '[' + elem + ']'
+                token += elem
         else:
-            token += key
-            token += '[' + escape(move.data[key]) + ']'
+            token += escape(move.data[key])
+        token += ']'
     return token
 
 

@@ -78,7 +78,7 @@ if __name__ == "__main__":
     try:
         badSize = goban.Goban('bonjour', "bonjour")
         print("Non-int-able params not detected")
-    except ValueError:
+    except TypeError or ValueError:
         print("Things not changeable to int are correctly detected")
 
     try:
