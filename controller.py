@@ -1,7 +1,25 @@
 from view import View
 from model import Model
 import igo
+from goban import goban_to_sgf
 from tkinter import *
+
+""" Copyright 2016, 2017 Philippe Carphin"""
+
+""" This file is part of go_sgf_to_igo_latex.
+
+go_sgf_to_igo_latex is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+go_sgf_to_igo_latex is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with go_sgf_to_igo_latex.  If not, see <http://www.gnu.org/licenses/>."""
 
 
 class Controller(Tk):
@@ -15,6 +33,8 @@ class Controller(Tk):
                         'b': self.make_beamer_slide,
                         'c': self.make_diagram}
         self.bm = igo.BeamerMaker()
+        self.config(height=800, width=400)
+        self.view.place(relwidth=1.0, relheight=1.0)
 
     def make_beamer_slide(self):
         diag = self.bm.make_page_from_postion(self.model.goban.board)
@@ -34,8 +54,10 @@ class Controller(Tk):
     def board_clicked(self, goban_coord):
         try:
             self.model.play_move(goban_coord)
+            self.view.move_tree_canvas.set_text(self.model.goban.board[goban_coord] + goban_to_sgf(goban_coord))
         except Exception as e:
             print("Error when playing at " + str(goban_coord) + " : " + str(e))
+            self.view.move_tree_canvas.set_text(str(e))
         self.view.show_position(self.model.goban.board)
 
     def undo_key(self):
@@ -44,6 +66,7 @@ class Controller(Tk):
         except Exception as e:
             print("Error when undoing " + str(e))
         self.view.show_position(self.model.goban.board)
+
 
 
 if __name__ == "__main__":
