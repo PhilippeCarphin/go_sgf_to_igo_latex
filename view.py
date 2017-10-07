@@ -33,14 +33,16 @@ class View(Frame, object):
         self.move_tree_canvas.pack()
 
     def config_handler(self, event):
-        if event.width > event.height:
-            self.board_canvas.config(height=event.height - 50)
-        self.board_canvas.config(height=event.width, width=event.width)
-        self.move_tree_canvas.config(height=event.height-event.width, width=event.width)
+        if event.width + 110 > event.height:
+            self.board_canvas.config(height=event.height - 110, width=event.width)
+        else:
+            self.board_canvas.config(height=event.width, width=event.width)
+        self.move_tree_canvas.config(height=max(event.height-event.width, 110), width=event.width)
 
     def show_position(self, position):
         self.board_canvas.position = position
         self.board_canvas.draw_position()
+        # self.move_tree_canvas.set_text(str(position))
 
     def board_clicked(self, event):
         goban_coord = self.board_canvas.position_to_goban_coord(event.x, event.y)

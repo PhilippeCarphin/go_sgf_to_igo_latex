@@ -1,6 +1,7 @@
 from view import View
 from model import Model
 import igo
+from goban import goban_to_sgf
 from tkinter import *
 
 """ Copyright 2016, 2017 Philippe Carphin"""
@@ -53,8 +54,10 @@ class Controller(Tk):
     def board_clicked(self, goban_coord):
         try:
             self.model.play_move(goban_coord)
+            self.view.move_tree_canvas.set_text(self.model.goban.board[goban_coord] + goban_to_sgf(goban_coord))
         except Exception as e:
             print("Error when playing at " + str(goban_coord) + " : " + str(e))
+            self.view.move_tree_canvas.set_text(str(e))
         self.view.show_position(self.model.goban.board)
 
     def undo_key(self):
@@ -63,6 +66,7 @@ class Controller(Tk):
 
     def new_function(self):
         print("b key pressed")
+
 
 if __name__ == "__main__":
     try:

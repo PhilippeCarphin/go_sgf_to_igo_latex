@@ -27,6 +27,11 @@ class MoveTreeCanvas(Canvas, object):
         self.bind('<Configure>', self.configure_event)
         self.width = self.master.winfo_width()
         self.height = self.master.winfo_height() - self.master.winfo_width()
+        self.text = 'This canvas will be \nused for displaying a \nmovetree'
+
+    def set_text(self, text):
+        self.text = text
+        self.draw()
 
     def configure_event(self, event):
         self.width = event.width
@@ -35,7 +40,7 @@ class MoveTreeCanvas(Canvas, object):
 
     def draw(self):
         self.delete('all')
-        self.create_text(200, 100, text='This canvas will be \nused for displaying a \nmovetree', font=('Arial', 20), fill='black')
+        self.create_text(135, 50, text=self.text, font=('Arial', 20), fill='black')
 
 
 if __name__ == '__main__':

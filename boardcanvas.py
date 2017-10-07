@@ -29,7 +29,7 @@ class BoardCanvas(Canvas, object):
         position : dictionary with key being board coordinates and values are
             'B' or 'W' """
     def __init__(self, master, goban_width=19, goban_height=19):
-        Canvas.__init__(self, master, bd=0, cursor='circle', relief='sunken')
+        Canvas.__init__(self, master, bd=4, cursor='circle', relief='sunken')
         # todo : start using goban_width and goban_height for board drawing
         # todo : consider the idea of board_canvas having a goban (which will have a width and a height)
         self.goban_width = goban_width
@@ -40,17 +40,15 @@ class BoardCanvas(Canvas, object):
         self.position = {}
         self.draw_position()
         self.bind('<Configure>', self.configure_event)
-        self.update_dimensions()
 
     def configure_event(self, event):
-        print(str(event))
-        self.update_dimensions()
+        self.update_dimensions(event)
         self.draw_position()
 
-    def update_dimensions(self):
-        self.side_length = min(self.winfo_width(), self.winfo_height())
-        self.stone_size = (self.cell_size * 23) // 13
+    def update_dimensions(self, event):
+        self.side_length = min(event.height, event.width)
         self.cell_size = self.side_length / 19
+        self.stone_size = (self.cell_size * 23) // 13
 
     def position_to_goban_coord(self, x, y):
         return int(0.5 + (x + self.cell_size / 2.0) / self.cell_size),\
