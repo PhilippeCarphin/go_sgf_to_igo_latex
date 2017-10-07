@@ -35,19 +35,17 @@ class BoardCanvas(Canvas, object):
         self.goban_width = goban_width
         self.goban_height = goban_height
         self.cell_size = 25
-        self.bind('<Configure>', self.configure_event)
         self.side_length = 0
         self.stone_size = 0
         self.position = {}
         self.draw_position()
-        self.pack()
 
     def configure_event(self, event):
         self.update_dimensions()
         self.draw_position()
 
     def update_dimensions(self):
-        self.side_length = min(self.master.winfo_height(), self.master.winfo_width()) - 15
+        self.side_length = min(self.master.winfo_height(), self.master.winfo_width())
         self.config(height=self.side_length, width=self.side_length)
         self.stone_size = (self.cell_size * 23) / 13
         self.cell_size = self.side_length / 19
@@ -97,10 +95,10 @@ class BoardCanvas(Canvas, object):
         self.draw_star_points()
 
     def draw_lines(self):
-        max_pos = 18 * self.cell_size + self.cell_size // 2
-        min_pos = self.cell_size // 2
+        max_pos = 18 * self.cell_size + self.cell_size / 2
+        min_pos = self.cell_size / 2
         for i in range(19):
-            current_dim = i * self.cell_size + self.cell_size // 2
+            current_dim = i * self.cell_size + self.cell_size / 2
             self.create_line(current_dim, min_pos, current_dim, max_pos)
             self.create_line(min_pos, current_dim, max_pos, current_dim)
 
@@ -109,8 +107,8 @@ class BoardCanvas(Canvas, object):
         y_offset = 1
         for i in [3, 9, 15]:
             for j in [3, 9, 15]:
-                x = i * self.cell_size + self.cell_size // 2
-                y = j * self.cell_size + self.cell_size // 2
+                x = i * self.cell_size + self.cell_size / 2
+                y = j * self.cell_size + self.cell_size / 2
                 self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
                                         font=('Arial', int(self.stone_size / 5)), fill='black')
 

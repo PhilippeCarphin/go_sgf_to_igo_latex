@@ -15,6 +15,8 @@ class Controller(Tk):
                         'b': self.make_beamer_slide,
                         'c': self.make_diagram}
         self.bm = igo.BeamerMaker()
+        self.config(height=800, width=400)
+        self.view.place(relwidth=1.0, relheight=1.0)
 
     def make_beamer_slide(self):
         diag = self.bm.make_page_from_postion(self.model.goban.board)
