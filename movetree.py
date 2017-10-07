@@ -26,25 +26,19 @@ along with go_sgf_to_igo_latex.  If not, see <http://www.gnu.org/licenses/>."""
 listTypes = ['AB', 'AE', 'AW', 'CR', 'TR', 'SQ', 'LB']
 elistTypes = ['LB']
 
-""" Un-escapes the characters ] and \ characters """
 
 
 def un_escape(string):
+    """ Un-escapes the characters ] and \ characters """
     return string.replace('\\\\', '\\').replace('\\]', ']')
 
-
-""" Escapes the characters ] and \ characters """
-
-
 def escape(string):
+    """ Escapes the characters ] and \ characters """
     return string.replace('\\', '\\\\').replace(']', '\\]')
 
-
-""" Returns a list of tokens that are either a perentheses, a move, or the
-info thing at the start. Extracted by regexp from string """
-
-
 def make_file_tokens(string):
+    """ Returns a list of tokens that are either a perentheses, a move, or the
+    info thing at the start. Extracted by regexp from string """
     paren = r'[()]'
     component = r'(?:[A-Z]*(?:\[.*?[^\\]\]\r?\n?)+)'
     token_regex = re.compile(paren + '|' + component + '+', re.DOTALL)
@@ -52,11 +46,8 @@ def make_file_tokens(string):
     token_list = token_list[1:len(token_list) - 1]
     return token_list
 
-
-""" Subdivides token data into the right bits based on the type """
-
-
 def break_token_data(type_token, data_token):
+    """ Subdivides token data into the right bits based on the type """
     token_data = re.compile(r'\[(.*?[^\\])\]', re.DOTALL).findall(data_token)
     if type_token in ['W', 'B']:
         assert 0
@@ -70,11 +61,11 @@ def break_token_data(type_token, data_token):
     return token_data
 
 
-""" Returns a move created by the supplied token with specified parent and move
-number """
 
 
 def create_move(token, parent, move_number):
+    """ Returns a move created by the supplied token with specified parent and move
+    number """
     move = Move(parent)
     move.moveNumber = move_number
     component = r'([A-Z]+)((?:\[.*?[^\\]\]\r?\n?)+)'
@@ -88,11 +79,10 @@ def create_move(token, parent, move_number):
     return move
 
 
-""" Returns the head of a move tree based on the content of an SGF_file """
 
 
 def make_tree(file_content):
-    """ More elegant way of doing it """
+    """ Returns the head of a move tree based on the content of an SGF_file """
     file_tokens = make_file_tokens(file_content)
     root = Node(0)
     tip = root
@@ -116,10 +106,10 @@ def make_tree(file_content):
     return root
 
 
-""" Returns the SGF_token corresponding to move """
 
 
 def make_token(move, turned180=False):
+    """ Returns the SGF_token corresponding to move """
     token = ';'
     if move.color in ['W', 'B']:
         if turned180:
@@ -267,12 +257,10 @@ class Stone:
         """ returns SGF coordinates of stone """
         return self.sgf_coord
 
-    """ returns goban coordinates of stone """
 
     def goban_coord(self):
-        x = 1 + ord(self.sgf_coord[0]) - ord('a')
-        y = 1 + ord(self.sgf_coord[1]) - ord('a')
-        return x, y
+        """ returns goban coordinates of stone """
+        return tuple(1 + ord(c) - ord('a') for c in self.sgf_coord)
 
     def __str__(self):
         return str(self.color) + self.sgf_coord
@@ -309,15 +297,8 @@ class Move(Node, Stone):
         else:
             return ''
 
-    """ returns IGO coordinates of move """
-
-    # def labels(self):
-    #     # TODO
-    #     return 'TODO'
-
     def __repr__(self):
         return self.color + str(self.sgf_coord)
-
 
 ################################################################################
 # Master class of composite pattern
@@ -400,8 +381,7 @@ def depth_first_visit(root, f):
 
 
 def state_visit(tree):
-    """ Go through the nodes of a tree and add goban_state information to each node
-    """
+    """ Go through the nodes of a tree and add goban_state information to each node """
     stack = []
     done = False
     board_size = int(tree.info.data['SZ'])
@@ -432,10 +412,8 @@ def state_visit(tree):
             current = current.get_next_sibling()
 
 ################################################################################
-""" Visitor vists move tree in parallel with a goban.  Assigns goban state and
-stones captured to each move Node"""
-
-
+# Visitor vists move tree in parallel with a goban.  Assigns goban state and
+# stones captured to each move Node
 ################################################################################
 class StateVisitor:
     def __init__(self):

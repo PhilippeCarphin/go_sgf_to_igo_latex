@@ -60,6 +60,12 @@ class TestMovetree(unittest.TestCase):
         token = movetree.make_token(move, turned180=True)
         assert token == ';B[ip]', 'Token = ' + str(token) + ' but should be ;B[ip]'
 
+    def test_goban_to_sgf(self):
+        goban_coord = (4,4)
+        sgf_coord = 'dd'
+        s = movetree.Stone('W', sgf_coord)
+        assert goban_coord == s.goban_coord()
+
     """ Note, the order in which the different sub-tokens get written is non-deterministic
     so that's why the start of both strings will likely differ and thus we compare the end
     of the string """
