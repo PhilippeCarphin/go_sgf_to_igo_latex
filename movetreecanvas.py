@@ -22,7 +22,6 @@ class MoveTreeCanvas(Canvas, object):
 
     def draw(self):
         self.delete('all')
-        self.pack()
         self.create_text(200, 100, text='This canvas will be \nused for displaying a \nmovetree', font=('Arial', 20), fill='black')
 
 if __name__ == '__main__':
