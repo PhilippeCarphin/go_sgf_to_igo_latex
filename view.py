@@ -33,10 +33,10 @@ class View(Frame, object):
         self.move_tree_canvas.pack()
 
     def config_handler(self, event):
-        self.board_canvas.update_dimensions()
-        self.board_canvas.draw_position()
-        self.config(width=event.width, height=event.height)
-        self.move_tree_canvas.configure_event(event)
+        if event.width > event.height:
+            self.board_canvas.config(height=event.height - 50)
+        self.board_canvas.config(height=event.width, width=event.width)
+        self.move_tree_canvas.config(height=event.height-event.width, width=event.width)
 
     def show_position(self, position):
         self.board_canvas.position = position

@@ -39,15 +39,17 @@ class BoardCanvas(Canvas, object):
         self.stone_size = 0
         self.position = {}
         self.draw_position()
+        self.bind('<Configure>', self.configure_event)
+        self.update_dimensions()
 
     def configure_event(self, event):
+        print(str(event))
         self.update_dimensions()
         self.draw_position()
 
     def update_dimensions(self):
-        self.side_length = min(self.master.winfo_height(), self.master.winfo_width())
-        self.config(height=self.side_length, width=self.side_length)
-        self.stone_size = (self.cell_size * 23) / 13
+        self.side_length = min(self.winfo_width(), self.winfo_height())
+        self.stone_size = (self.cell_size * 23) // 13
         self.cell_size = self.side_length / 19
 
     def position_to_goban_coord(self, x, y):
