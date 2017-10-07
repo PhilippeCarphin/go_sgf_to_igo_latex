@@ -15,7 +15,8 @@ class MoveTreeCanvas(Canvas, object):
     def configure_event(self, event):
         self.width = event.width
         # self.height = self.master.winfo_height() - self.master.winfo_width()
-        self.height = event.height
+        self.height = self.master.winfo_height() - self.master.board_canvas.winfo_height()
+        self.height /= 2
         self.config(width=self.width, height=self.height)
         self.draw()
 

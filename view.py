@@ -14,7 +14,7 @@ class View(Frame, object):
         self.bind('<Configure>', self.config_handler)
         self.move_tree_canvas = MoveTreeCanvas(self)
         self.board_canvas.pack()
-        self.move_tree_canvas.pack(fill=Y)
+        self.move_tree_canvas.pack()
 
     def config_handler(self, event):
         self.board_canvas.update_dimensions()
