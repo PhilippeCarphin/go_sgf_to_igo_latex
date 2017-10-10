@@ -4,6 +4,7 @@ import cProfile
 simple_text = r'.*?'
 prop_ident = r'[A-Z]+'
 prop_value = r'\[' + simple_text + r'[^\\]\]\r?\n?'
+inner_value = r'\[(.*?[^\\])\]'
 property = prop_ident + '(?:' + prop_value + ')+'
 node = ';(?:' + property + ')+'
 tree = '\(' + '(?:' + node + ')+' + '\)'
@@ -13,6 +14,16 @@ node_re = re.compile(node, re.DOTALL)
 property_re = re.compile(property, re.DOTALL)
 prop_ident_re = re.compile(prop_ident, re.DOTALL)
 prop_value_re = re.compile(prop_value, re.DOTALL)
+inner_value_re = re.compile(inner_value, re.DOTALL)
+
+def props_from_node_token(t):
+    return property_re.findall(t)
+
+def prop_values_from_property(p):
+    return prop_value_re.findall(p)
+
+def values_from_raw_values(rv):
+    return inner_value_re.findall(rv)
 
 def name(self):
     return {'LB':'labels'}
@@ -259,16 +270,7 @@ def write_sgf(move_tree):
 
 import os
 
-def props_from_node_token(t):
-    return property_re.findall(t)
 
-def prop_values_from_property(p):
-    return prop_value_re.findall(p)
-
-def values_from_raw_values(rv):
-    rv_re = r'\[(.*?[^\\])\]'
-    cre = re.compile(rv_re, re.DOTALL)
-    return cre.findall(rv)
 
 
 
