@@ -258,7 +258,38 @@ def write_sgf(move_tree):
     return text
 
 import os
+
+def props_from_node_token(t):
+    return property_re.findall(t)
+
+def test_props_from_node_token():
+    t = ';B[eh]CR[gi][ej][gk]LB[ie:1][ke:3][ne:5][ef:A][gf:B][jf:2][kf:4][jh:6]TR[fc][di][ei]SQ[eh][dj]C[7B]'
+    print(props_from_node_token(t))
+
+def prop_values_from_property(p):
+    return prop_value_re.findall(p)
+
+def values_from_raw_values(rv):
+    rv_re = r'\[(.*?[^\\])\]'
+    cre = re.compile(rv_re, re.DOTALL)
+    return cre.findall(rv)
+
+def test_values_from_raw_values():
+    rv = '[abc]\r\n'
+    print(values_from_raw_values(rv))
+    rv = '[abc][def]\r\n'
+    print(values_from_raw_values(rv))
+
+def test_prop_values_from_property():
+    p = 'CR[gi][ej][gk]'
+    print(prop_values_from_property(p))
+
 if __name__ == "__main__":
+    test_props_from_node_token()
+    test_prop_values_from_property()
+    test_values_from_raw_values()
+    exit(0)
+
     filename = os.path.join(os.getcwd(), 'variations.sgf')
     with open(filename) as f:
         file_content = f.read()
