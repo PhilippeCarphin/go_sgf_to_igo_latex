@@ -68,7 +68,7 @@ class Controller(Tk):
             self.model.undo_move()
         except Exception as e:
             print("Error when undoing " + str(e))
-        self.view.show_position(self.model.goban.board)
+        self.view.show_position(self.model.goban)
 
 
 
