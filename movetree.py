@@ -214,9 +214,6 @@ class Node:
         else:
             return False
 
-    # def nextSibling(self):
-    #    k
-
     def is_leaf(self):
         if len(self.children) == 0:
             return True
@@ -225,15 +222,6 @@ class Node:
 
     def clear_children(self):
         self.children = []
-
-    def get_mainline_to_self(self):
-        mainline = []
-        current = self
-        while current.parent != 0:
-            mainline.append(current)
-            current = current.get_parent()
-        mainline.reverse()
-        return mainline
 
     def accept_visitor(self, visitor):
         visitor.visit(self)
