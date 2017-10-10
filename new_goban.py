@@ -31,16 +31,12 @@ class Goban(MutableMapping):
         self.width = int(width)
         self.height = int(height)
         self._storage = dict()
-
-
     def __getitem__(self, key):
         if not self.is_valid(key):
             raise GobanError("Goban:__getitem__ invalid key " + str(key))
         return self._storage[key] if key in self._storage else None
-
     def __delitem__(self, key):
         del self._storage[key]
-
     def __setitem__(self, key, value):
         if not self.is_valid(key):
             raise GobanError("Goban:__setitem__ invalid key " + str(key))
@@ -50,37 +46,30 @@ class Goban(MutableMapping):
             print(self._storage)
             raise GobanError("Goban.__setitem__() already a stone at " + str(key))
         self._storage[key] = value
-
     def __iter__(self):
         return iter(self._storage)
-
     def __len__(self):
         return len(self._storage)
-
     def __str__(self):
         return str(self._storage)
-
-    # todo : this is temporary to offer the same interface
-    @property
-    def board(self):
-        return self._storage
-
+    def __contains__(self, key):
+        return key in self._storage
+    def is_valid(self, key):
+        return is_key_type(key) and self.in_board(key)
     def clear(self):
         self._storage = dict()
-
     def remove_stone(self, coord):
         del self[coord]
-
     def remove_group(self, group):
         for coord in group:
             del self[coord]
-
+    def in_board(self, goban_coord):
+        return 1 <= goban_coord[0] <= self.width and \
+               1 <= goban_coord[1] <= self.height
     def get_neighbors(self, coord):
         x, y = coord
         return [t for t in [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
                 if self.in_board(t)]
-
-    """ Maybe these functions should be outside this class"""
     def get_group(self, coord):
         if not self.is_valid(coord):
             raise GobanError("Goban.get_group(): invalid key " + str(coord))
@@ -98,34 +87,25 @@ class Goban(MutableMapping):
                              n not in visited]
             visited.append(current_coord)
         return group
-
-    def in_board(self, goban_coord):
-        return 1 <= goban_coord[0] <= self.width and \
-               1 <= goban_coord[1] <= self.height
-
-    def is_valid(self, key):
-        return is_key_type(key) and self.in_board(key)
-
     def resolve_capture(self, goban_coord):
         group = self.get_group(goban_coord)
         captured_stones = []
         if self.get_group_liberties(group) == 0:
             self.remove_group(group)
-
     def resolve_adj_captures(self, goban_coord):
-        color = self.board[goban_coord]
+        color = self[goban_coord]
         captured_stones = list()
-        for adj in filter(lambda n: n in self.board and self.board[n] != color, self.get_neighbors(goban_coord)):
+        for adj in filter(lambda n: n in self and self[n] != color,
+                          self.get_neighbors(goban_coord)):
             self.resolve_capture(adj)
-
     def get_liberties(self, goban_coord):
         group = self.get_group(goban_coord)
         return self.get_group_liberties(group)
-
     def get_group_liberties(self, group):
         seen = set()
         for goban_coord in group:
-            seen |= {n for n in self.get_neighbors(goban_coord) if n not in self.board}
+            seen |= {n for n in self.get_neighbors(goban_coord) if n not in
+                     self}
         return len(seen)
 
 
