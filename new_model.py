@@ -1,15 +1,18 @@
 import new_tree
 from new_goban import Goban, GobanError
 import copy
-from new_tree import Move
+from new_tree import Move, MoveTree
 
 class ModelError(Exception):
     pass
 
 class Model(object):
     def __init__(self, goban_width=19, goban_height=19):
+        self.goban_width = goban_width
+        self.goban_height = goban_height
         self.goban = Goban(goban_width, goban_height)
-        self.move_tree = None
+        self.move_tree = MoveTree(goban_height=goban_height,
+                                  goban_width=goban_width)
         self.current_move = Move()
         self.turn = 'B'
 
@@ -34,13 +37,12 @@ class Model(object):
         new_move.position = temp_goban
         self.goban = temp_goban
         self.toggle_turn()
-        self.current_move.children.append(new_move)
-        self.current_move = new_move
+        self.move_tree.add_move(Move(color=self.turn,
+                                     coord=goban_coord))
 
     def undo_move(self):
         try:
-            self.current_move = self.current_move.parent
-            self.goban = self.current_move.position
+            new_current = self.move_tree.get_parent()
         except GobanError as e:
             raise e
         self.toggle_turn()

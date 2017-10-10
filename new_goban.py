@@ -15,6 +15,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with go_sgf_to_igo_latex.  If not, see <http://www.gnu.org/licenses/>."""
 
+def goban_to_sgf(goban_coord):
+    char_x = chr(goban_coord[0] + ord('a') - 1)
+    char_y = chr(goban_coord[1] + ord('a') - 1)
+    return char_x + char_y
+
+
+def sgf_to_goban(sgf_coord):
+    x = 1 + ord(sgf_coord[0]) - ord('a')
+    y = 1 + ord(sgf_coord[1]) - ord('a')
+    return x, y
+
 def is_key_type(key):
     return isinstance(key, tuple) and len(key) == 2
 
