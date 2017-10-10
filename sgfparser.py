@@ -18,15 +18,16 @@ inner_value_re = re.compile(inner_value, re.DOTALL)
 
 def props_from_node_token(t):
     return property_re.findall(t)
+def values_from_property(p):
+    return inner_value_re.findall(p)
+def read_property(p):
+    pid = prop_ident_re.match(p).group(0)
+    vals = values_from_property(p)
+    return pid, vals
 
-def prop_values_from_property(p):
-    return prop_value_re.findall(p)
 
-def values_from_raw_values(rv):
-    return inner_value_re.findall(rv)
 
-def name(self):
-    return {'LB':'labels'}
+
 def make_file_tokens(string):
     token_regex = re.compile(node + '|' + paren, re.DOTALL)
     token_list = token_regex.findall(string)
@@ -53,12 +54,6 @@ def make_tree(file_content):
     root = root.children[0]
     root.parent = 0
     return root
-
-class Glyph(object):
-    def __init__(self):
-        self.circles = []
-        self.squares = []
-        self.triangles = []
 
     def __str__(self):
         return str([l for l in [self.circles, self.squares, self.triangles] if l])
