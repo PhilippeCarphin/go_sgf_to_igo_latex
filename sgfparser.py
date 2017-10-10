@@ -262,19 +262,6 @@ import os
 def props_from_node_token(t):
     return property_re.findall(t)
 
-def test_props_from_node_token():
-    input = ';B[eh]CR[gi][ej][gk]' \
-            'LB[ie:1][ke:3][ne:5][ef:A][gf:B][jf:2][kf:4]\r\n[jh:6]' \
-            'TR[fc][di][ei]' \
-            'SQ[eh][dj]C[7B]\r\n'
-    output = props_from_node_token(input)
-    expected = ['B[eh]', 'CR[gi][ej][gk]',
-                'LB[ie:1][ke:3][ne:5][ef:A][gf:B][jf:2][kf:4]\r\n[jh:6]',
-                'TR[fc][di][ei]', 'SQ[eh][dj]', 'C[7B]\r\n']
-    print(output)
-    print(expected)
-    assert expected == output
-
 def prop_values_from_property(p):
     return prop_value_re.findall(p)
 
@@ -283,28 +270,9 @@ def values_from_raw_values(rv):
     cre = re.compile(rv_re, re.DOTALL)
     return cre.findall(rv)
 
-def test_values_from_raw_values():
-    input = '[abc]\r\n'
-    output = values_from_raw_values(input)
-    expected = ['abc']
-    assert output == expected
-    input = '[abc]\r\n[def]\r\n'
-    expected = ['abc', 'def']
-    output = values_from_raw_values(input)
-    assert output == expected
 
-
-def test_prop_values_from_property():
-    input = 'CR[gi][ej][gk]'
-    output = prop_values_from_property(input)
-    expected = ['[gi]', '[ej]', '[gk]']
-    assert output == expected
 
 if __name__ == "__main__":
-    test_props_from_node_token()
-    test_prop_values_from_property()
-    test_values_from_raw_values()
-    exit(0)
 
     filename = os.path.join(os.getcwd(), 'variations.sgf')
     with open(filename) as f:
