@@ -34,9 +34,9 @@ class Goban(MutableMapping):
 
 
     def __getitem__(self, key):
-        if not self.is_valid_key(key):
+        if not self.is_valid(key):
             raise GobanError("Goban:__getitem__ invalid key " + str(key))
-        return self._storage[key] if self._storage.haskey(key) else None
+        return self._storage[key] if key in self._storage else None
 
     def __delitem__(self, key):
         del self._storage[key]
@@ -46,7 +46,8 @@ class Goban(MutableMapping):
             raise GobanError("Goban:__setitem__ invalid key " + str(key))
         if value not in ['W', 'B']:
             raise GobanError("Goban.__setitem__() value must be W or B")
-        if self.haskey(key):
+        if key in self._storage:
+            print(self._storage)
             raise GobanError("Goban.__setitem__() already a stone at " + str(key))
         self._storage[key] = value
 
@@ -81,8 +82,8 @@ class Goban(MutableMapping):
 
     """ Maybe these functions should be outside this class"""
     def get_group(self, coord):
-        if not self.is_valid_key(coord):
-            raise GobanError("Goban.get_group(): invalid key " + str(key))
+        if not self.is_valid(coord):
+            raise GobanError("Goban.get_group(): invalid key " + str(coord))
         color = self[coord]
         if color == None:
             return None
@@ -105,9 +106,27 @@ class Goban(MutableMapping):
     def is_valid(self, key):
         return is_key_type(key) and self.in_board(key)
 
+    def resolve_capture(self, goban_coord):
+        group = self.get_group(goban_coord)
+        captured_stones = []
+        if self.get_group_liberties(group) == 0:
+            self.remove_group(group)
 
+    def resolve_adj_captures(self, goban_coord):
+        color = self.board[goban_coord]
+        captured_stones = list()
+        for adj in filter(lambda n: n in self.board and self.board[n] != color, self.get_neighbors(goban_coord)):
+            self.resolve_capture(adj)
 
+    def get_liberties(self, goban_coord):
+        group = self.get_group(goban_coord)
+        return self.get_group_liberties(group)
 
+    def get_group_liberties(self, group):
+        seen = set()
+        for goban_coord in group:
+            seen |= {n for n in self.get_neighbors(goban_coord) if n not in self.board}
+        return len(seen)
 
 
 

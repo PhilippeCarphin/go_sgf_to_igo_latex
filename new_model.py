@@ -12,15 +12,16 @@ class Model(object):
         self.turn = 'B'
 
     def play_move(self, goban_coord):
-        temp_goban = copy(self.goban)
+        temp_goban = copy.deepcopy(self.goban)
         try:
             temp_goban[goban_coord] = self.turn
         except GobanError as e:
             raise e
 
-        self.resolve_adj_captures(goban_coord)
+        temp_goban.resolve_adj_captures(goban_coord)
         # todo add a move in the move tree
         self.toggle_turn()
+        self.goban = temp_goban
 
     def undo_move(self):
         try:
