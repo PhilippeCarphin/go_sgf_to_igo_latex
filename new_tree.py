@@ -37,9 +37,14 @@ class Move(Node, Stone):
 
 class MoveTree(object):
     def __init__(self, goban_height=19, goban_width=19):
+        self.info = None
         self.root_move = Move()
         self.current_move = self.root_move
 
     def add_move(self, move):
         move.parent = self.current_move
         self.current_move.children.append(move)
+
+    def print(self):
+        print(str(self.info))
+        self.root_move.print()
