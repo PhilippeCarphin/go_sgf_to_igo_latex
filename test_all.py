@@ -8,8 +8,7 @@ import sgfparser as sgf
 class test_sgfparser(unittest.TestCase):
     def test_props_from_node_token(self):
         input = ';B[eh]CR[gi][ej][gk]LB[ie:1][ke:3][ne:5][ef:A][gf:B][jf:2][kf:4]\r\n[jh:6]' \
-                'TR[fc][di][ei]' \
-                'SQ[eh][dj]C[7B]\r\n'
+                'TR[fc][di][ei]SQ[eh][dj]C[7B]\r\n'
         output = sgf.props_from_node_token(input)
         expected = ['B[eh]', 'CR[gi][ej][gk]','LB[ie:1][ke:3][ne:5][ef:A][gf:B][jf:2][kf:4]\r\n[jh:6]',
                     'TR[fc][di][ei]', 'SQ[eh][dj]', 'C[7B]\r\n']
@@ -66,11 +65,10 @@ class TestMovetree(unittest.TestCase):
         sgf_coord = 'dd'
         s = movetree.Stone('W', sgf_coord)
         assert goban_coord == s.goban_coord()
-
-    """ Note, the order in which the different sub-tokens get written is non-deterministic
-    so that's why the start of both strings will likely differ and thus we compare the end
-    of the string """
     def test_write_sgf(self):
+        """ Note, the order in which the different sub-tokens get written is non-deterministic
+        so that's why the start of both strings will likely differ and thus we compare the end
+        of the string """
         tree = movetree.Tree('nassima_phil.sgf')
         result = movetree.write_sgf(tree, False) + '\n'
         expected_file = os.path.join(os.getcwd(), 'test_files/expected_write_sgf.sgf')
