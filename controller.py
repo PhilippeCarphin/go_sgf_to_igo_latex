@@ -4,6 +4,7 @@ import igo
 # from goban import goban_to_sgf, GobanError
 from new_goban import GobanError
 from tkinter import *
+import pyperclip
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -41,11 +42,13 @@ class Controller(Tk):
         self.minsize(400, 400+110)
 
     def make_beamer_slide(self):
-        diag = self.bm.make_page_from_postion(self.model.goban.board)
+        diag = self.bm.make_page_from_postion(self.model.goban)
+        pyperclip.copy(diag)
         print(diag)
 
     def make_diagram(self):
-        diag = igo.make_diagram_from_position(self.model.goban.board)
+        diag = igo.make_diagram_from_position(self.model.goban)
+        pyperclip.copy(diag)
         print(diag)
 
     def key_pressed_dispatch(self, event):
