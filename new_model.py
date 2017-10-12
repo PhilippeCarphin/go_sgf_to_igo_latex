@@ -2,6 +2,7 @@ import new_tree
 from new_goban import Goban, GobanError
 import copy
 from new_tree import Move, MoveTree
+import sgfparser
 
 class ModelError(Exception):
     pass
@@ -11,10 +12,12 @@ class Model(object):
         self.goban_width = goban_width
         self.goban_height = goban_height
         self.goban = Goban(goban_width, goban_height)
-        self.move_tree = MoveTree(goban_height=goban_height,
-                                  goban_width=goban_width)
+        self.move_tree = MoveTree()
         self.current_move = Move()
         self.turn = 'B'
+
+
+
 
     def play_move(self, goban_coord):
         temp_goban = copy.deepcopy(self.goban)
@@ -49,3 +52,11 @@ class Model(object):
 
     def toggle_turn(self):
         self.turn = 'W' if self.turn == 'B' else 'B'
+
+    def load_sgf(self, file_name):
+        self.move_tree = sgfparser.make_tree_from_file_name(file_name)
+        self.goban = self.move_tree.position_from_node(self.move_tree.root_move)
+
+    def next_move(self):
+        self.move_tree.advance_move()
+        self.goban = self.move_tree.get_position()

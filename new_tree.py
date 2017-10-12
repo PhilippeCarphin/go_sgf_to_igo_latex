@@ -29,7 +29,7 @@ class Move(Node, Stone):
         self.glyphs = Glyphs()
         self.position = None
     def __str__(self):
-        return "M" + str(self.coord) + str(self.properties)
+        return "M" + str(self.coord) + str(self.properties) + " parent : " + str(self.parent.coord)
     def print(self):
         print(str(self))
         for c in self.children:
@@ -59,6 +59,7 @@ class Info(object):
         self.white_rank   = None  # WR (simpletext)
         self.white_team   = None  # WT (simpletext)
         self.application  = None
+        self.size = 19
         self.charset      = 'UTF-8'
         self.file_format  = 0
         self.game         = 1
@@ -81,3 +82,34 @@ class MoveTree(object):
     def print(self):
         print(str(self.info))
         self.root_move.print()
+
+    def reverse_line_from(self, node):
+        current = node
+        line = [node]
+        while current.parent is not None:
+            line.append(current.parent)
+            current = current.parent
+        return line
+
+    def position_from_node(self, node):
+        assert isinstance(node, Move)
+        line = self.reverse_line_from(node)
+        temp_goban = Goban(self.info.size, self.info.size)
+        while line:
+            print("B")
+            mv = line.pop()
+            if isinstance(mv, Move):
+                temp_goban[mv.coord] = mv.color
+                temp_goban.resolve_adj_captures(mv.coord)
+            else:
+                print("Something else than a move")
+        return temp_goban
+
+    def advance_move(self):
+        try:
+            self.current_move = self.current_move.children[0]
+        except IndexError as e:
+            raise IndexError("MoveTree.advance_move : No next move")
+
+    def get_position(self):
+        return self.position_from_node(self.current_move)

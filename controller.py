@@ -32,7 +32,9 @@ class Controller(Tk):
         self.bind('<Key>', self.key_pressed_dispatch)
         self.key_map = {'a': self.undo_key,
                         'b': self.make_beamer_slide,
-                        'c': self.make_diagram}
+                        'c': self.make_diagram,
+                        'l': self.load_sgf,
+                        'n': self.next_move}
         self.bm = igo.BeamerMaker()
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
@@ -68,6 +70,14 @@ class Controller(Tk):
             self.model.undo_move()
         except Exception as e:
             print("Error when undoing " + str(e))
+        self.view.show_position(self.model.goban)
+
+    def load_sgf(self):
+        self.model.load_sgf('ShusakuvsInseki.sgf')
+        self.view.show_position(self.model.goban)
+
+    def next_move(self):
+        self.model.next_move()
         self.view.show_position(self.model.goban)
 
 if __name__ == "__main__":
