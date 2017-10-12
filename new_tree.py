@@ -35,8 +35,41 @@ class Move(Node, Stone):
         for c in self.children:
             c.print()
 
+class Info(object):
+    def __init__(self):
+        self.annotator    = None  # AN (simpletext)
+        self.black_rank   = None  # BR (simpletext)
+        self.black_team   = None  # BT (simpletext)
+        self.copyright    = None  # CP (simpletext)
+        self.date         = None  # DT (simpletext)
+        self.event        = None  # EV (simpletext)
+        self.game_name    = None  # GN (simpletext)
+        self.komi         = None  # KM (real)
+        self.game_comment = None  # GC (text)
+        self.opening      = None  # ON (simpletext)
+        self.black_player = None  # PB (simpletext)
+        self.place        = None  # PC (simpletext)
+        self.white_player = None  # PB (simpletext)
+        self.result       = None  # RE (simpletext)
+        self.round        = None  # RO (simpletext)
+        self.rule_set     = None  # RU (simpletext)
+        self.source       = None  # SO (simpletext)
+        self.time_control = None  # TM (real)
+        self.user         = None  # US (simpletext)
+        self.white_rank   = None  # WR (simpletext)
+        self.white_team   = None  # WT (simpletext)
+        self.application  = None
+        self.charset      = 'UTF-8'
+        self.file_format  = 0
+        self.game         = 1
+        self.ST           = 2
+
+    def __str__(self):
+        d = {k: self.__dict__[k] for k in self.__dict__ if self.__dict__[k] is not None}
+        return str(d)
+
 class MoveTree(object):
-    def __init__(self, goban_height=19, goban_width=19):
+    def __init__(self):
         self.info = None
         self.root_move = Move()
         self.current_move = self.root_move
