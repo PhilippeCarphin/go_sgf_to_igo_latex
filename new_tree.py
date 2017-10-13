@@ -1,5 +1,8 @@
 from new_goban import Goban
 
+class TreeError(Exception):
+    pass
+
 class Glyphs():
     def __init__(self):
         self.circles = []
@@ -87,9 +90,14 @@ class MoveTree(object):
     def reverse_line_from(self, node):
         current = node
         line = [node]
+        guard = 0
         while current.parent is not None:
             line.append(current.parent)
             current = current.parent
+            guard += 1
+            if guard > 450:
+                raise TreeError("reverse_line_from() : tree integrity error, going from parent to parent does not "
+                                "find root node")
         return line
 
     def position_from_node(self, node):
@@ -97,7 +105,6 @@ class MoveTree(object):
         line = self.reverse_line_from(node)
         temp_goban = Goban(self.info.size, self.info.size)
         while line:
-            print("B")
             mv = line.pop()
             if isinstance(mv, Move):
                 temp_goban[mv.coord] = mv.color
@@ -110,7 +117,7 @@ class MoveTree(object):
         try:
             self.current_move = self.current_move.children[0]
         except IndexError as e:
-            raise IndexError("MoveTree.advance_move : No next move")
+            raise TreeError("MoveTree.advance_move : No next move")
 
     def previous_move(self):
         self.current_move = self.current_move.parent
