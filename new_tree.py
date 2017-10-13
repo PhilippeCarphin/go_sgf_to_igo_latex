@@ -29,7 +29,8 @@ class Move(Node, Stone):
         self.glyphs = Glyphs()
         self.position = None
     def __str__(self):
-        return "M" + str(self.coord) + str(self.properties) + " parent : " + str(self.parent.coord)
+        parent_str = str(self.parent.coord) if self.parent is not None else "None"
+        return "M" + str(self.coord) + str(self.properties) + " parent : " + parent_str
     def print(self):
         print(str(self))
         for c in self.children:

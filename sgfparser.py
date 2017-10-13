@@ -11,7 +11,7 @@ prop_ident = r'[A-Z]+'
 prop_value = r'\[' + simple_text + r'[^\\]\]\r?\n?'
 inner_value = r'\[(.*?[^\\])\]'
 property = prop_ident + '(?:' + prop_value + ')+'
-node = ';(?:' + property + ')+'
+node = ';\r?\n?(?:' + property + ')+'
 tree = '\(' + '(?:' + node + ')+' + '\)'
 paren = '[()]'
 
@@ -59,6 +59,7 @@ def make_tree_from_file_content(file_content):
     file_tokens = make_file_tokens(file_content)
     root = Move(0)
     tip = root
+    #print(file_tokens)
     branch_point_stack = []
     for token in file_tokens:
         if token == '(':
@@ -118,5 +119,5 @@ def make_info_node(props):
     return info
 
 if __name__ == "__main__":
-    tree = make_tree_from_file_name('Variations.sgf')
+    tree = make_tree_from_file_name('ShusakuvsInseki.sgf')
     tree.print()
