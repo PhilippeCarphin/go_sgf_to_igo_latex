@@ -14,3 +14,5 @@
 .idea
 build
 dist
+*.mov
+*.mp4
