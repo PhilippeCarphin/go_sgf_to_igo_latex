@@ -1,9 +1,11 @@
 from view import View
 from new_model import Model
 import igo
+import os
 # from goban import goban_to_sgf, GobanError
 from new_goban import GobanError
 from tkinter import *
+from tkinter import filedialog
 import pyperclip
 
 """ Copyright 2016, 2017 Philippe Carphin"""
@@ -76,7 +78,10 @@ class Controller(Tk):
         self.view.show_position(self.model.goban)
 
     def load_sgf(self):
-        self.model.load_sgf('ShusakuvsInseki.sgf')
+        cwd = os.getcwd()
+        file_path = filedialog.askopenfilename(initialdir=cwd, title="Select file",
+                                   filetypes=(("Smart game format", "*.sgf"), ("all files", "*.*")))
+        self.model.load_sgf(file_path)
         self.view.show_position(self.model.goban)
 
     def next_move(self):

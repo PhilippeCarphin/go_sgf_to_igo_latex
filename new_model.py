@@ -1,7 +1,7 @@
 import new_tree
 from new_goban import Goban, GobanError
 import copy
-from new_tree import Move, MoveTree
+from new_tree import Move, MoveTree, TreeError
 import sgfparser
 
 class ModelError(Exception):
@@ -16,9 +16,6 @@ class Model(object):
         self.current_move = Move()
         self.turn = 'B'
 
-
-
-
     def play_move(self, goban_coord):
         temp_goban = copy.deepcopy(self.goban)
         try:
@@ -30,7 +27,6 @@ class Model(object):
 
         if temp_goban.get_liberties(goban_coord) == 0:
             raise ModelError("Suicide move")
-
 
         # todo check for ko
 
@@ -54,10 +50,19 @@ class Model(object):
     def toggle_turn(self):
         self.turn = 'W' if self.turn == 'B' else 'B'
 
-    def load_sgf(self, file_name):
-        self.move_tree = sgfparser.make_tree_from_file_name(file_name)
+    def load_sgf(self, file_path):
+        self.move_tree = sgfparser.make_tree_from_file_path(file_path)
         self.goban = self.move_tree.position_from_node(self.move_tree.root_move)
 
     def next_move(self):
-        self.move_tree.advance_move()
-        self.goban = self.move_tree.get_position()
+        try:
+            self.move_tree.advance_move()
+        except TreeError as e:
+            print("Can't get to next move" + str(e))
+            return
+        try:
+            self.goban = self.move_tree.get_position()
+        except TypeError as e:
+            print("Type error, ... ")
+            self.move_tree.current_move.print()
+            self.move_tree.previous_move()

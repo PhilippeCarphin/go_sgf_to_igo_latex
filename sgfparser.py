@@ -6,20 +6,20 @@ import movetree
 """ I want all the other files to not have any idea about what SGF is """
 
 
-simple_text = r'.*?'
-prop_ident = r'[A-Z]+'
-prop_value = r'\[' + simple_text + r'[^\\]\]\r?\n?'
-inner_value = r'\[(.*?[^\\])\]'
-property = prop_ident + '(?:' + prop_value + ')+'
-node = ';\r?\n?(?:' + property + ')+'
-tree = '\(' + '(?:' + node + ')+' + '\)'
-paren = '[()]'
+simple_text_re_str = r'.*?'
+prop_ident_re_str = r'[A-Z]+'
+prop_value_re_str = r'\[' + simple_text_re_str + r'[^\\]\]\r?\n?'
+inner_value_re_str = r'\[(.*?[^\\])\]'
+property_re_str = prop_ident_re_str + '(?:' + prop_value_re_str + ')+'
+node_re_str = ';\r?\n?(?:' + property_re_str + ')+'
+tree_re_str = '\(' + '(?:' + node_re_str + ')+' + '\)'
+paren_re_str = '[()]'
 
-node_re = re.compile(node, re.DOTALL)
-property_re = re.compile(property, re.DOTALL)
-prop_ident_re = re.compile(prop_ident, re.DOTALL)
-prop_value_re = re.compile(prop_value, re.DOTALL)
-inner_value_re = re.compile(inner_value, re.DOTALL)
+node_re = re.compile(node_re_str, re.DOTALL)
+property_re = re.compile(property_re_str, re.DOTALL)
+prop_ident_re = re.compile(prop_ident_re_str, re.DOTALL)
+prop_value_re = re.compile(prop_value_re_str, re.DOTALL)
+inner_value_re = re.compile(inner_value_re_str, re.DOTALL)
 
 def props_from_node_token(t):
     return property_re.findall(t)
@@ -30,7 +30,7 @@ def read_property(p):
     vals = values_from_property(p)
     return pid, vals
 def make_file_tokens(string):
-    token_regex = re.compile(node + '|' + paren, re.DOTALL)
+    token_regex = re.compile(node_re_str + '|' + paren_re_str, re.DOTALL)
     token_list = token_regex.findall(string)
     # token_list = token_list[1:len(token_list) - 1]
     # print(string)
@@ -116,6 +116,7 @@ def make_info_node(props):
     info.file_format       = int(props.get('FF', 0)) # simpletest
     info.game              = 1 # see sgf reference (1 means go)
     info.ST                = 2 # see sgf reference (2 means no board markup)
+    info.handicap          = int(props.get('HA', 0)) # (number) I think, haven't looked at the SGF spec for this
     return info
 
 if __name__ == "__main__":
