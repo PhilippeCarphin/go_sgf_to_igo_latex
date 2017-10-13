@@ -45,7 +45,8 @@ class Model(object):
 
     def undo_move(self):
         try:
-            new_current = self.move_tree.get_parent()
+            self.move_tree.previous_move()
+            self.goban = self.move_tree.get_position()
         except GobanError as e:
             raise e
         self.toggle_turn()

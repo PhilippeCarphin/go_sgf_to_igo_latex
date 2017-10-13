@@ -112,5 +112,8 @@ class MoveTree(object):
         except IndexError as e:
             raise IndexError("MoveTree.advance_move : No next move")
 
+    def previous_move(self):
+        self.current_move = self.current_move.parent
+
     def get_position(self):
         return self.position_from_node(self.current_move)
