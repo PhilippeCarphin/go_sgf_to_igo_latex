@@ -1,9 +1,9 @@
 from view import View
-from new_model import Model
+from model import Model
 import igo
 import os
 # from goban import goban_to_sgf, GobanError
-from new_goban import GobanError
+from goban import GobanError
 from tkinter import *
 from tkinter import filedialog
 import pyperclip

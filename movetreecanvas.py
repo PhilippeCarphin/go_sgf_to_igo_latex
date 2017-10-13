@@ -23,7 +23,6 @@ along with go_sgf_to_igo_latex.  If not, see <http://www.gnu.org/licenses/>."""
 class MoveTreeCanvas(Canvas, object):
     def __init__(self, master):
         Canvas.__init__(self, master, bd=3, relief=SUNKEN)
-        self.move_tree = movetree.Tree('nassima_phil.sgf')
         self.bind('<Configure>', self.configure_event)
         self.width = self.master.winfo_width()
         self.height = self.master.winfo_height() - self.master.winfo_width()

@@ -1,6 +1,6 @@
 import re
 import os
-from new_tree import Move, MoveTree, Info
+from movetree import Move, MoveTree, Info
 from goban import sgf_to_goban
 import movetree
 """ I want all the other files to not have any idea about what SGF is """
