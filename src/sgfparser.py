@@ -120,5 +120,5 @@ def make_info_node(props):
     return info
 
 if __name__ == "__main__":
-    tree = make_tree_from_file_name('ShusakuvsInseki.sgf')
+    tree = make_tree_from_file_name(os.path.join('..','sgf_files','ShusakuvsInseki.sgf'))
     tree.print()

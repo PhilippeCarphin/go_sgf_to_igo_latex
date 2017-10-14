@@ -47,7 +47,7 @@ class test_sgfparser(unittest.TestCase):
 
 class TestMovetree(unittest.TestCase):
     def setUp(self):
-        self.test_file_path = os.path.join(os.getcwd(), 'nassima_phil.sgf')
+        self.test_file_path = os.path.join(os.getcwd(), '..', 'sgf_files','nassima_phil.sgf')
         with open(self.test_file_path) as f:
             self.file_content = f.read()
     def test_un_escape(self):
@@ -85,9 +85,9 @@ class TestMovetree(unittest.TestCase):
         """ Note, the order in which the different sub-tokens get written is non-deterministic
         so that's why the start of both strings will likely differ and thus we compare the end
         of the string """
-        tree = movetree.Tree('nassima_phil.sgf')
+        tree = movetree.Tree(os.path.join('..','nassima_phil.sgf'))
         result = movetree.write_sgf(tree, False) + '\n'
-        expected_file = os.path.join(os.getcwd(), 'test_files/expected_write_sgf.sgf')
+        expected_file = os.path.join(os.getcwd(), 'test_files','expected_write_sgf.sgf')
         with open(expected_file) as f:
             expected_string = f.read()
         assert expected_string[-50:] == result[-50:]

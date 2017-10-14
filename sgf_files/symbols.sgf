@@ -1,0 +1,31 @@
+(;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]
+RU[Japanese]SZ[19]KM[0.00]
+PW[White]PB[Black]
+;B[pd]
+(;W[dd]CR[ea][eb]TR[aa][ab]SQ[ha][hb]
+;B[dj]C[mainline move 3]
+(;W[ej]C[Jean-Sebastien est le meilleur joueur de Go au monde]
+;B[ei]C[Vincent Binette est pas mal bon aussi]
+;W[di]C[Crosscut!]
+;B[dk]C[Nobi]
+;W[fi]C[Atari]
+;B[ek]C[Counter atari]
+;W[eh]C[White captures.
+\\begin{enumerate}
+	\\item A stone
+	\\item The honor of his adversary
+\\end{enumerate}[\]*!@#$%^&*()])
+(;W[jj]CR[sc][sd][sf][mh][nh][oh]LB[cl:A][dl:B][gl:E][hl:F][cn:1][dn:2][fn:3][kn:4][mn:5][nn:6]TR[aa][ba][ca][da][ea][fa][ga][ha][ia][ja][ka][la][ma][na][oa][pa][qa][ra][ab][bb][cb][db][eb][fb][gb][hb][ib][jb][kb][lb][mb][nb][ob][pb][qb][rb][ac][bc][cc][dc][ec][fc][gc][hc][ic][jc][kc][lc][mc][nc][oc][pc][qc][rc][od][pd][qd][rd][ne][oe][pe][qe][re][gf][hf][if][of][pf][qf][rf][gg][hg][ig]SQ[mi][ni][oi]C[Symbols at this move]
+;B[jh]
+;W[jf]
+;B[jd])
+(;W[jd]
+;B[lc]
+;W[le]
+;B[if]
+;W[hd]
+;B[ic]
+;W[jc]
+;B[kd]
+;W[kc]))
+(;W[pe]))
