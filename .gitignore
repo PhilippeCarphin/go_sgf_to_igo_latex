@@ -11,8 +11,9 @@
 *.nav
 *.sgf
 *.txt
-.idea
+# .idea
 build
 dist
 *.mov
 *.mp4
+**workspace.xml
