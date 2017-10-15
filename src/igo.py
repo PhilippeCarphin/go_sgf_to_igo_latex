@@ -1,5 +1,6 @@
 import os
 import movetree
+import dirs
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -126,7 +127,6 @@ def make_diff_diagram(node):
 #     """ Function to add labels like letters and numbers to the diagram. """
 #     pass
 
-
 class BeamerMaker:
     """ Creates the beamer-LaTeX code from go games 
 
@@ -144,10 +144,10 @@ class BeamerMaker:
     def __init__(self):
         """ Sets frametitle, framestart, prediag and postdiag with content from
         corresponding *.tex files """
-        self.frame_start = open(os.path.join(os.getcwd(), '..','tex', 'framestart.tex')).read()
-        self.pre_diagram = open(os.path.join(os.getcwd(), '..', 'tex', 'prediag.tex')).read()
-        self.post_diagram = open(os.path.join(os.getcwd(), '..', 'tex', 'postdiag.tex')).read()
-        self.frame_title = open(os.path.join(os.getcwd(), '..', 'tex', 'frametitle.tex')).read().replace('\n', '').replace('\r', '')
+        self.frame_start = open(os.path.join(dirs.tex_dir(), 'framestart.tex')).read()
+        self.pre_diagram = open(os.path.join(dirs.tex_dir(), 'prediag.tex')).read()
+        self.post_diagram = open(os.path.join(dirs.tex_dir(), 'postdiag.tex')).read()
+        self.frame_title = open(os.path.join(dirs.tex_dir(), 'frametitle.tex')).read().replace('\n', '').replace('\r', '')
 
     def make_page(self, node, page_type):
         """ Generate a beamer page (frame) from the given node. Frame beginning,
