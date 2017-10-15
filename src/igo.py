@@ -144,10 +144,10 @@ class BeamerMaker:
     def __init__(self):
         """ Sets frametitle, framestart, prediag and postdiag with content from
         corresponding *.tex files """
-        self.frame_start = open(os.path.join(dirs.tex_dir(), 'framestart.tex')).read()
-        self.pre_diagram = open(os.path.join(dirs.tex_dir(), 'prediag.tex')).read()
-        self.post_diagram = open(os.path.join(dirs.tex_dir(), 'postdiag.tex')).read()
-        self.frame_title = open(os.path.join(dirs.tex_dir(), 'frametitle.tex')).read().replace('\n', '').replace('\r', '')
+        self.frame_start  = open(os.path.join(dirs.TEX, 'framestart.tex')).read()
+        self.pre_diagram  = open(os.path.join(dirs.TEX, 'prediag.tex')).read()
+        self.post_diagram = open(os.path.join(dirs.TEX, 'postdiag.tex')).read()
+        self.frame_title  = open(os.path.join(dirs.TEX, 'frametitle.tex')).read().replace('\n', '').replace('\r', '')
 
     def make_page(self, node, page_type):
         """ Generate a beamer page (frame) from the given node. Frame beginning,

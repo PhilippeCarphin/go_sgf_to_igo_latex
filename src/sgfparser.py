@@ -2,6 +2,7 @@ import re
 import os
 from movetree import Move, MoveTree, Info
 from goban import sgf_to_goban
+import dirs
 import movetree
 """ I want all the other files to not have any idea about what SGF is """
 
@@ -83,7 +84,7 @@ def make_tree_from_file_path(file_path):
         file_content = f.read()
     return make_tree_from_file_content(file_content)
 def make_tree_from_file_name(file_name):
-    file_path = os.path.join(os.getcwd(), file_name)
+    file_path = os.path.join(dirs.SGF, file_name)
     return make_tree_from_file_path(file_path)
 
 def make_info_node(props):
@@ -120,5 +121,5 @@ def make_info_node(props):
     return info
 
 if __name__ == "__main__":
-    tree = make_tree_from_file_name(os.path.join('..','sgf_files','ShusakuvsInseki.sgf'))
+    tree = make_tree_from_file_path(os.path.join(dirs.SGF, 'ShusakuvsInseki.sgf'))
     tree.print()
