@@ -119,6 +119,6 @@ class BoardCanvas(Canvas, object):
         root = Tk()
         root.minsize(400, 400)
         bc = BoardCanvas(root)
-        bc.position = goban.board
+        bc.position = goban
         bc.draw_position()
         root.mainloop()
