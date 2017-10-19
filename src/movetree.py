@@ -128,7 +128,7 @@ class MoveTree(object):
                 temp_goban[mv.coord] = mv.color
                 temp_goban.resolve_adj_captures(mv.coord)
             else:
-                assert(node is self.root_move)
+                assert(mv is self.root_move)
         return temp_goban
 
     def advance_move(self):
@@ -138,7 +138,8 @@ class MoveTree(object):
             raise TreeError("MoveTree.advance_move : No next move")
 
     def previous_move(self):
-        self.current_move = self.current_move.parent
+        if self.current_move is not self.root_move:
+            self.current_move = self.current_move.parent
 
     def get_position(self):
         return self.position_from_node(self.current_move)
