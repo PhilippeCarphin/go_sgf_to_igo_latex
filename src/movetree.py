@@ -86,67 +86,51 @@ class Info(object):
         self.file_format  = 0
         self.game         = 1
         self.ST           = 2
-
     def __str__(self):
         d = {k: self.__dict__[k] for k in self.__dict__ if self.__dict__[k] is not None}
         return str(d)
+
 def cache_results(func):
     cache = {}
     def new_func(arg):
-        if arg in cache:
-            return cache[arg]
-        else:
-            return func(arg)
+        if arg not in cache: ret_val = func(arg)
+        else: ret_val = cache[arg]
+        return ret_val
     return func
 class MoveTree(object):
     def __init__(self):
         self.info = Info()
-        self.root_move = Node(parent=None)
-        self.current_move = self.root_move
-
+        self.root_node = Node(parent=None)
+        self.current_move = self.root_node
     def add_move(self, move):
         self.current_move.add_child(move)
         self.current_move = move
-
     def print(self):
         print(str(self.info))
-        self.root_move.print()
-
+        self.root_node.print()
     def reverse_line_from(self, node):
         current = node
         line = [node]
-        guard = 0
-        while current.parent is not None:
+        while current is not self.root_node:
             line.append(current.parent)
             current = current.parent
-            guard += 1
-            if guard > 450:
-                raise TreeError("reverse_line_from() : tree integrity error, going from parent to parent does not "
-                                "find root node")
         return line
     @cache_results
     def position_from_node(self, node):
-        assert isinstance(node, Node)
-        line = self.reverse_line_from(node)
-        temp_goban = Goban(self.info.size, self.info.size)
-        while line:
-            mv = line.pop()
-            if isinstance(mv, Move):
-                temp_goban[mv.coord] = mv.color
-                temp_goban.resolve_adj_captures(mv.coord)
-            else:
-                assert(mv is self.root_move)
-        return temp_goban
-
+        if node is self.root_node:
+            return Goban(self.info.size, self.info.size)
+        else:
+            g = self.position_from_node(node.parent)
+            g[node.coord] = node.color
+            g.resolve_adj_captures(node.coord)
+            return g
     def advance_move(self):
         try:
             self.current_move = self.current_move.children[0]
         except IndexError as e:
             raise TreeError("MoveTree.advance_move : No next move")
-
     def previous_move(self):
-        if self.current_move is not self.root_move:
+        if self.current_move is not self.root_node:
             self.current_move = self.current_move.parent
-
     def get_position(self):
         return self.position_from_node(self.current_move)
