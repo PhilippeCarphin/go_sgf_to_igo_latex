@@ -132,33 +132,33 @@ class MoveTree(object):
     def position_from_node(self, node):
         assert isinstance(node, Move)
         line = self.reverse_line_from(node)
-        temp_goban = Goban(self.info.size, self.info.size)
+        g = Goban(self.info.size, self.info.size)
         while line:
             mv = line.pop()
             if isinstance(mv, Move):
-                temp_goban[mv.coord] = mv.color
-                temp_goban.resolve_adj_captures(mv.coord)
+                g[mv.coord] = mv.color
+                g.resolve_adj_captures(mv.coord)
             else:
                 print("Something else than a move : root_node ? " + str(mv is self.root_node))
         return temp_goban
     def position_from_node_recursive(self, node):
         if node is self.root_node:
             return Goban(self.info.size, self.info.size)
-        new_pos = self.position_from_node_recursive(node.parent)
-        new_pos[node.coord] = node.color
-        new_pos.resolve_adj_captures(node.coord)
-        new_pos.resolve_capture(node.coord)
-        return new_pos
+        g = self.position_from_node_recursive(node.parent)
+        g[node.coord] = node.color
+        g.resolve_adj_captures(node.coord)
+        g.resolve_capture(node.coord)
+        return g
     def position_from_node_recursive_with_caching(self, node):
         if node in self.position_cache:
             return self.position_cache[node]
         if node is self.root_node:
             return Goban(self.info.size, self.info.size)
-        new_pos = copy.deepcopy(self.position_from_node_recursive_with_caching(node.parent))
-        new_pos[node.coord] = node.color
-        new_pos.resolve_adj_captures(node.coord)
-        self.position_cache[node] = new_pos
-        return new_pos
+        g = copy.deepcopy(self.position_from_node_recursive_with_caching(node.parent))
+        g[node.coord] = node.color
+        g.resolve_adj_captures(node.coord)
+        self.position_cache[node] = g
+        return g
     def advance_move(self):
         try:
             self.current_move = self.current_move.children[0]
