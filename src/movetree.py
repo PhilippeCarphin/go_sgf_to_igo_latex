@@ -90,7 +90,14 @@ class Info(object):
     def __str__(self):
         d = {k: self.__dict__[k] for k in self.__dict__ if self.__dict__[k] is not None}
         return str(d)
-
+def cache_results(func):
+    cache = {}
+    def new_func(arg):
+        if arg in cache:
+            return cache[arg]
+        else:
+            return func(arg)
+    return func
 class MoveTree(object):
     def __init__(self):
         self.info = Info()
@@ -117,7 +124,7 @@ class MoveTree(object):
                 raise TreeError("reverse_line_from() : tree integrity error, going from parent to parent does not "
                                 "find root node")
         return line
-
+    @cache_results
     def position_from_node(self, node):
         assert isinstance(node, Node)
         line = self.reverse_line_from(node)
