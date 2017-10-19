@@ -1,4 +1,5 @@
 from goban import Goban
+import copy
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -103,7 +104,6 @@ def cache_results(func):
     def new_func(self, arg):
         if arg not in cache:
             ret_val = func(self, arg)
-            print(ret_val)
             cache[arg] = ret_val
         else:
             ret_val = cache[arg]
@@ -114,6 +114,7 @@ class MoveTree(object):
         self.info = Info()
         self.root_node = Node(parent=None)
         self.current_move = self.root_node
+        self.position_cache = {}
     def add_move(self, move):
         self.current_move.add_child(move)
         self.current_move = move
@@ -123,19 +124,42 @@ class MoveTree(object):
     def reverse_line_from(self, node):
         current = node
         line = [node]
+        current = current.parent
         while current is not self.root_node:
-            line.append(current.parent)
+            line.append(current)
             current = current.parent
         return line
-    # @cache_results (maybe it's the recursive nature) Now that I think about it it makes sense that that would be it.)
+    # @cache_results  # Now it works but I am not taking advantage that node.parent is in the cache
     def position_from_node(self, node):
+        assert isinstance(node, Move)
+        line = self.reverse_line_from(node)
+        temp_goban = Goban(self.info.size, self.info.size)
+        while line:
+            mv = line.pop()
+            if isinstance(mv, Move):
+                temp_goban[mv.coord] = mv.color
+                temp_goban.resolve_adj_captures(mv.coord)
+            else:
+                print("Something else than a move : root_node ? " + str(mv is self.root_node))
+        return temp_goban
+    def position_from_node_recursive(self, node):
         if node is self.root_node:
             return Goban(self.info.size, self.info.size)
-        else:
-            g = self.position_from_node(node.parent)
-            g[node.coord] = node.color
-            g.resolve_adj_captures(node.coord)
-            return g
+        new_pos = self.position_from_node_recursive(node.parent)
+        new_pos[node.coord] = node.color
+        new_pos.resolve_adj_captures(node.coord)
+        new_pos.resolve_capture(node.coord)
+        return new_pos
+    def position_from_node_recursive_with_caching(self, node):
+        if node in self.position_cache:
+            return self.position_cache[node]
+        if node is self.root_node:
+            return Goban(self.info.size, self.info.size)
+        new_pos = copy.deepcopy(self.position_from_node_recursive_with_caching(node.parent))
+        new_pos[node.coord] = node.color
+        new_pos.resolve_adj_captures(node.coord)
+        self.position_cache[node] = new_pos
+        return new_pos
     def advance_move(self):
         try:
             self.current_move = self.current_move.children[0]
@@ -145,5 +169,5 @@ class MoveTree(object):
         if self.current_move is not self.root_node:
             self.current_move = self.current_move.parent
     def get_position(self):
-        return self.position_from_node(self.current_move)
+        return self.position_from_node_recursive_with_caching(self.current_move)
 
