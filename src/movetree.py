@@ -42,7 +42,7 @@ class Node(object):
     def __str__(self):
         return 'node instance'
     def print(self):
-        print('node instance')
+        print(str(self))
         for c in self.children:
             c.print()
 
@@ -62,10 +62,7 @@ class Move(Node, Stone):
         parent_str = str(self.parent.coord) if isinstance(self.parent, Move) else "None"
         return "M" + str(self.coord) + str(self.properties) + " parent : " + parent_str + ' depth : ' + str(self.depth)
 
-    def print(self):
-        print(str(self))
-        for c in self.children:
-            c.print()
+
 class Info(object):
     def __init__(self):
         self.annotator    = None  # AN (simpletext)
