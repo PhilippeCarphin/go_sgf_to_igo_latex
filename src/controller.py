@@ -1,5 +1,5 @@
 from view import View
-from model import Model
+from model import Model, ModelError
 import igo
 import os
 # from goban import goban_to_sgf, GobanError
@@ -42,50 +42,45 @@ class Controller(Tk):
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400+110)
-
     def make_beamer_slide(self):
         diag = self.bm.make_page_from_postion(self.model.goban)
         pyperclip.copy(diag)
         print(diag)
-
     def make_diagram(self):
         diag = igo.make_diagram_from_position(self.model.goban)
         pyperclip.copy(diag)
         print(diag)
-
     def key_pressed_dispatch(self, event):
         try:
             self.key_map[event.char]()
         except KeyError:
             print("No handler for key " + ("enter" if event.keycode == 13 else event.char) + "(" + str(event.keycode) + ")")
             return
-
     def board_clicked(self, goban_coord):
         try:
             self.model.play_move(goban_coord)
-            self.view.move_tree_canvas.set_text(self.model.goban[goban_coord]
-                                                + str(goban_coord))
-        except GobanError as e:
+            self.view.move_tree_canvas.set_text(self.model.goban[goban_coord] + str(goban_coord))
+        except ModelError as e:
             print("Error when playing at " + str(goban_coord) + " : " + str(e))
             self.view.move_tree_canvas.set_text(str(e))
         self.view.show_position(self.model.goban)
-
     def undo_key(self):
         try:
             self.model.undo_move()
-        except GobanError as e:
+        except ModelError as e:
             print("Error when undoing " + str(e))
         self.view.show_position(self.model.goban)
-
     def load_sgf(self):
         cwd = os.getcwd()
         file_path = filedialog.askopenfilename(initialdir=cwd, title="Select file",
                                    filetypes=(("Smart game format", "*.sgf"), ("all files", "*.*")))
         self.model.load_sgf(file_path)
         self.view.show_position(self.model.goban)
-
     def next_move(self):
-        self.model.next_move()
+        try:
+            self.model.next_move()
+        except ModelError as e:
+            print("Error when going to next move " + str(e))
         self.view.show_position(self.model.goban)
 
 if __name__ == "__main__":
