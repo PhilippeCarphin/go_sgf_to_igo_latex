@@ -73,7 +73,7 @@ class Controller(Tk):
     def undo_key(self):
         try:
             self.model.undo_move()
-        except Exception as e:
+        except GobanError as e:
             print("Error when undoing " + str(e))
         self.view.show_position(self.model.goban)
 

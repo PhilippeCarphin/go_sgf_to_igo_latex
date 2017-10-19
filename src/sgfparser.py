@@ -77,7 +77,7 @@ def make_tree_from_file_content(file_content):
 
     tree = MoveTree()
     tree.info = make_info_node(root.children[0].properties)
-    tree.root_move = root.children[0].children[0]
+    tree.root_move.add_child(root.children[0].children[0])
     tree.current_move = tree.root_move
     tree.root_move.parent = None
     return tree

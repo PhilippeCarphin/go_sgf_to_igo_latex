@@ -52,9 +52,9 @@ class Model(object):
                         coord=goban_coord)
         new_move.position = temp_goban
         self.goban = temp_goban
-        self.toggle_turn()
         self.move_tree.add_move(Move(color=self.turn,
                                      coord=goban_coord))
+        self.toggle_turn()
 
     def undo_move(self):
         try:

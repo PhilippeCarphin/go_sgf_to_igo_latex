@@ -93,13 +93,13 @@ class Info(object):
 
 class MoveTree(object):
     def __init__(self):
-        self.info = None
-        self.root_move = Move()
+        self.info = Info()
+        self.root_move = Node(parent=None)
         self.current_move = self.root_move
 
     def add_move(self, move):
-        move.parent = self.current_move
-        self.current_move.children.append(move)
+        self.current_move.add_child(move)
+        self.current_move = move
 
     def print(self):
         print(str(self.info))
@@ -119,7 +119,7 @@ class MoveTree(object):
         return line
 
     def position_from_node(self, node):
-        assert isinstance(node, Move)
+        assert isinstance(node, Node)
         line = self.reverse_line_from(node)
         temp_goban = Goban(self.info.size, self.info.size)
         while line:
@@ -128,7 +128,7 @@ class MoveTree(object):
                 temp_goban[mv.coord] = mv.color
                 temp_goban.resolve_adj_captures(mv.coord)
             else:
-                print("Something else than a move")
+                assert(node is self.root_move)
         return temp_goban
 
     def advance_move(self):
