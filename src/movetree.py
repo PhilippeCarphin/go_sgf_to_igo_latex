@@ -123,8 +123,7 @@ class MoveTree(object):
         self.root_node.print()
     def reverse_line_from(self, node):
         current = node
-        line = [node]
-        current = current.parent
+        line = []
         while current is not self.root_node:
             line.append(current)
             current = current.parent
