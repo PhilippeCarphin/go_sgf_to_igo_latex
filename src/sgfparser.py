@@ -1,7 +1,6 @@
 import re
 import os
 from movetree import Move, MoveTree, Info
-from goban import sgf_to_goban
 import dirs
 import movetree
 """ I want all the other files to not have any idea about what SGF is """
@@ -36,6 +35,10 @@ def make_file_tokens(string):
     # token_list = token_list[1:len(token_list) - 1]
     # print(string)
     return token_list
+def sgf_to_goban(sgf_coord):
+    x = 1 + ord(sgf_coord[0]) - ord('a')
+    y = 1 + ord(sgf_coord[1]) - ord('a')
+    return x, y
 def move_from_token(t):
     move = Move()
     props = props_from_node_token(t)
@@ -119,6 +122,11 @@ def make_info_node(props):
     info.ST                = 2 # see sgf reference (2 means no board markup)
     info.handicap          = int(props.get('HA', 0)) # (number) I think, haven't looked at the SGF spec for this
     return info
+
+def goban_to_sgf(goban_coord):
+    char_x = chr(goban_coord[0] + ord('a') - 1)
+    char_y = chr(goban_coord[1] + ord('a') - 1)
+    return char_x + char_y
 
 if __name__ == "__main__":
     tree = make_tree_from_file_path(os.path.join(dirs.SGF, 'ShusakuvsInseki.sgf'))

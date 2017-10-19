@@ -15,17 +15,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with go_sgf_to_igo_latex.  If not, see <http://www.gnu.org/licenses/>."""
 
-def goban_to_sgf(goban_coord):
-    char_x = chr(goban_coord[0] + ord('a') - 1)
-    char_y = chr(goban_coord[1] + ord('a') - 1)
-    return char_x + char_y
-
-
-def sgf_to_goban(sgf_coord):
-    x = 1 + ord(sgf_coord[0]) - ord('a')
-    y = 1 + ord(sgf_coord[1]) - ord('a')
-    return x, y
-
 def is_key_type(key):
     return isinstance(key, tuple) and len(key) == 2
 
@@ -35,13 +24,21 @@ class GobanError(Exception):
 class Goban(MutableMapping):
     """ A dictionary with key checking based on a width and height,
     value checking (None, 'W', or 'B'."""
-    def __init__(self, height=19, width=19):
+    def __init__(self, height=19, width=19, state=None):
         if width < 1 or height < 1:
             raise ValueError("Goban must have strictly positive width and "
                              "height")
         self.width = int(width)
         self.height = int(height)
-        self._storage = dict()
+        if state is not None:
+            self._storage = state
+        else:
+            self._storage = dict()
+    def __repr__(self):
+        class_name = type(self).__name__
+        module = 'goban'
+        return '%s.%s(height=%r, width=%r, state=%s)' % (module, class_name,
+                        self.height, self.width, repr(self._storage))
     def __getitem__(self, key):
         if not self.is_valid(key):
             raise GobanError("Goban:__getitem__ invalid key " + str(key))
@@ -54,7 +51,6 @@ class Goban(MutableMapping):
         if value not in ['W', 'B']:
             raise GobanError("Goban.__setitem__() value must be W or B")
         if key in self._storage:
-            print(self._storage)
             raise GobanError("Goban.__setitem__() already a stone at " + str(key))
         self._storage[key] = value
     def __iter__(self):
@@ -65,6 +61,9 @@ class Goban(MutableMapping):
         return str(self._storage)
     def __contains__(self, key):
         return key in self._storage
+    def __eq__(self, other):
+        return (self.width == other.width and self.height == other.height and
+                self._storage == other._storage)
     def is_valid(self, key):
         return is_key_type(key) and self.in_board(key)
     def clear(self):

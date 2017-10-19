@@ -1,8 +1,10 @@
 import unittest
 import os
 import movetree
+import goban
 import sgfparser as sgf
 import dirs
+import copy
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -45,7 +47,7 @@ class test_sgfparser(unittest.TestCase):
         assert output_pid == 'LB'
         assert output_vals == ['ie:1', 'ke:3', 'ne:5', 'ef:A', 'gf:B', 'jf:2','kf:4', 'jh:6']
 
-
+"""
 class TestMovetree(unittest.TestCase):
     def setUp(self):
         self.test_file_path = os.path.join(dirs.SGF,'nassima_phil.sgf')
@@ -83,15 +85,109 @@ class TestMovetree(unittest.TestCase):
         s = movetree.Stone('W', sgf_coord)
         assert goban_coord == s.goban_coord()
     def test_write_sgf(self):
-        """ Note, the order in which the different sub-tokens get written is non-deterministic
+        " "" Note, the order in which the different sub-tokens get written is
+         non-deterministic
         so that's why the start of both strings will likely differ and thus we compare the end
-        of the string """
+        of the string "" "
         tree = movetree.Tree(os.path.join(dirs.SGF,'nassima_phil.sgf'))
         result = movetree.write_sgf(tree, False) + '\n'
         expected_file = os.path.join(dirs.TEST_FILES,'expected_write_sgf.sgf')
         with open(expected_file) as f:
             expected_string = f.read()
         assert expected_string[-50:] == result[-50:]
+        """
+
+class TestGoban(unittest.TestCase):
+    def get_test_goban(self):
+        g = goban.Goban(13,13)
+        g[(1,2)] = 'B'
+        g[(12,2)] = 'W'
+        g[(13,2)] = 'B'
+        return g
+    def test_settitem(self):
+        g = goban.Goban(19,19)
+        g[(1,2)] = 'W'
+        try: g['abc'] = 'W'
+        except: pass
+        else: raise(AssertionError('Should raise GobanError'))
+        try: g[(3,4)] = 'spam'
+        except: pass
+        else: raise(AssertionError('Should raise GobanError'))
+        try: g[(1,2)] = 'W'
+        except: pass
+        else: raise(AssertionError('Should raise GobanError'))
+        try: g[(18,21)] = 'W'
+        except: pass
+        else: raise(AssertionError('Should raise GobanError'))
+    def test_eq(self):
+        g = goban.Goban(13,13, {(1, 2): 'B', (12, 2): 'W', (13, 2): 'B'})
+        h = copy.deepcopy(g)
+        assert(h == g)
+        h[(4,4)] = 'W'
+        assert(h != g)
+    def test_repr(self):
+        g = goban.Goban(5,5)
+        assert(eval(repr(g)) == g)
+    def test_str(self):
+        g = goban.Goban(13,13,{(1, 2): 'B', (12, 2): 'W', (13, 2): 'B'})
+        assert(str(g) == str(g._storage))
+    def test_is_valid(self):
+        pass # Tested in test_getitem
+    def test_clear(self):
+        g = self.get_test_goban()
+        g.clear()
+        assert(g._storage == {})
+    def test_remove_tone(self):
+        g = self.get_test_goban()
+        g[(5,5)] = 'W'
+        assert((5,5) in g)
+        g.remove_stone((5,5))
+        assert((5,5) not in g)
+    def test_get_group(self):
+        g = goban.Goban(4,4, {(1, 1): 'B', (1, 2): 'B', (1, 3): 'W'})
+        grp = g.get_group((1,1))
+        assert(grp == {(1, 2), (1, 1)})
+    def test_remove_group(self):
+        g = goban.Goban(4,4, {(1, 1): 'B', (1, 2): 'B', (1, 3): 'W'})
+        grp = g.get_group((1,1))
+        g.remove_group(grp)
+        g_expected = goban.Goban(4,4,{(1,3):'W'})
+        assert(g == g_expected)
+    def test_get_group_liberties(self):
+        g = goban.Goban(4,4, {(1, 1): 'B', (1, 2): 'B', (1, 3): 'W'})
+        grp = g.get_group((1,2))
+        assert(g.get_group_liberties(grp) == 2)
+    def test_get_liberties(self):
+        g = goban.Goban(4,4, {(1, 1): 'B', (1, 2): 'B', (1, 3): 'W'})
+        assert(g.get_liberties((1,1)) == 2)
+        assert(g.get_liberties((1,3)) == 2)
+    def test_resolve_adj_captures(self):
+        g = goban.Goban(19,19,{
+                (8, 11): 'B', (7, 12): 'W', (7, 11): 'B',
+                (8, 12): 'W', (9, 12): 'B', (8, 14): 'W',
+                (8, 13): 'B', (7, 14): 'W', (7, 13): 'B', (6, 14): 'W'})
+        g[(6,12)] = 'B'
+        g.resolve_adj_captures((6,12))
+        g_expected = goban.Goban(19,19,{
+                (8, 11): 'B', (7, 11): 'B', (9, 12): 'B',
+                (8, 14): 'W', (8, 13): 'B', (7, 14): 'W',
+                (7, 13): 'B', (6, 14): 'W', (6, 12): 'B'})
+        assert(g == g_expected)
+    def test_resolve_capture(self):
+        g = goban.Goban(19,19,{
+                    (8, 11): 'B', (7, 12): 'W', (7, 11): 'B',
+                    (8, 12): 'W', (9, 12): 'B', (8, 14): 'W',
+                    (8, 13): 'B', (7, 14): 'W', (7, 13): 'B', (6, 14): 'W'})
+        g[(6,12)] = 'B'
+        g.resolve_capture((7,12))
+        g_expected = goban.Goban(19,19,{
+                (8, 11): 'B', (7, 11): 'B', (9, 12): 'B',
+                (8, 14): 'W', (8, 13): 'B', (7, 14): 'W',
+                (7, 13): 'B', (6, 14): 'W', (6, 12): 'B'})
+        assert(g == g_expected)
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
