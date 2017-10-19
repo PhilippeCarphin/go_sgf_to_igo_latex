@@ -74,7 +74,10 @@ class Controller(Tk):
         cwd = os.getcwd()
         file_path = filedialog.askopenfilename(initialdir=cwd, title="Select file",
                                    filetypes=(("Smart game format", "*.sgf"), ("all files", "*.*")))
-        self.model.load_sgf(file_path)
+        try:
+            self.model.load_sgf(file_path)
+        except FileNotFoundError:
+            pass
         self.view.show_position(self.model.goban)
     def next_move(self):
         try:
