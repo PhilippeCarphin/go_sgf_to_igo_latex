@@ -61,9 +61,10 @@ def move_from_token(t):
 def make_tree_from_file_content(file_content):
     """ More elegant way of doing it """
     file_tokens = make_file_tokens(file_content)
-    root = Move(0)
+    tree = movetree.MoveTree()
+    root = movetree.Node()
+    root.depth = -1
     tip = root
-    #print(file_tokens)
     branch_point_stack = []
     for token in file_tokens:
         if token == '(':
@@ -74,14 +75,12 @@ def make_tree_from_file_content(file_content):
             new_move = move_from_token(token)
             tip.add_child(new_move)
             tip = new_move
-
-    tree = MoveTree()
     tree.info = make_info_node(root.children[0].properties)
-    tree.root_move.add_child(root.children[0].children[0])
-    tree.current_move = tree.root_move
-    tree.root_move.parent = None
+    first_move = root.children[0].children[0]
+    first_move.parent = tree.root_node
+    tree.root_node.children.append(first_move)
+    tree.current_move = tree.root_node
     return tree
-
 def make_tree_from_file_path(file_path):
     with open(file_path) as f:
         file_content = f.read()
@@ -130,4 +129,6 @@ def goban_to_sgf(goban_coord):
 
 if __name__ == "__main__":
     tree = make_tree_from_file_path(os.path.join(dirs.SGF, 'ShusakuvsInseki.sgf'))
+
     tree.print()
+    # print(tree.check_ko_legal())

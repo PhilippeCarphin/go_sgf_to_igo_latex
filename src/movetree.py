@@ -32,10 +32,18 @@ class Node(object):
         self.children = []
         self.parent = parent
         self.child_number = 1
-    def add_child(self, node):
-        self.children.append(node)
-        node.parent = self
-        node.child_number = len(self.children)
+        self.depth = 0
+    def add_child(self, child):
+        child.depth = self.depth + 1
+        child.parent = self
+        child.child_number = len(self.children)
+        self.children.append(child)
+    def __str__(self):
+        return 'node instance'
+    def print(self):
+        print('node instance')
+        for c in self.children:
+            c.print()
 
 class Stone(object):
     def __init__(self, color=None, coord=(None,None)):
@@ -50,13 +58,13 @@ class Move(Node, Stone):
         self.glyphs = Glyphs()
         self.position = None
     def __str__(self):
-        parent_str = str(self.parent.coord) if self.parent is not None else "None"
-        return "M" + str(self.coord) + str(self.properties) + " parent : " + parent_str
+        parent_str = str(self.parent.coord) if isinstance(self.parent, Move) else "None"
+        return "M" + str(self.coord) + str(self.properties) + " parent : " + parent_str + ' depth : ' + str(self.depth)
+
     def print(self):
         print(str(self))
         for c in self.children:
             c.print()
-
 class Info(object):
     def __init__(self):
         self.annotator    = None  # AN (simpletext)
@@ -92,11 +100,15 @@ class Info(object):
 
 def cache_results(func):
     cache = {}
-    def new_func(arg):
-        if arg not in cache: ret_val = func(arg)
-        else: ret_val = cache[arg]
+    def new_func(self, arg):
+        if arg not in cache:
+            ret_val = func(self, arg)
+            print(ret_val)
+            cache[arg] = ret_val
+        else:
+            ret_val = cache[arg]
         return ret_val
-    return func
+    return new_func
 class MoveTree(object):
     def __init__(self):
         self.info = Info()
@@ -115,7 +127,7 @@ class MoveTree(object):
             line.append(current.parent)
             current = current.parent
         return line
-    @cache_results
+    # @cache_results (maybe it's the recursive nature) Now that I think about it it makes sense that that would be it.)
     def position_from_node(self, node):
         if node is self.root_node:
             return Goban(self.info.size, self.info.size)
@@ -134,3 +146,4 @@ class MoveTree(object):
             self.current_move = self.current_move.parent
     def get_position(self):
         return self.position_from_node(self.current_move)
+

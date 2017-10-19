@@ -32,11 +32,11 @@ class Model(object):
         self.move_tree = MoveTree()
         self.current_move = Move()
         self.turn = 'B'
-    def check_ko_legal(self, goban):
+    def check_ko_legal(self, goban, tree):
         c = self.move_tree.current_move.parent
         if c is not None:
             while c.parent is not None:
-                g = self.move_tree.position_from_node(c)
+                g = tree.position_from_node(c)
                 if g == goban:
                     return False
                 if False:  # if ruleset == japanese
@@ -50,7 +50,7 @@ class Model(object):
         except GobanError as e:
             raise ModelError("ModelError " + str(e))
         temp_goban.resolve_adj_captures(goban_coord)
-        if not self.check_ko_legal(temp_goban):
+        if not self.check_ko_legal(temp_goban, self.move_tree):
             raise(ModelError("Move violates rule of Ko"))
         if temp_goban.get_liberties(goban_coord) == 0:
             raise ModelError("Suicide move")
@@ -68,7 +68,7 @@ class Model(object):
         self.turn = 'W' if self.turn == 'B' else 'B'
     def load_sgf(self, file_path):
         self.move_tree = sgfparser.make_tree_from_file_path(file_path)
-        self.goban = self.move_tree.position_from_node(self.move_tree.root_move)
+        self.goban = self.move_tree.position_from_node(self.move_tree.root_node)
     def next_move(self):
         try:
             self.move_tree.advance_move()
