@@ -137,7 +137,7 @@ class MoveTree(object):
                 g.resolve_adj_captures(mv.coord)
             else:
                 print("Something else than a move : root_node ? " + str(mv is self.root_node))
-        return temp_goban
+        return g
     def position_from_node_recursive(self, node):
         if node is self.root_node:
             return Goban(self.info.size, self.info.size)
