@@ -40,7 +40,13 @@ def write_sgf(tree):
     return '(' + make_info_token(tree.info)+ tree_to_sgf(tree) + ')'
 def tree_to_sgf(tree):
     if not tree.root_node.children: return ''
-    return tree_to_sgf_internal(tree.root_node.children[0])[1:-1]
+    if len(tree.root_node.children) > 1:
+        sgf = ''
+        for c in tree.root_node.children:
+            sgf += tree_to_sgf_internal(c)
+        return sgf
+    else:
+        return tree_to_sgf_internal(tree.root_node)[1:-1]
 def tree_to_sgf_internal(node):
     sgf = '(' + node_to_token(node)
     if len(node.children) == 1:
@@ -51,6 +57,7 @@ def tree_to_sgf_internal(node):
     sgf += ')'
     return sgf
 def node_to_token(node):
+    if not isinstance(node, movetree.Move): return ''
     return ';' + make_move_token(node) \
                + properties(node.properties) \
                + glyph_token(node)
