@@ -88,7 +88,35 @@ def make_tree_from_file_path(file_path):
 def make_tree_from_file_name(file_name):
     file_path = os.path.join(dirs.SGF, file_name)
     return make_tree_from_file_path(file_path)
-
+mn = {
+   'AN':'annotator'        , # (simpletext)
+   'BR':'black_rank'       , # (simpletext)
+   'BT':'black_team'       , # (simpletext)
+   'CP':'copyright'        , # (simpletext)
+   'DT':'date'             , # (simpletext)
+   'EV':'event'            , # (simpletext)
+   'GN':'game_name'        , # (simpletext)
+   'KM':'komi'             , # (real)
+   'GC':'game_comment'     , # (text)
+   'ON':'opening'          , # (simpletext)
+   'PB':'black_player'     , # (simpletext)
+   'PC':'place'            , # (simpletext)
+   'PB':'white_player'     , # (simpletext)
+   'RE':'result'           , # (simpletext)
+   'RO':'round'            , # (simpletext)
+   'RU':'rule_set'         , # (simpletext)
+   'SO':'source'           , # (simpletext)
+   'TM':'time_control'     , # (real)
+   'US':'user'             , # (simpletext)
+   'WR':'white_rank'       , # (simpletext)
+   'WT':'white_team'       , # (simpletext)
+   'AP':'application'      , # (simpletext:simpletext)
+   'CA':'charset'          , # (simpletext)
+   'SZ':'size'             , # integer
+   'FF':'file_format'      , # simpletest
+   'GA':'game'             , #gf reference (1 means go)
+   'AT':'ST'               , #gf reference (2 means no board markup)
+   'HA':'handicap'         } # (number) I think
 def make_info_node(props):
     info = Info()
     props = {pid: props[pid][0] for pid in props}
@@ -122,10 +150,6 @@ def make_info_node(props):
     info.handicap          = int(props.get('HA', 0)) # (number) I think, haven't looked at the SGF spec for this
     return info
 
-def goban_to_sgf(goban_coord):
-    char_x = chr(goban_coord[0] + ord('a') - 1)
-    char_y = chr(goban_coord[1] + ord('a') - 1)
-    return char_x + char_y
 
 if __name__ == "__main__":
     tree = make_tree_from_file_path(os.path.join(dirs.SGF, 'ShusakuvsInseki.sgf'))
