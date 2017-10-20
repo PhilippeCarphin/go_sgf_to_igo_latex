@@ -1,5 +1,6 @@
 from goban import Goban
 import copy
+import sys
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -127,9 +128,8 @@ class MoveTree(object):
         return line
     # @cache_results  # Now it works but I am not taking advantage that node.parent is in the cache
     def position_from_node(self, node):
-        assert isinstance(node, Move)
-        line = self.reverse_line_from(node)
         g = Goban(self.info.size, self.info.size)
+        line = self.reverse_line_from(node)
         while line:
             mv = line.pop()
             if isinstance(mv, Move):
@@ -165,5 +165,5 @@ class MoveTree(object):
         if self.current_move is not self.root_node:
             self.current_move = self.current_move.parent
     def get_position(self):
-        return self.position_from_node_recursive_with_caching(self.current_move)
+        return self.position_from_node_recursive(self.current_move)
 
