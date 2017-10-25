@@ -39,7 +39,9 @@ class Controller(Tk):
                         'b': self.make_beamer_slide,
                         'c': self.make_diagram,
                         'l': self.load_sgf,
-                        'n': self.next_move}
+                        'n': self.next_move,
+                        'v': self.next_variation,
+                        'd': self.previous_variation}
         self.bm = igo.BeamerMaker()
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
@@ -101,6 +103,19 @@ class Controller(Tk):
         except ModelError as e:
             print("Error when going to next move " + str(e))
         self.view.show_position(self.model.goban)
+    def next_variation(self):
+        try:
+            self.model.next_variation()
+        except ModelError as e:
+            print("Error when doing next_variation " + str(e))
+        self.view.show_position(self.model.goban)
+    def previous_variation(self):
+        try:
+            self.model.previous_variation()
+        except ModelError as e:
+            print("Error when doing previous_variation " + str(e))
+        self.view.show_position(self.model.goban)
+
 
 if __name__ == "__main__":
     try:

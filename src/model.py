@@ -30,7 +30,7 @@ class Model(object):
         self.goban_height = goban_height
         self.goban = Goban(goban_width, goban_height)
         self.move_tree = MoveTree()
-        self.current_move = Move()
+        #self.current_move = Move()
         self.turn = 'B'
     def check_ko_legal(self, goban, tree):
         c = self.move_tree.current_move.parent
@@ -80,3 +80,25 @@ class Model(object):
             print("Type error, ... ")
             self.move_tree.current_move.print()
             self.move_tree.previous_move()
+    def next_variation(self):
+        try:
+            c = self.move_tree.current_move
+            p = c.parent
+            if p is None:
+                raise ModelError("No parent")
+            v = p.children[c.child_number + 1]
+        except IndexError:
+            raise ModelError("No next varaiation")
+        self.move_tree.current_move = v
+        self.goban = self.move_tree.get_position()
+    def previous_variation(self):
+        c = self.move_tree.current_move
+        n = c.child_number
+        if c == 0:
+            raise ModelError("No previous variation")
+        p = c.parent
+        if p is None:
+            raise ModelError("No parent")
+        v = p.children[n-1]
+        self.move_tree.current_move = v
+        self.goban = self.move_tree.get_position()

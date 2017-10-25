@@ -33,7 +33,7 @@ class Node(object):
     def __init__(self, parent=None):
         self.children = []
         self.parent = parent
-        self.child_number = 1
+        self.child_number = 0
         self.depth = 0
     def add_child(self, child):
         child.depth = self.depth + 1
@@ -128,6 +128,8 @@ class MoveTree(object):
         return line
     # @cache_results  # Now it works but I am not taking advantage that node.parent is in the cache
     def position_from_node(self, node):
+        return self.position_from_node_recursive(node)
+    def position_from_node_iterative(self, node):
         g = Goban(self.info.size, self.info.size)
         line = self.reverse_line_from(node)
         while line:
@@ -165,5 +167,6 @@ class MoveTree(object):
         if self.current_move is not self.root_node:
             self.current_move = self.current_move.parent
     def get_position(self):
-        return self.position_from_node_recursive(self.current_move)
+        return self.position_from_node(self.current_move)
+
 
