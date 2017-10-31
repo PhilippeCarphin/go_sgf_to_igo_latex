@@ -1,4 +1,5 @@
 #!/usr/bin/python
+""" OLD, DO NOT USE """
 import igo
 import movetree
 import sys
@@ -21,6 +22,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Foobar.  If not, see <http://www.gnu.org/licenses/>."""
 
+""" OLD, DO NOT USE """
 
 options = "m:f:v:"
 long_opts = ["move=", "find=", "variation="]
