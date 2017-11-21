@@ -86,7 +86,7 @@ class Model(object):
             p = c.parent
             if p is None:
                 raise ModelError("No parent")
-            v = p.children[c.child_number + 1]
+            v = p.children[(c.child_number + 1) - len(p.children)]
         except IndexError:
             raise ModelError("No next varaiation")
         self.move_tree.current_move = v
