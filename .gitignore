@@ -17,3 +17,4 @@ dist
 *.mov
 *.mp4
 **workspace.xml
+.idea
