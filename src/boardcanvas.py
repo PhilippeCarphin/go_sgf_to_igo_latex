@@ -1,4 +1,5 @@
 from tkinter import *
+import dirs
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -24,7 +25,7 @@ class BoardCanvas(Canvas, object):
 
     def __init__(self, master, goban_width=19, goban_height=19):
         self.master = master
-        Canvas.__init__(self, master, bd=0, cursor='circle', relief='sunken')
+        Canvas.__init__(self, master, bd=0, relief='sunken')
         # todo : start using goban_width and goban_height for board drawing
         # todo : consider the idea of board_canvas having a goban (which will have a width and a height)
         self.goban_width = goban_width
@@ -37,6 +38,18 @@ class BoardCanvas(Canvas, object):
         self.cursor_stone_color = None
         self.draw_position()
         self.bind('<Configure>', self.configure_event)
+        self.load_images()
+
+    def load_images(self):
+        self.white_stone_photo = PhotoImage(file=dirs.get_abspath('resources/white_stone.gif'))
+        self.black_stone_photo = PhotoImage(file=dirs.get_abspath('resources/black_stone.gif'))
+        self.black_cursor_photo = PhotoImage(file=dirs.get_abspath('resources/black_cursor_stone.gif'))
+        self.white_cursor_photo = PhotoImage(file=dirs.get_abspath('resources/white_cursor_stone.gif'))
+        self.black_stone_img = self.white_stone_photo
+        self.black_stone_img = self.black_stone_photo
+        self.white_cursor_img = self.white_cursor_photo
+        self.black_cursor_img = self.black_cursor_photo
+        self.stone_image_width = 500
 
     def configure_event(self, event):
         """ Callback for when our parent changes our dimensions """
@@ -49,6 +62,14 @@ class BoardCanvas(Canvas, object):
         self.side_length = min(event.height, event.width)
         self.cell_size = self.side_length / 19
         self.stone_size = (self.cell_size * 23) // 13
+        self.update_images()
+
+    def update_images(self):
+        ratio = int(self.stone_image_width / (.95 * self.cell_size))
+        self.white_stone_img = self.white_stone_photo.subsample(ratio, ratio)
+        self.black_stone_img = self.black_stone_photo.subsample(ratio, ratio)
+        self.white_cursor_img = self.white_cursor_photo.subsample(ratio, ratio)
+        self.black_cursor_img = self.black_cursor_photo.subsample(ratio, ratio)
 
     def position_to_goban_coord(self, x, y):
         """ Returns the game coordinates corresponding to x,y pixel
@@ -108,41 +129,35 @@ class BoardCanvas(Canvas, object):
     def draw_black_stone(self, x, y):
         """ Draw a black stone at pixel coordinates x,y """
         x_offset = 0
-        y_offset = 3
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
-                        font=('Arial', int(self.stone_size)), fill='black')
+        y_offset = 0
+        self.create_image(x + x_offset, y + y_offset, image=self.black_stone_img)
 
     # todo Replace this with importing a picture
     def draw_white_stone(self, x, y):
         """ Draw a white stone at pixel coordinates x,y """
         x_offset = 0
-        y_offset = 3
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
-                         font=('Arial', int(self.stone_size) - 5), fill='white')
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CB',
-                         font=('Arial', int(self.stone_size)), fill='black')
+        y_offset = 0
+        self.create_image(x + x_offset, y + y_offset, image=self.white_stone_img)
 
     def draw_grey_white_stone(self, x, y):
         """ Draw a red stone at pixel coordinates x,y """
         x_offset = 0
-        y_offset = 3
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
-                         font=('Arial', int(self.stone_size) - 5), fill='white')
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CB',
-                         font=('Arial', int(self.stone_size)), fill='grey')
+        y_offset = 0
+        self.create_image(x + x_offset, y + y_offset, image=self.white_cursor_img)
 
     def draw_grey_black_stone(self, x, y):
         """ Draw a black stone at pixel coordinates x,y """
         x_offset = 0
-        y_offset = 3
-        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
-                        font=('Arial', int(self.stone_size)), fill='grey25')
+        y_offset = 0
+        self.create_image(x + x_offset, y + y_offset, image=self.black_cursor_img)
 
-
+    def draw_background(self):
+        self.create_rectangle(0,0,self.side_length, self.side_length, fill='yellow')
 
     def draw_board(self):
         """ Draw the grid of lines and the starpoints.  This draws an empty
         board """
+        self.draw_background()
         self.draw_lines()
         self.draw_star_points()
 

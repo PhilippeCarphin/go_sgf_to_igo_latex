@@ -12,5 +12,5 @@ TEST_FILES = os.path.join(ROOT_DIR, 'test_files')
 
 
 def get_abspath(rel_path):
-    abs_path = os.normpath(os.path.join(ROOT_DIR, rel_path))
+    abs_path = os.path.join(ROOT_DIR, rel_path)
     return abs_path
