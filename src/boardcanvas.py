@@ -33,6 +33,8 @@ class BoardCanvas(Canvas, object):
         self.side_length = 0
         self.stone_size = 0
         self.position = {}
+        self.cursor_stone = None
+        self.cursor_stone_color = None
         self.draw_position()
         self.bind('<Configure>', self.configure_event)
 
@@ -69,6 +71,20 @@ class BoardCanvas(Canvas, object):
         self.delete('all')
         self.draw_board()
         self.draw_stones()
+        self.draw_cursor_stone()
+
+    def draw_cursor_stone(self):
+        if self.cursor_stone in self.position:
+            return
+        if self.cursor_stone is None:
+            return
+
+        if self.cursor_stone_color == 'B':
+            self.draw_stone(self.cursor_stone, 'GB')
+        elif self.cursor_stone_color == 'W':
+            self.draw_stone(self.cursor_stone, 'GW')
+        else:
+            raise Exception("Can't happen")
 
     def draw_stones(self):
         """ Draw all the stones at their coordinates """
@@ -81,8 +97,12 @@ class BoardCanvas(Canvas, object):
         x, y = self.goban_coord_to_position(goban_coord)
         if color == 'W':
             self.draw_white_stone(x, y)
-        else:
+        elif color == 'B':
             self.draw_black_stone(x, y)
+        elif color == 'GB':
+            self.draw_grey_black_stone(x, y)
+        elif color == 'GW':
+            self.draw_grey_white_stone(x, y)
 
     # todo Replace this with importing a picture
     def draw_black_stone(self, x, y):
@@ -101,6 +121,24 @@ class BoardCanvas(Canvas, object):
                          font=('Arial', int(self.stone_size) - 5), fill='white')
         self.create_text(x + x_offset, y - y_offset, text=u'\u25CB',
                          font=('Arial', int(self.stone_size)), fill='black')
+
+    def draw_grey_white_stone(self, x, y):
+        """ Draw a red stone at pixel coordinates x,y """
+        x_offset = 0
+        y_offset = 3
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
+                         font=('Arial', int(self.stone_size) - 5), fill='white')
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CB',
+                         font=('Arial', int(self.stone_size)), fill='grey')
+
+    def draw_grey_black_stone(self, x, y):
+        """ Draw a black stone at pixel coordinates x,y """
+        x_offset = 0
+        y_offset = 3
+        self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
+                        font=('Arial', int(self.stone_size)), fill='grey25')
+
+
 
     def draw_board(self):
         """ Draw the grid of lines and the starpoints.  This draws an empty

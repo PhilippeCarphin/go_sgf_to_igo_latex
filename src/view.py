@@ -27,10 +27,17 @@ class View(Frame, object):
         self.master = master
         self.board_canvas = BoardCanvas(self)
         self.board_canvas.bind("<Button>", self.board_clicked)
+        self.board_canvas.bind('<Motion>', self.canvas_motion)
         self.bind('<Configure>', self.config_handler)
         self.move_tree_canvas = MoveTreeCanvas(self)
         self.board_canvas.pack()
         self.move_tree_canvas.pack()
+
+    def canvas_motion(self, event):
+        point = self.board_canvas.position_to_goban_coord(event.x, event.y)
+        self.board_canvas.cursor_stone = point
+        self.board_canvas.cursor_stone_color = self.master.model.turn
+        self.board_canvas.draw_position()
 
     def config_handler(self, event):
         if event.width + 110 > event.height:
