@@ -24,14 +24,14 @@ class GobanError(Exception):
 class Goban(MutableMapping):
     """ A dictionary with key checking based on a width and height,
     value checking (None, 'W', or 'B'."""
-    def __init__(self, height=19, width=19, state=None):
+    def __init__(self, height=19, width=19, initial_state=None):
         if width < 1 or height < 1:
             raise ValueError("Goban must have strictly positive width and "
                              "height")
         self.width = int(width)
         self.height = int(height)
-        if state is not None:
-            self._storage = state
+        if initial_state is not None:
+            self._storage = initial_state
         else:
             self._storage = dict()
     def __repr__(self):
