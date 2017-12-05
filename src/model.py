@@ -1,6 +1,5 @@
 import movetree
 from collections import OrderedDict
-from time import clock
 from goban import Goban, GobanError
 import copy
 from movetree import Move, MoveTree, TreeError
