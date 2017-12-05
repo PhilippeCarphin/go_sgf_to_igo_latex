@@ -1,4 +1,5 @@
 import movetree
+from collections import OrderedDict
 from goban import Goban, GobanError
 import copy
 from movetree import Move, MoveTree, TreeError
@@ -33,29 +34,26 @@ class Model(object):
         #self.current_move = Move()
         self.turn = 'B'
     def check_ko_legal(self, goban, tree):
-        c = self.move_tree.current_move.parent
-        if c is not None:
-            while c.parent is not None:
-                g = tree.position_from_node(c)
-                if g == goban:
-                    return False
-                if False:  # if ruleset == japanese
-                    break
-                c = c.parent
+        current = self.move_tree.current_move
+        while current is not self.move_tree.root_node:
+            if current.position == goban:
+                return False
+            current = current.parent
         return True
     def play_move(self, goban_coord):
-        temp_goban = copy.deepcopy(self.goban)
+        new_goban = copy.deepcopy(self.goban)
         try:
-            temp_goban[goban_coord] = self.turn
+            new_goban[goban_coord] = self.turn
         except GobanError as e:
             raise ModelError("ModelError " + str(e))
-        temp_goban.resolve_adj_captures(goban_coord)
-        if not self.check_ko_legal(temp_goban, self.move_tree):
+        new_goban.resolve_adj_captures(goban_coord)
+        if not self.check_ko_legal(new_goban, self.move_tree):
             raise(ModelError("Move violates rule of Ko"))
-        if temp_goban.get_liberties(goban_coord) == 0:
+        if new_goban.get_liberties(goban_coord) == 0:
             raise ModelError("Suicide move")
-        self.goban = temp_goban
+        self.goban = new_goban
         self.move_tree.add_move(Move(color=self.turn, coord=goban_coord))
+        self.move_tree.current_move.position = new_goban
         self.toggle_turn()
     def undo_move(self):
         try:
