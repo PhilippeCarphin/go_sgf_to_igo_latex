@@ -46,37 +46,20 @@ class Model(object):
                 c = c.parent
         return True
     def play_move(self, goban_coord):
-        times = OrderedDict()
-        t1 = clock()
-        temp_goban = copy.deepcopy(self.goban)
-        t2 = clock()
-        times['deepcopy'] = t2 - t1
+        new_goban = copy.deepcopy(self.goban)
         try:
-            t1 = clock()
-            temp_goban[goban_coord] = self.turn
-            t2 = clock()
-            times['assign_goban'] = t2 - t1
+            new_goban[goban_coord] = self.turn
         except GobanError as e:
             raise ModelError("ModelError " + str(e))
-        t1 = clock()
-        temp_goban.resolve_adj_captures(goban_coord)
-        t2 = clock()
-        times['resolve_captures'] = t2 - t1
-        t1 = clock()
-        ko_legal = self.check_ko_legal(temp_goban, self.move_tree)
-        t2 = clock()
-        times['check_ko'] = t2 - t1
-        if not self.check_ko_legal(temp_goban, self.move_tree):
+        new_goban.resolve_adj_captures(goban_coord)
+        if not self.check_ko_legal(new_goban, self.move_tree):
             raise(ModelError("Move violates rule of Ko"))
-        t1 = clock()
-        if temp_goban.get_liberties(goban_coord) == 0:
+        if new_goban.get_liberties(goban_coord) == 0:
             raise ModelError("Suicide move")
-        self.goban = temp_goban
+        self.goban = new_goban
         self.move_tree.add_move(Move(color=self.turn, coord=goban_coord))
+        self.move_tree.current_move.position = new_goban
         self.toggle_turn()
-        t2 = clock()
-        times['rest'] = t2 - t1
-        print(times)
     def undo_move(self):
         try:
             self.move_tree.previous_move()
