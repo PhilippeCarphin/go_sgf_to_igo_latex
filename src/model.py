@@ -35,15 +35,11 @@ class Model(object):
         #self.current_move = Move()
         self.turn = 'B'
     def check_ko_legal(self, goban, tree):
-        c = self.move_tree.current_move.parent
-        if c is not None:
-            while c.parent is not None:
-                g = tree.position_from_node(c)
-                if g == goban:
-                    return False
-                if False:  # if ruleset == japanese
-                    break
-                c = c.parent
+        current = self.move_tree.current_move
+        while current is not self.move_tree.root_node:
+            if current.position == goban:
+                return False
+            current = current.parent
         return True
     def play_move(self, goban_coord):
         new_goban = copy.deepcopy(self.goban)
