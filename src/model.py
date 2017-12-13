@@ -1,9 +1,8 @@
-import movetree
-from collections import OrderedDict
-from goban import Goban, GobanError
 import copy
-from movetree import Move, MoveTree, TreeError
+
 import sgfparser
+from goban import Goban, GobanError
+from movetree import Move, MoveTree, TreeError
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -22,8 +21,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with go_sgf_to_igo_latex.  If not, see <http://www.gnu.org/licenses/>."""
 
+
 class ModelError(Exception):
     pass
+
 
 class Model(object):
     def __init__(self, goban_width=19, goban_height=19):
@@ -31,8 +32,9 @@ class Model(object):
         self.goban_height = goban_height
         self.goban = Goban(goban_width, goban_height)
         self.move_tree = MoveTree()
-        #self.current_move = Move()
+        # self.current_move = Move()
         self.turn = 'B'
+
     def check_ko_legal(self, goban, tree):
         current = self.move_tree.current_move
         while current is not self.move_tree.root_node:
@@ -40,6 +42,7 @@ class Model(object):
                 return False
             current = current.parent
         return True
+
     def play_move(self, goban_coord):
         new_goban = copy.deepcopy(self.goban)
         try:
@@ -48,13 +51,14 @@ class Model(object):
             raise ModelError("ModelError " + str(e))
         new_goban.resolve_adj_captures(goban_coord)
         if not self.check_ko_legal(new_goban, self.move_tree):
-            raise(ModelError("Move violates rule of Ko"))
+            raise (ModelError("Move violates rule of Ko"))
         if new_goban.get_liberties(goban_coord) == 0:
             raise ModelError("Suicide move")
         self.goban = new_goban
         self.move_tree.add_move(Move(color=self.turn, coord=goban_coord))
         self.move_tree.current_move.position = new_goban
         self.toggle_turn()
+
     def undo_move(self):
         try:
             self.move_tree.previous_move()
@@ -62,11 +66,14 @@ class Model(object):
         except GobanError as e:
             raise e
         self.toggle_turn()
+
     def toggle_turn(self):
         self.turn = 'W' if self.turn == 'B' else 'B'
+
     def load_sgf(self, file_path):
         self.move_tree = sgfparser.make_tree_from_file_path(file_path)
         self.goban = self.move_tree.position_from_node(self.move_tree.root_node)
+
     def next_move(self):
         try:
             self.move_tree.advance_move()
@@ -78,6 +85,7 @@ class Model(object):
             print("Type error, ... ")
             self.move_tree.current_move.print()
             self.move_tree.previous_move()
+
     def next_variation(self):
         try:
             c = self.move_tree.current_move
@@ -89,6 +97,7 @@ class Model(object):
             raise ModelError("No next varaiation")
         self.move_tree.current_move = v
         self.goban = self.move_tree.get_position()
+
     def previous_variation(self):
         c = self.move_tree.current_move
         n = c.child_number
@@ -97,6 +106,6 @@ class Model(object):
         p = c.parent
         if p is None:
             raise ModelError("No parent")
-        v = p.children[n-1]
+        v = p.children[n - 1]
         self.move_tree.current_move = v
         self.goban = self.move_tree.get_position()

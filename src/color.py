@@ -1,6 +1,5 @@
 import enum
 
-
 """ Copyright 2016, 2017 Philippe Carphin"""
 
 """ This file is part of go_sgf_to_igo_latex.
@@ -22,6 +21,7 @@ along with go_sgf_to_igo_latex.  If not, see <http://www.gnu.org/licenses/>."""
 if __name__ != "__main__":
     assert 0, "I should remove the above comment if I start using this module"
 
+
 class Color(enum.Enum):
     W = 1
     B = -1
@@ -30,6 +30,7 @@ class Color(enum.Enum):
 class Turn(object):
     def __init__(self, color=Color.B):
         self.color = color
+
     def __invert__(self):
         if self.color == Color.B:
             c = Color.W
@@ -39,6 +40,7 @@ class Turn(object):
 
     def __str__(self):
         return str(self.color)
+
 
 class RuleSet(enum.Enum):
     CHINESE = 1

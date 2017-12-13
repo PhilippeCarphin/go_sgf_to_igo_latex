@@ -1,6 +1,6 @@
-import movetree
-import boardcanvas
 from tkinter import *
+
+import boardcanvas
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

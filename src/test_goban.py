@@ -51,31 +51,33 @@ def goban_test():
     except goban.GobanError:
         print("Ko rule violation correctly detected")
 
-
     boardcanvas.BoardCanvas.display_goban(test_goban)
 
+
 def test_get_liberties():
-    g = goban.Goban(19,19)
-    g.play_move('B', (1,1))
-    g.play_move('B', (1,2))
-    g.play_move('B', (2,1))
-    g.play_move('W', (3,1))
-    g.play_move('W', (1,3))
-    assert g.__get_liberties__((1,1)) == 1
+    g = goban.Goban(19, 19)
+    g.play_move('B', (1, 1))
+    g.play_move('B', (1, 2))
+    g.play_move('B', (2, 1))
+    g.play_move('W', (3, 1))
+    g.play_move('W', (1, 3))
+    assert g.__get_liberties__((1, 1)) == 1
 
     boardcanvas.BoardCanvas.display_goban(g)
 
+
 def test_get_group_liberties():
-    g = goban.Goban(19,19)
-    g.play_move('B', (1,1))
-    g.play_move('B', (1,2))
-    g.play_move('B', (2,1))
-    g.play_move('W', (3,1))
-    g.play_move('W', (1,3))
+    g = goban.Goban(19, 19)
+    g.play_move('B', (1, 1))
+    g.play_move('B', (1, 2))
+    g.play_move('B', (2, 1))
+    g.play_move('W', (3, 1))
+    g.play_move('W', (1, 3))
     grp = g.get_group((1, 2))
     assert g.get_group_liberties(grp) == 1
 
     boardcanvas.BoardCanvas.display_goban(g)
+
 
 def move_tree_test():
     mt = movetree.Tree('nassima_phil.sgf')
@@ -104,6 +106,6 @@ if __name__ == "__main__":
     except ValueError:
         print("Bad Numbers are correctly detected")
 
-    #test_get_liberties()
+    # test_get_liberties()
     goban_test()
     move_tree_test()

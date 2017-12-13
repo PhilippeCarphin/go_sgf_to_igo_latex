@@ -1,9 +1,10 @@
 #!/usr/bin/python
 """ OLD, DO NOT USE """
+import getopt
+import sys
+
 import igo
 import movetree
-import sys
-import getopt
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -115,13 +116,13 @@ else:
     print("Invalid command ", command)
 
 # Produce a diagram of the position at move three.
-    # ./Cli.py diagram Variations.sgf -m 3
+# ./Cli.py diagram Variations.sgf -m 3
 
 # Produce a diagram of the position at move containing "%MARKER"
-    # ./Cli.py diagram Variations.sgf -f honor
+# ./Cli.py diagram Variations.sgf -f honor
 
 # Produce beamer pages for move containing %Marker1 to leaf.
-    # ./Cli.py beamer Variations.sgf -f honor
+# ./Cli.py beamer Variations.sgf -f honor
 
 # Produce beamer pages for move containing %marker to end
 

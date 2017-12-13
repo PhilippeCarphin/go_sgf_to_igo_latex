@@ -1,6 +1,7 @@
+from tkinter import Frame
+
 from boardcanvas import BoardCanvas
 from movetreecanvas import MoveTreeCanvas
-from tkinter import Frame
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -44,7 +45,7 @@ class View(Frame, object):
             self.board_canvas.config(height=event.height - 110, width=event.width)
         else:
             self.board_canvas.config(height=event.width, width=event.width)
-        self.move_tree_canvas.config(height=max(event.height-event.width, 110), width=event.width)
+        self.move_tree_canvas.config(height=max(event.height - event.width, 110), width=event.width)
 
     def show_position(self, position):
         self.board_canvas.position = position
@@ -54,4 +55,3 @@ class View(Frame, object):
     def board_clicked(self, event):
         goban_coord = self.board_canvas.position_to_goban_coord(event.x, event.y)
         self.master.board_clicked(goban_coord)
-

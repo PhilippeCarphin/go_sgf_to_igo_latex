@@ -1,4 +1,5 @@
 from tkinter import *
+
 import dirs
 
 """ Copyright 2016, 2017 Philippe Carphin"""
@@ -74,13 +75,13 @@ class BoardCanvas(Canvas, object):
     def position_to_goban_coord(self, x, y):
         """ Returns the game coordinates corresponding to x,y pixel
         coordinates on the canvas """
-        return int(0.5 + (x + self.cell_size / 2.0) / self.cell_size),\
+        return int(0.5 + (x + self.cell_size / 2.0) / self.cell_size), \
                int(0.5 + (y + self.cell_size / 2.0) / self.cell_size)
 
     def goban_coord_to_position(self, goban_coord):
         """ Returns the pixel x,y coordinates corresponding to game
         coordinates """
-        return goban_coord[0] * self.cell_size - self.cell_size / 2,\
+        return goban_coord[0] * self.cell_size - self.cell_size / 2, \
                goban_coord[1] * self.cell_size - self.cell_size / 2
 
     def set_position(self, my_goban):
@@ -152,7 +153,7 @@ class BoardCanvas(Canvas, object):
         self.create_image(x + x_offset, y + y_offset, image=self.black_cursor_img)
 
     def draw_background(self):
-        self.create_rectangle(0,0,self.side_length, self.side_length, fill='yellow')
+        self.create_rectangle(0, 0, self.side_length, self.side_length, fill='yellow')
 
     def draw_board(self):
         """ Draw the grid of lines and the starpoints.  This draws an empty
@@ -182,6 +183,7 @@ class BoardCanvas(Canvas, object):
                 y = j * self.cell_size + self.cell_size / 2
                 self.create_text(x + x_offset, y - y_offset, text=u'\u25CF',
                                  font=('Arial', int(self.stone_size / 5)), fill='black')
+
 
 def display_goban(goban):
     """ Used for displaying positions in other modules for testing

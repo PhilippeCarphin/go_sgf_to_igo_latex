@@ -1,9 +1,7 @@
 import os
 
-
 # IF THIS FILE IS MOVED, CHANGE THIS
 ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-
 
 SRC = os.path.join(ROOT_DIR, 'src')
 TEX = os.path.join(ROOT_DIR, 'tex')

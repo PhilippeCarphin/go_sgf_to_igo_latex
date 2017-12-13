@@ -1,12 +1,12 @@
-from view import View
-from model import Model, ModelError
-import igo
 import os
 # from goban import goban_to_sgf, GobanError
-from goban import GobanError
 from tkinter import *
 from tkinter import filedialog
+
+import igo
 import pyperclip
+from model import Model, ModelError
+from view import View
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -29,6 +29,7 @@ along with go_sgf_to_igo_latex.  If not, see <http://www.gnu.org/licenses/>."""
 class Controller(Tk):
     """ Top level GUI class, catches inputs from the user and dispatches the
     appropriate requests to the model and vies classes """
+
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
         self.title("Phil's SGF viewer")
@@ -45,27 +46,32 @@ class Controller(Tk):
         self.bm = igo.BeamerMaker()
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
-        self.minsize(400, 400+110)
+        self.minsize(400, 400 + 110)
+
     def make_beamer_slide(self):
         """ Creates the LaTeX code for a beamer slide of the current position
         and outputs it to STDOUT and puts it in the system clipboard """
         diag = self.bm.make_page_from_postion(self.model.goban)
         pyperclip.copy(diag)
         print(diag)
+
     def make_diagram(self):
         """ Creates the LaTeX code for a diagram of the current position
         and outputs it to STDOUT and puts it in the system clipboard """
         diag = igo.make_diagram_from_position(self.model.goban)
         pyperclip.copy(diag)
         print(diag)
+
     def key_pressed_dispatch(self, event):
         """ Dispatches the key press events to the correct handler as per the
         self.key_map dictionary """
         try:
             self.key_map[event.char]()
         except KeyError:
-            print("No handler for key " + ("enter" if event.keycode == 13 else event.char) + "(" + str(event.keycode) + ")")
+            print("No handler for key " + ("enter" if event.keycode == 13 else event.char) + "(" + str(
+                event.keycode) + ")")
             return
+
     def board_clicked(self, goban_coord):
         """ Handler for the board clicked event.  The board canvas notifies us
         that it has been clicked at game coordinates goban_coord, we ask the
@@ -78,6 +84,7 @@ class Controller(Tk):
             print("Error when playing at " + str(goban_coord) + " : " + str(e))
             self.view.move_tree_canvas.set_text(str(e))
         self.view.show_position(self.model.goban)
+
     def undo_key(self):
         """ Handler for undo key : Note the move stays in the movetree."""
         try:
@@ -85,17 +92,19 @@ class Controller(Tk):
         except ModelError as e:
             print("Error when undoing " + str(e))
         self.view.show_position(self.model.goban)
+
     def load_sgf(self):
         """ Prompts the user to select an SGF file to load and loads the
         selected file """
         cwd = os.getcwd()
         file_path = filedialog.askopenfilename(initialdir=cwd, title="Select file",
-                                   filetypes=(("Smart game format", "*.sgf"), ("all files", "*.*")))
+                                               filetypes=(("Smart game format", "*.sgf"), ("all files", "*.*")))
         try:
             self.model.load_sgf(file_path)
         except FileNotFoundError:
             pass
         self.view.show_position(self.model.goban)
+
     def next_move(self):
         """ Next move to navigate the move tree """
         try:
@@ -103,12 +112,14 @@ class Controller(Tk):
         except ModelError as e:
             print("Error when going to next move " + str(e))
         self.view.show_position(self.model.goban)
+
     def next_variation(self):
         try:
             self.model.next_variation()
         except ModelError as e:
             print("Error when doing next_variation " + str(e))
         self.view.show_position(self.model.goban)
+
     def previous_variation(self):
         try:
             self.model.previous_variation()

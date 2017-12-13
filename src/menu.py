@@ -1,6 +1,7 @@
-import movetree
 import os
+
 import igo
+import movetree
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -39,12 +40,13 @@ class Sai:
             as valures
         state : The current state of the machine
         fileS : The string of a file returned by a call to beamerMaker.  This
-            file will be shown to the user and saved as a file. 
+            file will be shown to the user and saved as a file.
         bm : BeamerMaker instance used to generate LaTeX output as per the
             user's demands
         tree : Move tree created from an SGF file and eventually with a user
             interface.
     """
+
     def __init__(self):
         """ Defines the dictionnary of states, sets the initial state and
         creates a BeamerMaker instance """
@@ -87,7 +89,7 @@ class Sai:
         self.clear()
         self.print_current()
         self.print_end()
-    
+
     def main_menu(self):
         """ Main menu with options for navigating the game tree and creating a
         mainline starting at the current node """
@@ -97,11 +99,11 @@ class Sai:
         self.print_end()
         choix = input(""" >>>> JS, (c'est correct si je t'appelle JS?), je suis pret a produire des
         diagrammes LaTeX vraiment sick pour toi!!
-        
+
         Je peux produire plusieurs sortes de diagrammes pour toi. Choisis le
         type de diagramme que tu veux produire
-        
-        1: Mainline partant du noeud courant 
+
+        1: Mainline partant du noeud courant
         2: Trouver noeud de depart
         3: Trouver noeud de fin
 
@@ -119,7 +121,7 @@ class Sai:
         choix = input(""" Whyyyy is the ice slippery ?
 
         Chercher un noeud de fin par
-        
+
         C:commentaire
         N:Numero (entrer le numero)
         a accepter
@@ -182,7 +184,7 @@ class Sai:
     def user_validate(self):
         self.clear()
         print(self.fileS)
-        choix = input(""" >>>> Voici le code genere, est-ce qu'il te plait? 
+        choix = input(""" >>>> Voici le code genere, est-ce qu'il te plait?
 
         o : oui
         n : non
