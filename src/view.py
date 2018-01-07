@@ -27,12 +27,14 @@ class View(Frame, object):
         # todo use a frame eventually to contain the canvases
         self.master = master
         self.board_canvas = BoardCanvas(self)
-        self.board_canvas.bind("<ButtonRelease>", self.board_clicked)
+        self.board_canvas.bind("<ButtonRelease>", self.board_clic)
+        self.board_canvas.bind("<Button>", self.board_clicked)
         self.board_canvas.bind('<Motion>', self.canvas_motion)
         self.bind('<Configure>', self.config_handler)
         self.move_tree_canvas = MoveTreeCanvas(self)
         self.board_canvas.pack()
         self.move_tree_canvas.pack()
+        self.button_down = False
 
     def canvas_motion(self, event):
         point = self.board_canvas.position_to_goban_coord(event.x, event.y)

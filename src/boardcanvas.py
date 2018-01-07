@@ -76,13 +76,13 @@ class BoardCanvas(Canvas, object):
         """ Returns the game coordinates corresponding to x,y pixel
         coordinates on the canvas """
         return int(0.5 + (x + self.cell_size / 2.0) / self.cell_size), \
-               int(0.5 + (y + self.cell_size / 2.0) / self.cell_size)
+            int(0.5 + (y + self.cell_size / 2.0) / self.cell_size)
 
     def goban_coord_to_position(self, goban_coord):
         """ Returns the pixel x,y coordinates corresponding to game
         coordinates """
         return goban_coord[0] * self.cell_size - self.cell_size / 2, \
-               goban_coord[1] * self.cell_size - self.cell_size / 2
+            goban_coord[1] * self.cell_size - self.cell_size / 2
 
     def set_position(self, my_goban):
         """ Set the position to be displayed by this BoardCanvas instance """
