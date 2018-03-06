@@ -35,6 +35,10 @@ class Model(object):
         # self.current_move = Move()
         self.turn = 'B'
 
+    def rotate_tree(self):
+        self.move_tree.rotate();
+        self.goban = self.move_tree.position_from_node(self.move_tree.current_move)
+
     def check_ko_legal(self, goban, tree):
         current = self.move_tree.current_move
         while current is not self.move_tree.root_node:

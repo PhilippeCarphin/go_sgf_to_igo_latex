@@ -27,7 +27,6 @@ class View(Frame, object):
         # todo use a frame eventually to contain the canvases
         self.master = master
         self.board_canvas = BoardCanvas(self)
-        self.board_canvas.bind("<ButtonRelease>", self.board_clic)
         self.board_canvas.bind("<Button>", self.board_clicked)
         self.board_canvas.bind('<Motion>', self.canvas_motion)
         self.bind('<Configure>', self.config_handler)

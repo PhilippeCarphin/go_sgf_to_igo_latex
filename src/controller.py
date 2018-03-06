@@ -42,11 +42,16 @@ class Controller(Tk):
                         'l': self.load_sgf,
                         'n': self.next_move,
                         'v': self.next_variation,
-                        'd': self.previous_variation}
+                        'd': self.previous_variation,
+                        'r': self.rotate}
         self.bm = igo.BeamerMaker()
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
+
+    def rotate(self):
+        self.model.rotate_tree();
+        self.view.show_position(self.model.goban)
 
     def make_beamer_slide(self):
         """ Creates the LaTeX code for a beamer slide of the current position
