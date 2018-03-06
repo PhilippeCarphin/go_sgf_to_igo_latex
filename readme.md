@@ -36,6 +36,12 @@ or
 
 python3 cli.py rotate filename --output target-filename.
 
+Or, on windows, just go to the misc/turner/dist to find turner.exe.  This
+standalone application (bundled with the python interpreter) should work on
+windows 10 64-bit.  Just place your files in the same directory as the
+executable and double-click it.  It will prompt you for the filename and produce
+the turned sgf corresponding to the input file as <input_file_name>_turned.sgf
+
 
 
 
