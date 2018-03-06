@@ -115,6 +115,10 @@ def glyph_token(node):
         token += 'CR' + prop_values_from_list(node.glyphs.circles)
     return token
 
+def write_sgf_file(tree, file_path):
+    output = write_sgf(tree)
+    with open(file_path, 'w') as f:
+        f.write(output)
 
 if __name__ == "__main__":
     t = sgfparser.make_tree_from_file_name('writer_test_input.sgf')
