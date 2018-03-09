@@ -1,5 +1,6 @@
 import os
 # from goban import goban_to_sgf, GobanError
+from leelainterfaceadapter import LeelaInterfaceAdapter
 from tkinter import *
 from tkinter import filedialog
 
@@ -48,6 +49,7 @@ class Controller(Tk):
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
+        self.leela = LeelaInterfaceAdapter()
 
     def rotate(self):
         self.model.rotate_tree();
@@ -57,14 +59,20 @@ class Controller(Tk):
         """ Creates the LaTeX code for a beamer slide of the current position
         and outputs it to STDOUT and puts it in the system clipboard """
         diag = self.bm.make_page_from_postion(self.model.goban)
-        pyperclip.copy(diag)
+        try:
+            pyperclip.copy(diag)
+        except:
+            pass
         print(diag)
 
     def make_diagram(self):
         """ Creates the LaTeX code for a diagram of the current position
         and outputs it to STDOUT and puts it in the system clipboard """
         diag = igo.make_diagram_from_position(self.model.goban)
-        pyperclip.copy(diag)
+        try:
+            pyperclip.copy(diag)
+        except:
+            pass
         print(diag)
 
     def key_pressed_dispatch(self, event):
@@ -83,8 +91,12 @@ class Controller(Tk):
         model to play a move at that position and give the new position to the
         canvas for display. """
         try:
+            self.leela.playmove(self.model.turn, goban_coord)
             self.model.play_move(goban_coord)
-            self.view.move_tree_canvas.set_text(self.model.goban[goban_coord] + str(goban_coord))
+            self.view.move_tree_canvas.set_text('Playing against\nLeela')
+
+            move = self.leela.genmove(self.model.turn)
+            self.model.play_move(move)
         except ModelError as e:
             print("Error when playing at " + str(goban_coord) + " : " + str(e))
             self.view.move_tree_canvas.set_text(str(e))
