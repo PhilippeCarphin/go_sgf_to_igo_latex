@@ -1,0 +1,3 @@
+[submodule "leela_interface"]
+	path = leela_interface
+	url = ../leela_interface
