@@ -2,11 +2,11 @@ import os
 # from goban import goban_to_sgf, GobanError
 from tkinter import *
 from tkinter import filedialog
-
-import igo
 import pyperclip
-from model import Model, ModelError
-from view import View
+
+from . import igo
+from .model import Model, ModelError
+from .view import View
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

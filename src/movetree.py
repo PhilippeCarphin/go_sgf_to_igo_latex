@@ -1,6 +1,6 @@
 import copy
 
-from goban import Goban
+from .goban import Goban
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

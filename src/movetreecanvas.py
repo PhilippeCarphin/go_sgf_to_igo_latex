@@ -1,6 +1,6 @@
 from tkinter import *
 
-import boardcanvas
+from . import boardcanvas
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

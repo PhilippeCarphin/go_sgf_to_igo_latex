@@ -1,6 +1,6 @@
 from tkinter import *
 
-import dirs
+from . import dirs
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

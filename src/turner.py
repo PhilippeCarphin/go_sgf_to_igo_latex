@@ -1,7 +1,7 @@
-from sgfparser import make_tree_from_file_path
-from sgfwriter import write_sgf_file
-import movetree
-import dirs
+from .sgfparser import make_tree_from_file_path
+from .sgfwriter import write_sgf_file
+
+from . import dirs
 import os
 
 def turn_file(file_path):

@@ -1,7 +1,7 @@
 import os
 
-import igo
-import movetree
+from . import igo
+from . import movetree
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

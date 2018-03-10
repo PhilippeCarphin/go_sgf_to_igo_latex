@@ -1,7 +1,7 @@
 import os
 
-import dirs
-import movetree
+from . import dirs
+from . import movetree
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
