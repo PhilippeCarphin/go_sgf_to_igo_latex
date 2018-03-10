@@ -4,10 +4,9 @@ from .sgfwriter import write_sgf_file
 from . import dirs
 import os
 
-def turn_file(file_path):
+def turn_file(file_path, output_file_path):
     mt = make_tree_from_file_path(file_path)
     mt.rotate()
-    output_file_path = file_path + "turned_180"
     write_sgf_file(mt, output_file_path)
 
 if __name__ == "__main__":
