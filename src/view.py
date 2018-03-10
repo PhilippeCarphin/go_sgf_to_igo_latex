@@ -1,7 +1,7 @@
 from tkinter import Frame
 
-from boardcanvas import BoardCanvas
-from movetreecanvas import MoveTreeCanvas
+from .boardcanvas import BoardCanvas
+from .movetreecanvas import MoveTreeCanvas
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

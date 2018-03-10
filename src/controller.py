@@ -1,6 +1,5 @@
 import os
 # from goban import goban_to_sgf, GobanError
-from leelainterfaceadapter import LeelaInterfaceAdapter
 from tkinter import *
 from tkinter import filedialog
 import pyperclip
@@ -8,6 +7,7 @@ import pyperclip
 from . import igo
 from .model import Model, ModelError
 from .view import View
+from .leelainterfaceadapter import LeelaInterfaceAdapter
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

@@ -1,4 +1,4 @@
-from leela import LeelaInterface
+from .leela import LeelaInterface
 
 # See sgf_parser and sgf_writer, and run the program and click places, the
 # output will show the coordinates that you clicked.
