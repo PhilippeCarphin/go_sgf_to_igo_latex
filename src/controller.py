@@ -5,6 +5,7 @@ from tkinter import filedialog
 import pyperclip
 
 from . import igo
+import queue
 from .model import Model, ModelError
 from .view import View
 from .leelainterfaceadapter import LeelaInterfaceAdapter
@@ -50,6 +51,26 @@ class Controller(Tk):
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
         self.leela = LeelaInterfaceAdapter()
+        self.periodic_call()
+
+    def periodic_call(self):
+        """ Polling of the stdout queue of leela process """
+        try:
+            line = self.leela.leela_interface.stdout_queue.get(0)
+            if line.startswith('='):
+                leela_coord = line.strip(' =')
+                if len(leela_coord) > 1:
+                    goban_coord = self.leela.make_goban_coord(leela_coord)
+                    self.model.play_move(goban_coord)
+                    self.view.show_position(self.model.goban)
+        except queue.Empty as e:
+            pass
+        try:
+            line = self.leela.leela_interface.stderr_queue.get(0)
+            self.view.move_tree_canvas.set_text(line)
+        except queue.Empty as e:
+            pass
+        self.after(200, self.periodic_call)
 
     def rotate(self):
         self.model.rotate_tree();
@@ -95,11 +116,7 @@ class Controller(Tk):
             # Inform leela of the move played
             self.leela.playmove(self.model.turn, goban_coord)
             self.view.move_tree_canvas.set_text('Playing against\nLeela')
-            # Request move from leela
-            # Handle move... TODO handle other responses from leela.
-            # TODO Make this asynchonous by setting up a callback
-            move = self.leela.genmove(self.model.turn)
-            self.model.play_move(move)
+            self.leela.genmove(self.model.turn)
         except ModelError as e:
             print("Error when playing at " + str(goban_coord) + " : " + str(e))
             self.view.move_tree_canvas.set_text(str(e))

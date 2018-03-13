@@ -11,8 +11,8 @@ class LeelaInterfaceAdapter(object):
             '-g',
             '-w', './src/leelainterface/src/leelaz-model-5309030-128000.txt'
         ])
-        time.sleep(1)
-        print(self.leela_interface.get_stderr())
+        self.leela_interface.ask('showboard')
+        print('leela is ready')
 
     def playmove(self, color, goban_coord):
         leela_color = self.make_leela_color(color)
@@ -23,9 +23,7 @@ class LeelaInterfaceAdapter(object):
 
     def genmove(self, goban_color):
         cmd = ' '.join(['genmove', self.make_leela_color(goban_color)])
-        stdout, stderr = self.leela_interface.ask(cmd)
-        print("Genmove stdout = " + stdout.split(' ')[1])
-        return self.make_goban_coord(stdout.split(' ')[1])
+        self.leela_interface.ask(cmd)
 
     def make_leela_coord(self, goban_coord):
         leela_x = chr(goban_coord[0] + ord('A') - 1)
