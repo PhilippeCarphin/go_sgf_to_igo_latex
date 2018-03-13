@@ -18,3 +18,4 @@ dist
 *.mp4
 **workspace.xml
 .idea
+leelaz_opencl_tuning

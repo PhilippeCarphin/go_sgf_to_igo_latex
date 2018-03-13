@@ -1,11 +1,18 @@
 from .leelainterface.src.leela import LeelaInterface
+import time
 
 # See sgf_parser and sgf_writer, and run the program and click places, the
 # output will show the coordinates that you clicked.
 
 class LeelaInterfaceAdapter(object):
     def __init__(self):
-        self.leela_interface = LeelaInterface()
+        self.leela_interface = LeelaInterface([
+            'leelaz',
+            '-g',
+            '-w', './src/leelainterface/src/leelaz-model-5309030-128000.txt'
+        ])
+        time.sleep(1)
+        print(self.leela_interface.get_stderr())
 
     def playmove(self, color, goban_coord):
         leela_color = self.make_leela_color(color)
