@@ -23,6 +23,32 @@ The following are completely experimental:
 * interface.py : fiddling with tkinter to get a gui for opening files and
   doing more complex stuff with them.
 
+Running
+=======
+
+Note: This app requires python3, tkinter and pyperclip.
+
+Simply execute the file run.py. Assuming that /usr/local/bin/python3 exists.
+Otherwise do
+
+	$ python3 run.py
+
+Now I have packaged leelaz (the leela-zero executable file) with the submodule
+leelainterface but that is not the one that is used by default.  The default one
+will be the one that is findable in PATH.
+
+Therefore, whatever platform you are on, you just have to have leelaz in your
+path.  On OSX, the simplest way to do this is to make a symbolic link from
+somewhere in you path pointing to the leelaz executable found in the submodule
+leelainterface (in src/leelainterface/bin).
+
+On other platforms, you will have to build leelaz from source and put the
+produced executable where it will be findable.
+
+In the future, I will build executables for linux and windows and put them in
+with leelainterface.  Then all people will have to do is make a symlink
+somewhere in their PATH that points to the right file for their platform.
+
 Cool feature
 ============
 
@@ -42,6 +68,23 @@ windows 10 64-bit.  Just place your files in the same directory as the
 executable and double-click it.  It will prompt you for the filename and produce
 the turned sgf corresponding to the input file as <input_file_name>_turned.sgf
 
+Note on cloning
+===============
 
+This application now uses a submodule for interfacing with leela-zero.  Since
+not everyone is familiar with git submodules, here's what you need to do when
+you clone:
+
+1) Clone normally
+
+	$ git clone https://github.com/philippecarphin/go_sgf_to_igo_latex
+
+2) Initialize submodule
+
+	$ git submodule init
+
+3) Clone the submodule and checkout
+
+	$ git submodule update
 
 
