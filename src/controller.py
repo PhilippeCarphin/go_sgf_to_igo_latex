@@ -91,10 +91,13 @@ class Controller(Tk):
         model to play a move at that position and give the new position to the
         canvas for display. """
         try:
-            self.leela.playmove(self.model.turn, goban_coord)
             self.model.play_move(goban_coord)
+            # Inform leela of the move played
+            self.leela.playmove(self.model.turn, goban_coord)
             self.view.move_tree_canvas.set_text('Playing against\nLeela')
-
+            # Request move from leela
+            # Handle move... TODO handle other responses from leela.
+            # TODO Make this asynchonous by setting up a callback
             move = self.leela.genmove(self.model.turn)
             self.model.play_move(move)
         except ModelError as e:
