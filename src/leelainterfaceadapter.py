@@ -5,7 +5,7 @@ from .leelainterface.src.leela import LeelaInterface
 
 class LeelaInterfaceAdapter(object):
     def __init__(self):
-        self.leela_interface = LeelaInterface('./src/leelainterface/bin/leela_0110_linux_x64')
+        self.leela_interface = LeelaInterface()
 
     def playmove(self, color, goban_coord):
         leela_color = self.make_leela_color(color)
