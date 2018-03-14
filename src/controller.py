@@ -51,9 +51,9 @@ class Controller(Tk):
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
         self.leela = LeelaInterfaceAdapter()
-        self.periodic_call()
+        self.poll_leela_messages()
 
-    def periodic_call(self):
+    def poll_leela_messages(self):
         """ Polling of the stdout queue of leela process """
         try:
             line = self.leela.leela_interface.stdout_queue.get(0)
@@ -66,11 +66,12 @@ class Controller(Tk):
         except queue.Empty as e:
             pass
         try:
-            line = self.leela.leela_interface.stderr_queue.get(0)
-            self.view.move_tree_canvas.set_text(line)
+            line = self.leela.leela_interface.get_stderr()
+            if line != '':
+                self.view.move_tree_canvas.set_text(line)
         except queue.Empty as e:
             pass
-        self.after(200, self.periodic_call)
+        self.after(200, self.poll_leela_messages)
 
     def rotate(self):
         self.model.rotate_tree();
