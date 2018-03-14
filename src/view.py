@@ -36,10 +36,12 @@ class View(Frame, object):
         self.button_down = False
 
     def canvas_motion(self, event):
-        point = self.board_canvas.position_to_goban_coord(event.x, event.y)
-        self.board_canvas.cursor_stone = point
-        self.board_canvas.cursor_stone_color = self.master.model.turn
-        self.board_canvas.draw_position()
+        cursor_coord = self.board_canvas.position_to_goban_coord(event.x, event.y)
+        self.board_canvas.draw_position(
+                cursor_stone_color = self.master.model.turn,
+                cursor_stone_coord = cursor_coord
+            )
+
 
     def config_handler(self, event):
         if event.width + 110 > event.height:

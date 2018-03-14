@@ -88,25 +88,24 @@ class BoardCanvas(Canvas, object):
         """ Set the position to be displayed by this BoardCanvas instance """
         self.position = my_goban
 
-    def draw_position(self):
+    def draw_position(self, cursor_stone_color=None, cursor_stone_coord=None):
         """ Top level function for drawing the position onto the canvas """
         self.delete('all')
         self.draw_board()
         self.draw_stones()
-        self.draw_cursor_stone()
+        if cursor_stone_color is not None:
+            self.draw_cursor_stone(cursor_stone_color, cursor_stone_coord)
 
-    def draw_cursor_stone(self):
-        if self.cursor_stone in self.position:
-            return
-        if self.cursor_stone is None:
-            return
+    def draw_cursor_stone(self, cursor_stone_color, cursor_stone_coord):
 
-        if self.cursor_stone_color == 'B':
-            self.draw_stone(self.cursor_stone, 'GB')
-        elif self.cursor_stone_color == 'W':
-            self.draw_stone(self.cursor_stone, 'GW')
+        if cursor_stone_color == 'B':
+            cursor_stone_symbol = 'GB'
+        elif cursor_stone_color == 'W':
+            cursor_stone_symbol = 'GW'
         else:
-            raise Exception("Can't happen")
+            raise Exception('Cant Happen')
+
+        self.draw_stone(cursor_stone_coord, cursor_stone_symbol)
 
     def draw_stones(self):
         """ Draw all the stones at their coordinates """
