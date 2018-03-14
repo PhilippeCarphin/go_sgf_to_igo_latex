@@ -63,9 +63,7 @@ class Controller(Tk):
 
 
     def quit_handler(self):
-        print("Stopping leela process")
         self.leela.kill()
-        print("Leela process stopped")
         quit(0)
 
     def on_message_received(self, message):

@@ -1,20 +1,21 @@
 from .leelainterface.src.engineinterface import EngineInterface
 import time
 import shutil
+import os
 
-# See sgf_parser and sgf_writer, and run the program and click places, the
-# output will show the coordinates that you clicked.
 def find_engine():
+    """ Construct engine command.  First looks in path for leelaz, leela, gnugo
+    in that order.
+
+    Fallsback to ../bin/leelaz_osx_x64_opencl or ../bin/gnugo_osx_x64
+    or ../bin/leela_0110_linux_x64 based on the OS
+    """
     which_result = shutil.which('leelaz')
     if which_result is not None:
-        return [
-            which_result,
-            '-g',
-            '-w', './bin/leelaz-model-5309030-128000.txt'
-        ]
+        weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
+        return [ 'leelaz', '-g', '-w', weights ]
 
     which_result = shutil.which('leela')
-    print(which_result)
     if which_result is not None:
         return ['leela', '-g']
 
@@ -22,14 +23,22 @@ def find_engine():
     if which_result is not None:
         return ['gnugo', '--mode', 'gtp']
 
+    #
+    # If no installed engines, use one of the supplied in ../bin/
+    # based on the platform
+    #
+    if os.uname().sysname == 'Darwin':
+        return ['./bin/gnugo_osx_x64', '--mode', 'gtp']
 
+    if os.uname().sysname == 'Linux':
+        return [os.path.join(os.path.dirname(__file__), '../bin/leela_0110_linux_x64'), '-g']
 
 class LeelaInterfaceAdapter(object):
     def __init__(self):
-        engine_cmd = find_engine()
-        self.leela_interface = EngineInterface(engine_cmd)
+        self.engine_cmd = find_engine()
+        self.leela_interface = EngineInterface(self.engine_cmd)
         self.leela_interface.ask('showboard')
-        print('leela is ready')
+        print(self.engine_cmd[0] + ' is ready')
 
     def playmove(self, color, goban_coord):
         leela_color = self.make_leela_color(color)
@@ -46,7 +55,9 @@ class LeelaInterfaceAdapter(object):
         self.leela_interface.quit()
 
     def kill(self):
+        print("Stopping {} process ...".format(self.engine_cmd[0]))
         self.leela_interface.kill()
+        print("{} stopped.".format(self.engine_cmd[0]))
 
     def make_leela_coord(self, goban_coord):
         leela_x = chr(goban_coord[0] + ord('A') - 1)
