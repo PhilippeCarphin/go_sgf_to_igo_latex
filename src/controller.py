@@ -88,6 +88,8 @@ class Controller(Tk):
                 goban_coord = self.leela.make_goban_coord(message)
                 self.model.turn = color
                 self.model.play_move(goban_coord)
+                print(goban_coord)
+                self.leelaz.playmove(color, goban_coord)
                 self.view.show_position(self.model.goban)
                 self.command_answer_handler = None
                 self.execute_command('genmove ' + self.leela.make_leela_color(self.model.turn))
@@ -114,6 +116,10 @@ class Controller(Tk):
         could dispatch the message this way.
         """
         message = message.strip('\n')
+        print("on_message_received(): message={}---".format(message))
+        if message == '=': return
+        if message == '= ': return
+        if message == '': return
         if self.command_answer_handler is not None:
             self.command_answer_handler(self, message)
             return
