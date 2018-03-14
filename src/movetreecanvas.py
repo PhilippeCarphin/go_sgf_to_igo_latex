@@ -39,7 +39,8 @@ class MoveTreeCanvas(Canvas, object):
 
     def draw(self):
         self.delete('all')
-        self.create_text(135, 50, text=self.text, font=('Arial', 20), fill='black')
+        self.create_text(10, 10, text=self.text, font=('Arial', 20),
+                fill='black', justify=LEFT, anchor=NW)
 
 
 if __name__ == '__main__':
