@@ -33,6 +33,11 @@ def find_engine():
     if os.uname().sysname == 'Linux':
         return [os.path.join(os.path.dirname(__file__), '../bin/leela_0110_linux_x64'), '-g']
 
+    if os.uname().sysname == 'Linux':
+        weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
+        return [os.path.join(os.path.dirname(__file__),
+            '../bin/leelaz_linux_x64'), '-g', '-w', weights]
+
 class LeelaInterfaceAdapter(object):
     def __init__(self):
         self.engine_cmd = find_engine()

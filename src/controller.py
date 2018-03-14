@@ -2,7 +2,7 @@ import os
 # from goban import goban_to_sgf, GobanError
 from tkinter import *
 from tkinter import filedialog
-import pyperclip
+# import pyperclip
 import signal
 
 from . import igo
