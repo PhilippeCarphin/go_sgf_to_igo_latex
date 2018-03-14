@@ -54,12 +54,27 @@ class Controller(Tk):
         self.poll_leela_messages()
 
     def on_message_received(self, message):
-        if message.startswith('='):
-            leela_coord = message.strip(' =')
-            if len(leela_coord) > 1:
-                goban_coord = self.leela.make_goban_coord(leela_coord)
-                self.model.play_move(goban_coord)
-                self.view.show_position(self.model.goban)
+        """
+        This function dispatches messages to the proper handler.  Possibly this
+        dispatching might be done with some kind of notion of the last made
+        command.  Like controller could have a self.last_leela_command and we
+        could dispatch the message this way.
+        """
+        if not message.startswith('='):
+            return
+        message = message.strip(' =')
+        if len(message) > 1:
+            self.handle_leela_move(message)
+
+    def handle_leela_move(self, leela_coord):
+        """
+        Handler for move messages.  When the message is the leela_coord of a
+        move made by leela.
+        """
+        goban_coord = self.leela.make_goban_coord(leela_coord)
+        self.model.play_move(goban_coord)
+        self.view.show_position(self.model.goban)
+
 
     def poll_leela_messages(self):
         """ Polling of the stdout queue of leela process """
