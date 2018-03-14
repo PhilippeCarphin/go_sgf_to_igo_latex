@@ -37,8 +37,11 @@ class View(Frame, object):
 
     def canvas_motion(self, event):
         cursor_coord = self.board_canvas.position_to_goban_coord(event.x, event.y)
+        cursor_color = self.master.model.turn
+        if cursor_color != 'B':
+            cursor_color = None
         self.board_canvas.draw_position(
-                cursor_stone_color = self.master.model.turn,
+                cursor_stone_color = cursor_color,
                 cursor_stone_coord = cursor_coord
             )
 

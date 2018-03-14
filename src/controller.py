@@ -115,6 +115,8 @@ class Controller(Tk):
         that it has been clicked at game coordinates goban_coord, we ask the
         model to play a move at that position and give the new position to the
         canvas for display. """
+        if self.model.turn != 'B':
+            return
         try:
             self.model.play_move(goban_coord)
             # Inform leela of the move played
