@@ -86,6 +86,12 @@ class Controller(Tk):
                 self.command_answer_handler = None
                 self.execute_command('genmove ' + self.leela.make_leela_color(self.model.turn))
             self.command_answer_handler = answer_handler
+        if words[0] == 'list_commands':
+            def answer_handler(self, message):
+                message = message.strip(' =\n')
+                self.view.show_info(message + self.leela.leela_interface.get_stdout())
+                self.command_answer_handler = None
+            self.command_answer_handler = answer_handler
         self.leela.leela_interface.ask(cmd)
 
 
