@@ -76,12 +76,10 @@ class Controller(Tk):
             cmd = simpledialog.askstring("Execute command", "Enter command to execute")
         words = cmd.split(' ')
         if words[0] == 'play':
-            print(words[2])
             self.model.turn = self.leela.make_goban_color(words[1])
             self.model.play_move(self.leela.make_goban_coord(words[2].upper()))
             self.view.show_position(self.model.goban)
         if words[0] == 'genmove':
-            print('command genmove')
             color = self.leela.make_goban_color(words[1])
             other_engine = self.leelaz if engine is self.leela else self.leela
             def answer_handler(self, message):
@@ -90,7 +88,6 @@ class Controller(Tk):
                 goban_coord = self.leela.make_goban_coord(message)
                 self.model.turn = color
                 self.model.play_move(goban_coord)
-                print(goban_coord)
                 other_engine.playmove(color, goban_coord)
                 self.view.show_position(self.model.goban)
                 self.command_answer_handler = None
@@ -118,7 +115,6 @@ class Controller(Tk):
         could dispatch the message this way.
         """
         message = message.strip('\n')
-        print("on_message_received(): message={}---".format(message))
         if message == '=': return
         if message == '= ': return
         if message == '': return
