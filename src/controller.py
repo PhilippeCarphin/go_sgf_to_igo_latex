@@ -57,6 +57,7 @@ class Controller(Tk):
         self.minsize(400, 400 + 110)
         self.leela = LeelaInterfaceAdapter()
         self.poll_leela_messages()
+        self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
 
     def destroy(self, *args, **kwargs):
@@ -67,6 +68,12 @@ class Controller(Tk):
         self.leela.leela_interface.get_stderr()
         cmd = simpledialog.askstring("Execute command", "Enter command to execute")
         self.leela.leela_interface.ask(cmd)
+        words = cmd.split(' ')
+        if words[0] == 'play':
+            print(words[2])
+            self.model.turn = self.leela.make_goban_color(words[1])
+            self.model.play_move(self.leela.make_goban_coord(words[2].upper()))
+            self.view.show_position(self.model.goban)
 
 
     def quit_handler(self):
@@ -80,11 +87,21 @@ class Controller(Tk):
         command.  Like controller could have a self.last_leela_command and we
         could dispatch the message this way.
         """
-        if not message.startswith('='):
+        # if not message.startswith('='):
+            # return
+        message = message.strip('\n')
+        if len(message) < 1:
             return
-        message = message.strip(' =')
-        if len(message) > 1:
-            self.handle_leela_move(message)
+        if message.startswith('='):
+            message = message.strip(' =')
+            if self.command_answer_handler is not None:
+                self.command_answer_handler()
+                self.command_answer_handler = None
+            if len(message) in [2,3]:
+                self.handle_leela_move(message)
+
+        else:
+            self.view.show_info("STDOUT: {}".format(message))
 
     def handle_leela_move(self, leela_coord):
         """

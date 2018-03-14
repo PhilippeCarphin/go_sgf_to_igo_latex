@@ -11,4 +11,4 @@ elif [ $(uname) = Linux ] ; then
 	leela=./leelaz_linux_x64 -w 
 fi
 
-# $leela -w leelaz-model-5309030-128000.txt
+$leela -w leelaz-model-5309030-128000.txt $1 $2
