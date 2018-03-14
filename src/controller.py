@@ -68,7 +68,9 @@ class Controller(Tk):
         self.leela.kill()
         Tk.destroy(self, *args, **kwargs)
 
-    def execute_command(self, cmd=None):
+    def execute_command(self, cmd=None, engine=None):
+        if engine is None:
+            engine = self.leela
         self.leela.leela_interface.get_stderr()
         if cmd is None:
             cmd = simpledialog.askstring("Execute command", "Enter command to execute")
@@ -81,18 +83,18 @@ class Controller(Tk):
         if words[0] == 'genmove':
             print('command genmove')
             color = self.leela.make_goban_color(words[1])
-            # Next engine = ...
+            other_engine = self.leelaz if engine is self.leela else self.leela
             def answer_handler(self, message):
                 message = message.strip(' =\n')
-                self.leela.leela_interface.get_stdout()
+                other_engine.leela_interface.get_stdout()
                 goban_coord = self.leela.make_goban_coord(message)
                 self.model.turn = color
                 self.model.play_move(goban_coord)
                 print(goban_coord)
-                self.leelaz.playmove(color, goban_coord)
+                other_engine.playmove(color, goban_coord)
                 self.view.show_position(self.model.goban)
                 self.command_answer_handler = None
-                self.execute_command('genmove ' + self.leela.make_leela_color(self.model.turn))
+                self.execute_command('genmove ' + self.leela.make_leela_color(self.model.turn), other_engine)
             self.command_answer_handler = answer_handler
         if words[0] == 'list_commands':
             def answer_handler(self, message):
@@ -100,7 +102,7 @@ class Controller(Tk):
                 self.view.show_info(message + self.leela.leela_interface.get_stdout())
                 self.command_answer_handler = None
             self.command_answer_handler = answer_handler
-        self.leela.leela_interface.ask(cmd)
+        engine.leela_interface.ask(cmd)
 
 
     def quit_handler(self):
