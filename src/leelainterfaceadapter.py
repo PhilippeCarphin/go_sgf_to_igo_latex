@@ -44,6 +44,9 @@ class LeelaInterfaceAdapter(object):
         self.leela_interface = EngineInterface(self.engine_cmd)
         self.leela_interface.ask('showboard')
         print(self.engine_cmd[0] + ' is ready')
+        if self.engine_cmd[0].endswith('gnugo'):
+            time.sleep(.5)
+            self.leela_interface.get_stdout()
 
     def playmove(self, color, goban_coord):
         leela_color = self.make_leela_color(color)
