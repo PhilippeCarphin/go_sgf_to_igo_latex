@@ -1,7 +1,8 @@
 from tkinter import Frame
+from tkinter import Text
+import tkinter
 
 from .boardcanvas import BoardCanvas
-from .movetreecanvas import MoveTreeCanvas
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -30,10 +31,15 @@ class View(Frame, object):
         self.board_canvas.bind("<Button>", self.board_clicked)
         self.board_canvas.bind('<Motion>', self.canvas_motion)
         self.bind('<Configure>', self.config_handler)
-        self.move_tree_canvas = MoveTreeCanvas(self)
+        self.info_text = tkinter.Text(self)
         self.board_canvas.pack()
-        self.move_tree_canvas.pack()
+        self.info_text.pack()
         self.button_down = False
+
+    def show_info(self, info):
+        self.info_text.delete('1.0', tkinter.END)
+        self.info_text.insert(tkinter.INSERT, info)
+
 
     def canvas_motion(self, event):
         cursor_coord = self.board_canvas.position_to_goban_coord(event.x, event.y)
@@ -51,12 +57,12 @@ class View(Frame, object):
             self.board_canvas.config(height=event.height - 110, width=event.width)
         else:
             self.board_canvas.config(height=event.width, width=event.width)
-        self.move_tree_canvas.config(height=max(event.height - event.width, 110), width=event.width)
+        self.info_text.config(height=max(event.height - event.width, 110), width=event.width)
 
     def show_position(self, position):
         self.board_canvas.position = position
         self.board_canvas.draw_position()
-        # self.move_tree_canvas.set_text(str(position))
+        # self.info_text.set_text(str(position))
 
     def board_clicked(self, event):
         goban_coord = self.board_canvas.position_to_goban_coord(event.x, event.y)

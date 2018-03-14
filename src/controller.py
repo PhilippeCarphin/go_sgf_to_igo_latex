@@ -86,7 +86,7 @@ class Controller(Tk):
         try:
             line = self.leela.leela_interface.get_stderr()
             if line != '':
-                self.view.move_tree_canvas.set_text(line)
+                self.view.show_info(line)
         except queue.Empty as e:
             pass
         self.after(200, self.poll_leela_messages)
@@ -136,11 +136,11 @@ class Controller(Tk):
             self.model.play_move(goban_coord)
             # Inform leela of the move played
             self.leela.playmove(self.model.turn, goban_coord)
-            self.view.move_tree_canvas.set_text('Playing against\nLeela')
+            self.view.show_info('Playing against\nLeela')
             self.leela.genmove(self.model.turn)
         except ModelError as e:
             print("Error when playing at " + str(goban_coord) + " : " + str(e))
-            self.view.move_tree_canvas.set_text(str(e))
+            self.view.show_info(str(e))
         self.view.show_position(self.model.goban)
 
     def undo_key(self):
