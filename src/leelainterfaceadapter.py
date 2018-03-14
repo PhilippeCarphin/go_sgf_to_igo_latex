@@ -1,4 +1,4 @@
-from .leelainterface.src.engineinterface import EngineInterface
+from .engineinterface.src.engineinterface import EngineInterface
 import time
 import shutil
 import os
