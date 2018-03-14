@@ -3,6 +3,7 @@ import os
 from tkinter import *
 from tkinter import filedialog
 import pyperclip
+import signal
 
 from . import igo
 import queue
@@ -45,6 +46,8 @@ class Controller(Tk):
                         'n': self.next_move,
                         'v': self.next_variation,
                         'd': self.previous_variation,
+                        524291 : self.quit_handler, # CTRL-C
+                        'q' : self.quit_handler,
                         'r': self.rotate}
         self.bm = igo.BeamerMaker()
         self.config(height=800, width=400)
@@ -52,6 +55,13 @@ class Controller(Tk):
         self.minsize(400, 400 + 110)
         self.leela = LeelaInterfaceAdapter()
         self.poll_leela_messages()
+        signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
+
+    def quit_handler(self):
+        print("Stopping leela process")
+        self.leela.quit()
+        print("Leela process stopped")
+        quit(0)
 
     def on_message_received(self, message):
         """
@@ -121,9 +131,11 @@ class Controller(Tk):
         try:
             self.key_map[event.char]()
         except KeyError:
-            print("No handler for key " + ("enter" if event.keycode == 13 else event.char) + "(" + str(
-                event.keycode) + ")")
-            return
+            try:
+                self.key_map[event.keycode]()
+            except KeyError:
+                print("No handler for key " + ("enter" if event.keycode == 13 else event.char) + "(" + str(
+                    event.keycode) + ")")
 
     def board_clicked(self, goban_coord):
         """ Handler for the board clicked event.  The board canvas notifies us

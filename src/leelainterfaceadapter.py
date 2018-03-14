@@ -25,6 +25,9 @@ class LeelaInterfaceAdapter(object):
         cmd = ' '.join(['genmove', self.make_leela_color(goban_color)])
         self.leela_interface.ask(cmd)
 
+    def quit(self):
+        self.leela_interface.quit()
+
     def make_leela_coord(self, goban_coord):
         leela_x = chr(goban_coord[0] + ord('A') - 1)
         leela_y = str(19 - goban_coord[1] + 1)
