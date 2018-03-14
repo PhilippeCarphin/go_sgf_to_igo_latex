@@ -12,6 +12,7 @@ import queue
 from .model import Model, ModelError
 from .view import View
 from .leelainterfaceadapter import LeelaInterfaceAdapter
+from . import sgfwriter
 
 weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
 leelaz_cmd = [ 'leelaz', '-g', '-w', weights ]
@@ -51,6 +52,7 @@ class Controller(Tk):
                         'v': self.next_variation,
                         'd': self.previous_variation,
                         'e': self.execute_command,
+                        's': self.save_game,
                         524291 : self.quit_handler, # CTRL-C
                         'q' : self.quit_handler,
                         'r': self.rotate}
@@ -62,7 +64,13 @@ class Controller(Tk):
         self.leelaz = LeelaInterfaceAdapter(leelaz_cmd)
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
+        # self.execute_command('genmove black')
         self.poll_leela_messages()
+
+    def save_game(self):
+        save_file = './' + filedialog.asksaveasfilename()
+        sgfwriter.write_sgf_file(self.model.move_tree, save_file)
+
 
     def destroy(self, *args, **kwargs):
         self.leela.kill()
@@ -118,6 +126,8 @@ class Controller(Tk):
         if message == '=': return
         if message == '= ': return
         if message == '': return
+        if message.endswith('PASS'):
+            sgfwriter.write_sgf_file(self.model.move_tree, './enginefight.sgf')
         if self.command_answer_handler is not None:
             self.command_answer_handler(self, message)
             return
