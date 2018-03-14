@@ -84,6 +84,7 @@ class Controller(Tk):
                 self.model.turn = color
                 self.model.play_move(goban_coord)
                 self.view.show_position(self.model.goban)
+                self.command_answer_handler = None
                 self.execute_command('genmove ' + self.leela.make_leela_color(self.model.turn))
             self.command_answer_handler = answer_handler
 
@@ -102,7 +103,6 @@ class Controller(Tk):
         message = message.strip('\n')
         if self.command_answer_handler is not None:
             self.command_answer_handler(self, message)
-            self.command_answer_handler = None
             return
         # if not message.startswith('='):
             # return
