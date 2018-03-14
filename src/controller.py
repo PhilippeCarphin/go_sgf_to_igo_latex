@@ -3,6 +3,7 @@ import os
 from tkinter import *
 from tkinter import filedialog
 from tkinter import simpledialog
+import time
 # import pyperclip
 import signal
 
@@ -79,6 +80,7 @@ class Controller(Tk):
             color = self.leela.make_goban_color(words[1])
             def answer_handler(self, message):
                 message = message.strip(' =\n')
+                self.leela.leela_interface.get_stdout()
                 goban_coord = self.leela.make_goban_coord(message)
                 self.model.turn = color
                 self.model.play_move(goban_coord)
@@ -93,6 +95,7 @@ class Controller(Tk):
                 self.command_answer_handler = None
             self.command_answer_handler = answer_handler
         self.leela.leela_interface.ask(cmd)
+
 
 
     def quit_handler(self):
