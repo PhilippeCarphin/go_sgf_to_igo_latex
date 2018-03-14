@@ -68,7 +68,6 @@ class Controller(Tk):
         self.leela.leela_interface.get_stderr()
         if cmd is None:
             cmd = simpledialog.askstring("Execute command", "Enter command to execute")
-        self.leela.leela_interface.ask(cmd)
         words = cmd.split(' ')
         if words[0] == 'play':
             print(words[2])
@@ -87,6 +86,7 @@ class Controller(Tk):
                 self.command_answer_handler = None
                 self.execute_command('genmove ' + self.leela.make_leela_color(self.model.turn))
             self.command_answer_handler = answer_handler
+        self.leela.leela_interface.ask(cmd)
 
 
     def quit_handler(self):
