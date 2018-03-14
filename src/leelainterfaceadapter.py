@@ -10,6 +10,9 @@ def find_engine():
     Fallsback to ../bin/leelaz_osx_x64_opencl or ../bin/gnugo_osx_x64
     or ../bin/leela_0110_linux_x64 based on the OS
     """
+    which_result = shutil.which('gnugo')
+    if which_result is not None:
+        return ['gnugo', '--mode', 'gtp']
     which_result = shutil.which('leelaz')
     if which_result is not None:
         weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
@@ -19,9 +22,6 @@ def find_engine():
     if which_result is not None:
         return ['leela', '-g']
 
-    which_result = shutil.which('gnugo')
-    if which_result is not None:
-        return ['gnugo', '--mode', 'gtp']
 
     #
     # If no installed engines, use one of the supplied in ../bin/

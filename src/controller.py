@@ -64,9 +64,10 @@ class Controller(Tk):
         self.leela.kill()
         Tk.destroy(self, *args, **kwargs)
 
-    def execute_command(self):
+    def execute_command(self, cmd=None):
         self.leela.leela_interface.get_stderr()
-        cmd = simpledialog.askstring("Execute command", "Enter command to execute")
+        if cmd is None:
+            cmd = simpledialog.askstring("Execute command", "Enter command to execute")
         self.leela.leela_interface.ask(cmd)
         words = cmd.split(' ')
         if words[0] == 'play':
@@ -74,6 +75,17 @@ class Controller(Tk):
             self.model.turn = self.leela.make_goban_color(words[1])
             self.model.play_move(self.leela.make_goban_coord(words[2].upper()))
             self.view.show_position(self.model.goban)
+        if words[0] == 'genmove':
+            print('command genmove')
+            color = self.leela.make_goban_color(words[1])
+            def answer_handler(self, message):
+                message = message.strip(' =\n')
+                goban_coord = self.leela.make_goban_coord(message)
+                self.model.turn = color
+                self.model.play_move(goban_coord)
+                self.view.show_position(self.model.goban)
+                self.execute_command('genmove ' + self.leela.make_leela_color(self.model.turn))
+            self.command_answer_handler = answer_handler
 
 
     def quit_handler(self):
@@ -87,16 +99,17 @@ class Controller(Tk):
         command.  Like controller could have a self.last_leela_command and we
         could dispatch the message this way.
         """
+        message = message.strip('\n')
+        if self.command_answer_handler is not None:
+            self.command_answer_handler(self, message)
+            self.command_answer_handler = None
+            return
         # if not message.startswith('='):
             # return
-        message = message.strip('\n')
         if len(message) < 1:
             return
         if message.startswith('='):
             message = message.strip(' =')
-            if self.command_answer_handler is not None:
-                self.command_answer_handler()
-                self.command_answer_handler = None
             if len(message) in [2,3]:
                 self.handle_leela_move(message)
 
