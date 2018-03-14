@@ -13,6 +13,8 @@ from .model import Model, ModelError
 from .view import View
 from .leelainterfaceadapter import LeelaInterfaceAdapter
 
+weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
+leelaz_cmd = [ 'leelaz', '-g', '-w', weights ]
 """ Copyright 2016, 2017 Philippe Carphin"""
 
 """ This file is part of go_sgf_to_igo_latex.
@@ -57,9 +59,10 @@ class Controller(Tk):
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
         self.leela = LeelaInterfaceAdapter()
-        self.poll_leela_messages()
+        self.leelaz = LeelaInterfaceAdapter(leelaz_cmd)
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
+        self.poll_leela_messages()
 
     def destroy(self, *args, **kwargs):
         self.leela.kill()
@@ -78,6 +81,7 @@ class Controller(Tk):
         if words[0] == 'genmove':
             print('command genmove')
             color = self.leela.make_goban_color(words[1])
+            # Next engine = ...
             def answer_handler(self, message):
                 message = message.strip(' =\n')
                 self.leela.leela_interface.get_stdout()
@@ -97,9 +101,9 @@ class Controller(Tk):
         self.leela.leela_interface.ask(cmd)
 
 
-
     def quit_handler(self):
         self.leela.kill()
+        self.leelaz.kill()
         quit(0)
 
     def on_message_received(self, message):
@@ -142,8 +146,20 @@ class Controller(Tk):
             self.on_message_received(line)
         except queue.Empty as e:
             pass
+        try :
+            line = self.leelaz.leela_interface.stdout_queue.get(0)
+            self.on_message_received(line)
+        except queue.Empty as e:
+            pass
+
         try:
             line = self.leela.leela_interface.get_stderr()
+            if line != '':
+                self.view.show_info(line)
+        except queue.Empty as e:
+            pass
+        try:
+            line = self.leelaz.leela_interface.get_stderr()
             if line != '':
                 self.view.show_info(line)
         except queue.Empty as e:

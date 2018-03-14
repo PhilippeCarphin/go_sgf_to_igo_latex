@@ -39,8 +39,11 @@ def find_engine():
             '../bin/leelaz_linux_x64'), '-g', '-w', weights]
 
 class LeelaInterfaceAdapter(object):
-    def __init__(self):
-        self.engine_cmd = find_engine()
+    def __init__(self, engine_cmd=None):
+        if engine_cmd is None:
+            self.engine_cmd = find_engine()
+        else:
+            self.engine_cmd = engine_cmd
         self.leela_interface = EngineInterface(self.engine_cmd)
         self.leela_interface.ask('showboard')
         print(self.engine_cmd[0] + ' is ready')
