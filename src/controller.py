@@ -57,6 +57,11 @@ class Controller(Tk):
         self.poll_leela_messages()
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
 
+    def destroy(self, *args, **kwargs):
+        self.leela.kill()
+        Tk.destroy(self, *args, **kwargs)
+
+
     def quit_handler(self):
         print("Stopping leela process")
         self.leela.kill()
