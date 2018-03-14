@@ -1,16 +1,33 @@
-from .leelainterface.src.leela import LeelaInterface
+from .leelainterface.src.engineinterface import EngineInterface
 import time
+import shutil
 
 # See sgf_parser and sgf_writer, and run the program and click places, the
 # output will show the coordinates that you clicked.
+def find_engine():
+    which_result = shutil.which('leelaz')
+    if which_result is not None:
+        return [
+            which_result,
+            '-g',
+            '-w', './bin/leelaz-model-5309030-128000.txt'
+        ]
+
+    which_result = shutil.which('leela')
+    print(which_result)
+    if which_result is not None:
+        return ['leela', '-g']
+
+    which_result = shutil.which('gnugo')
+    if which_result is not None:
+        return ['gnugo', '--mode', 'gtp']
+
+
 
 class LeelaInterfaceAdapter(object):
     def __init__(self):
-        self.leela_interface = LeelaInterface([
-            'leelaz',
-            '-g',
-            '-w', './src/leelainterface/src/leelaz-model-5309030-128000.txt'
-        ])
+        engine_cmd = find_engine()
+        self.leela_interface = EngineInterface(engine_cmd)
         self.leela_interface.ask('showboard')
         print('leela is ready')
 
