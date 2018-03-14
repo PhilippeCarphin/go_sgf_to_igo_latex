@@ -53,16 +53,19 @@ class Controller(Tk):
         self.leela = LeelaInterfaceAdapter()
         self.poll_leela_messages()
 
+    def on_message_received(self, message):
+        if message.startswith('='):
+            leela_coord = message.strip(' =')
+            if len(leela_coord) > 1:
+                goban_coord = self.leela.make_goban_coord(leela_coord)
+                self.model.play_move(goban_coord)
+                self.view.show_position(self.model.goban)
+
     def poll_leela_messages(self):
         """ Polling of the stdout queue of leela process """
         try:
             line = self.leela.leela_interface.stdout_queue.get(0)
-            if line.startswith('='):
-                leela_coord = line.strip(' =')
-                if len(leela_coord) > 1:
-                    goban_coord = self.leela.make_goban_coord(leela_coord)
-                    self.model.play_move(goban_coord)
-                    self.view.show_position(self.model.goban)
+            self.on_message_received(line)
         except queue.Empty as e:
             pass
         try:
