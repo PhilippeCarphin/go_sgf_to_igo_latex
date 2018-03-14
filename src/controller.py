@@ -2,6 +2,7 @@ import os
 # from goban import goban_to_sgf, GobanError
 from tkinter import *
 from tkinter import filedialog
+from tkinter import simpledialog
 # import pyperclip
 import signal
 
@@ -46,6 +47,7 @@ class Controller(Tk):
                         'n': self.next_move,
                         'v': self.next_variation,
                         'd': self.previous_variation,
+                        'e': self.execute_command,
                         524291 : self.quit_handler, # CTRL-C
                         'q' : self.quit_handler,
                         'r': self.rotate}
@@ -60,6 +62,11 @@ class Controller(Tk):
     def destroy(self, *args, **kwargs):
         self.leela.kill()
         Tk.destroy(self, *args, **kwargs)
+
+    def execute_command(self):
+        self.leela.leela_interface.get_stderr()
+        cmd = simpledialog.askstring("Execute command", "Enter command to execute")
+        self.leela.leela_interface.ask(cmd)
 
 
     def quit_handler(self):
@@ -150,7 +157,7 @@ class Controller(Tk):
         try:
             self.model.play_move(goban_coord)
             # Inform leela of the move played
-            self.leela.playmove(self.model.turn, goban_coord)
+            self.leela.playmove('B', goban_coord)
             self.view.show_info('Playing against\nLeela')
             self.leela.genmove(self.model.turn)
         except ModelError as e:
