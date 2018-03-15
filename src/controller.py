@@ -73,7 +73,7 @@ class Controller(Tk):
 
 
     def destroy(self, *args, **kwargs):
-        self.engine_black.kill()
+        self.quit_handler()
         Tk.destroy(self, *args, **kwargs)
 
     def execute_command(self, cmd=None, engine=None):
