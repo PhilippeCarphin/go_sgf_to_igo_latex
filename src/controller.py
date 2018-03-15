@@ -16,6 +16,8 @@ from . import sgfwriter
 
 weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
 leelaz_cmd = [ 'leelaz', '-g', '-w', weights ]
+leela_cmd = [ 'leela', '-g']
+leela_opencl_cmd = [ 'leela-opencl', '-g']
 """ Copyright 2016, 2017 Philippe Carphin"""
 
 """ This file is part of go_sgf_to_igo_latex.
@@ -61,11 +63,12 @@ class Controller(Tk):
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
         self.engine_black = LeelaInterfaceAdapter()
-        self.engine_white = LeelaInterfaceAdapter()
+        self.engine_white = LeelaInterfaceAdapter(leela_cmd)
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
         # self.execute_command('genmove black')
         self.poll_leela_messages()
+        self.execute_command('genmove black')
 
     def save_game(self):
         save_file = './' + filedialog.asksaveasfilename()
