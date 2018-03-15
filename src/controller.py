@@ -60,8 +60,8 @@ class Controller(Tk):
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
-        self.leela = LeelaInterfaceAdapter()
-        self.leelaz = LeelaInterfaceAdapter(leelaz_cmd)
+        self.engine_black = LeelaInterfaceAdapter()
+        self.engine_white = LeelaInterfaceAdapter()
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
         # self.execute_command('genmove black')
@@ -73,46 +73,46 @@ class Controller(Tk):
 
 
     def destroy(self, *args, **kwargs):
-        self.leela.kill()
+        self.engine_black.kill()
         Tk.destroy(self, *args, **kwargs)
 
     def execute_command(self, cmd=None, engine=None):
         if engine is None:
-            engine = self.leela
-        self.leela.leela_interface.get_stderr()
+            engine = self.engine_black
+        self.engine_black.leela_interface.get_stderr()
         if cmd is None:
             cmd = simpledialog.askstring("Execute command", "Enter command to execute")
         words = cmd.split(' ')
         if words[0] == 'play':
-            self.model.turn = self.leela.make_goban_color(words[1])
-            self.model.play_move(self.leela.make_goban_coord(words[2].upper()))
+            self.model.turn = self.engine_black.make_goban_color(words[1])
+            self.model.play_move(self.engine_black.make_goban_coord(words[2].upper()))
             self.view.show_position(self.model.goban)
         if words[0] == 'genmove':
-            color = self.leela.make_goban_color(words[1])
-            other_engine = self.leelaz if engine is self.leela else self.leela
+            color = self.engine_black.make_goban_color(words[1])
+            other_engine = self.engine_white if engine is self.engine_black else self.engine_black
             def answer_handler(self, message):
                 message = message.strip(' =\n')
                 other_engine.leela_interface.get_stdout()
-                goban_coord = self.leela.make_goban_coord(message)
+                goban_coord = self.engine_black.make_goban_coord(message)
                 self.model.turn = color
                 self.model.play_move(goban_coord)
                 other_engine.playmove(color, goban_coord)
                 self.view.show_position(self.model.goban)
                 self.command_answer_handler = None
-                self.execute_command('genmove ' + self.leela.make_leela_color(self.model.turn), other_engine)
+                self.execute_command('genmove ' + self.engine_black.make_leela_color(self.model.turn), other_engine)
             self.command_answer_handler = answer_handler
         if words[0] == 'list_commands':
             def answer_handler(self, message):
                 message = message.strip(' =\n')
-                self.view.show_info(message + self.leela.leela_interface.get_stdout())
+                self.view.show_info(message + self.engine_black.leela_interface.get_stdout())
                 self.command_answer_handler = None
             self.command_answer_handler = answer_handler
         engine.leela_interface.ask(cmd)
 
 
     def quit_handler(self):
-        self.leela.kill()
-        self.leelaz.kill()
+        self.engine_black.kill()
+        self.engine_white.kill()
         quit(0)
 
     def on_message_received(self, message):
@@ -148,7 +148,7 @@ class Controller(Tk):
         Handler for move messages.  When the message is the leela_coord of a
         move made by leela.
         """
-        goban_coord = self.leela.make_goban_coord(leela_coord)
+        goban_coord = self.engine_black.make_goban_coord(leela_coord)
         self.model.play_move(goban_coord)
         self.view.show_position(self.model.goban)
 
@@ -156,24 +156,24 @@ class Controller(Tk):
     def poll_leela_messages(self):
         """ Polling of the stdout queue of leela process """
         try:
-            line = self.leela.leela_interface.stdout_queue.get(0)
+            line = self.engine_black.leela_interface.stdout_queue.get(0)
             self.on_message_received(line)
         except queue.Empty as e:
             pass
         try :
-            line = self.leelaz.leela_interface.stdout_queue.get(0)
+            line = self.engine_white.leela_interface.stdout_queue.get(0)
             self.on_message_received(line)
         except queue.Empty as e:
             pass
 
         try:
-            line = self.leela.leela_interface.get_stderr()
+            line = self.engine_black.leela_interface.get_stderr()
             if line != '':
                 self.view.show_info(line)
         except queue.Empty as e:
             pass
         try:
-            line = self.leelaz.leela_interface.get_stderr()
+            line = self.engine_white.leela_interface.get_stderr()
             if line != '':
                 self.view.show_info(line)
         except queue.Empty as e:
@@ -226,9 +226,9 @@ class Controller(Tk):
         try:
             self.model.play_move(goban_coord)
             # Inform leela of the move played
-            self.leela.playmove('B', goban_coord)
+            self.engine_black.playmove('B', goban_coord)
             self.view.show_info('Playing against\nLeela')
-            self.leela.genmove(self.model.turn)
+            self.engine_black.genmove(self.model.turn)
         except ModelError as e:
             print("Error when playing at " + str(goban_coord) + " : " + str(e))
             self.view.show_info(str(e))
