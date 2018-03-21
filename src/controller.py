@@ -12,6 +12,7 @@ import queue
 from .model import Model, ModelError
 from .view import View
 from .EngineInterface import EngineInterface
+from .EngineInterface import goban_coord_to_gtp_coord, goban_color_to_gtp_color, gtp_color_to_goban_color, gtp_coord_to_goban_coord
 from . import sgfwriter
 
 weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
@@ -86,11 +87,11 @@ class Controller(Tk):
             cmd = simpledialog.askstring("Execute command", "Enter command to execute")
         words = cmd.split(' ')
         if words[0] == 'play':
-            self.model.turn = self.engine_black.make_goban_color(words[1])
-            self.model.play_move(self.engine_black.make_goban_coord(words[2].upper()))
+            self.model.turn = gtp_color_to_goban_color(words[1])
+            self.model.play_move(gtp_coord_to_goban_coord(words[2].upper()))
             self.view.show_position(self.model.goban)
         if words[0] == 'genmove':
-            color = self.engine_black.make_goban_color(words[1])
+            color = gtp_color_to_goban_color(words[1])
             other_engine = self.engine_white if engine is self.engine_black else self.engine_black
             def answer_handler(self, message):
                 message = message.strip(' =\n')
@@ -150,7 +151,7 @@ class Controller(Tk):
         Handler for move messages.  When the message is the leela_coord of a
         move made by leela.
         """
-        goban_coord = self.engine_black.make_goban_coord(leela_coord)
+        goban_coord = gtp_coord_to_goban_coord(leela_coord)
         self.model.play_move(goban_coord)
         self.view.show_position(self.model.goban)
 
