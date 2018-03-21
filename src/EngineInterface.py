@@ -38,36 +38,36 @@ def find_engine():
         return [os.path.join(os.path.dirname(__file__),
             '../bin/leelaz_linux_x64'), '-g', '-w', weights]
 
-class LeelaInterfaceAdapter(object):
+class EngineInterface(object):
     def __init__(self, engine_cmd=None):
         if engine_cmd is None:
             self.engine_cmd = find_engine()
         else:
             self.engine_cmd = engine_cmd
-        self.leela_interface = GTPWrapper(self.engine_cmd)
-        self.leela_interface.ask('showboard')
+        self.gtp_wrapper = GTPWrapper(self.engine_cmd)
+        self.gtp_wrapper.ask('showboard')
         print(self.engine_cmd[0] + ' is ready')
         if self.engine_cmd[0].endswith('gnugo'):
             time.sleep(.5)
-            self.leela_interface.get_stdout()
+            self.gtp_wrapper.get_stdout()
 
     def playmove(self, color, goban_coord):
         leela_color = self.make_leela_color(color)
         leela_coord = self.make_leela_coord(goban_coord)
 
         cmd = ' '.join(['play', leela_color, leela_coord])
-        self.leela_interface.ask(cmd)
+        self.gtp_wrapper.ask(cmd)
 
     def genmove(self, goban_color):
         cmd = ' '.join(['genmove', self.make_leela_color(goban_color)])
-        self.leela_interface.ask(cmd)
+        self.gtp_wrapper.ask(cmd)
 
     def quit(self):
-        self.leela_interface.quit()
+        self.gtp_wrapper.quit()
 
     def kill(self):
         print("Stopping {} process ...".format(self.engine_cmd[0]))
-        self.leela_interface.kill()
+        self.gtp_wrapper.kill()
         print("{} stopped.".format(self.engine_cmd[0]))
 
     def make_leela_coord(self, goban_coord):

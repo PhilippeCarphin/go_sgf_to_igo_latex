@@ -11,7 +11,7 @@ from . import igo
 import queue
 from .model import Model, ModelError
 from .view import View
-from .leelainterfaceadapter import LeelaInterfaceAdapter
+from .EngineInterface import EngineInterface
 from . import sgfwriter
 
 weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
@@ -62,8 +62,8 @@ class Controller(Tk):
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
-        self.engine_black = LeelaInterfaceAdapter()
-        self.engine_white = LeelaInterfaceAdapter(leelaz_cmd)
+        self.engine_black = EngineInterface()
+        self.engine_white = EngineInterface(leelaz_cmd)
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
         self.poll_leela_messages()
@@ -81,7 +81,7 @@ class Controller(Tk):
     def execute_command(self, cmd=None, engine=None):
         if engine is None:
             engine = self.engine_black
-        self.engine_black.leela_interface.get_stderr()
+        self.engine_black.gtp_wrapper.get_stderr()
         if cmd is None:
             cmd = simpledialog.askstring("Execute command", "Enter command to execute")
         words = cmd.split(' ')
@@ -94,7 +94,7 @@ class Controller(Tk):
             other_engine = self.engine_white if engine is self.engine_black else self.engine_black
             def answer_handler(self, message):
                 message = message.strip(' =\n')
-                other_engine.leela_interface.get_stdout()
+                other_engine.gtp_wrapper.get_stdout()
                 goban_coord = self.engine_black.make_goban_coord(message)
                 self.model.turn = color
                 self.model.play_move(goban_coord)
@@ -109,7 +109,7 @@ class Controller(Tk):
                 self.view.show_info(message + self.engine_black.leela_interface.get_stdout())
                 self.command_answer_handler = None
             self.command_answer_handler = answer_handler
-        engine.leela_interface.ask(cmd)
+        engine.gtp_wrapper.ask(cmd)
 
 
     def quit_handler(self):
@@ -158,24 +158,24 @@ class Controller(Tk):
     def poll_leela_messages(self):
         """ Polling of the stdout queue of leela process """
         try:
-            line = self.engine_black.leela_interface.stdout_queue.get(0)
+            line = self.engine_black.gtp_wrapper.stdout_queue.get(0)
             self.on_message_received(line)
         except queue.Empty as e:
             pass
         try :
-            line = self.engine_white.leela_interface.stdout_queue.get(0)
+            line = self.engine_white.gtp_wrapper.stdout_queue.get(0)
             self.on_message_received(line)
         except queue.Empty as e:
             pass
 
         try:
-            line = self.engine_black.leela_interface.get_stderr()
+            line = self.engine_black.gtp_wrapper.get_stderr()
             if line != '':
                 self.view.show_info(line)
         except queue.Empty as e:
             pass
         try:
-            line = self.engine_white.leela_interface.get_stderr()
+            line = self.engine_white.gtp_wrapper.get_stderr()
             if line != '':
                 self.view.show_info(line)
         except queue.Empty as e:
@@ -191,7 +191,8 @@ class Controller(Tk):
         and outputs it to STDOUT and puts it in the system clipboard """
         diag = self.bm.make_page_from_postion(self.model.goban)
         try:
-            pyperclip.copy(diag)
+            pass
+            # pyperclip.copy(diag)
         except:
             pass
         print(diag)
@@ -201,7 +202,8 @@ class Controller(Tk):
         and outputs it to STDOUT and puts it in the system clipboard """
         diag = igo.make_diagram_from_position(self.model.goban)
         try:
-            pyperclip.copy(diag)
+            pass
+            # pyperclip.copy(diag)
         except:
             pass
         print(diag)
