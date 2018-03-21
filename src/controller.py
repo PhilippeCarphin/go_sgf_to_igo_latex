@@ -63,12 +63,11 @@ class Controller(Tk):
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
         self.engine_black = LeelaInterfaceAdapter()
-        self.engine_white = LeelaInterfaceAdapter(leela_cmd)
+        self.engine_white = LeelaInterfaceAdapter(leelaz_cmd)
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
-        # self.execute_command('genmove black')
         self.poll_leela_messages()
-        self.execute_command('genmove black')
+        # self.execute_command('genmove black')
 
     def save_game(self):
         save_file = './' + filedialog.asksaveasfilename()
