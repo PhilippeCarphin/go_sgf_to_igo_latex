@@ -1,4 +1,4 @@
-from .engineinterface.src.engineinterface import EngineInterface
+from .gtpwrapper.src.gtpwrapper import GTPWrapper
 import time
 import shutil
 import os
@@ -44,7 +44,7 @@ class LeelaInterfaceAdapter(object):
             self.engine_cmd = find_engine()
         else:
             self.engine_cmd = engine_cmd
-        self.leela_interface = EngineInterface(self.engine_cmd)
+        self.leela_interface = GTPWrapper(self.engine_cmd)
         self.leela_interface.ask('showboard')
         print(self.engine_cmd[0] + ' is ready')
         if self.engine_cmd[0].endswith('gnugo'):
