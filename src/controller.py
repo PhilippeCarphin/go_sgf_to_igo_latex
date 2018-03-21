@@ -11,7 +11,7 @@ from . import igo
 import queue
 from .model import Model, ModelError
 from .view import View
-from .EngineInterface import EngineInterface
+from .EngineInterface import Gnugo, Leelaz
 from .EngineInterface import goban_coord_to_gtp_coord, goban_color_to_gtp_color, gtp_color_to_goban_color, gtp_coord_to_goban_coord
 from . import sgfwriter
 
@@ -19,6 +19,8 @@ weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-1
 leelaz_cmd = [ 'leelaz', '-g', '-w', weights ]
 leela_cmd = [ 'leela', '-g']
 leela_opencl_cmd = [ 'leela-opencl', '-g']
+
+
 """ Copyright 2016, 2017 Philippe Carphin"""
 
 """ This file is part of go_sgf_to_igo_latex.
@@ -63,8 +65,8 @@ class Controller(Tk):
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
-        self.engine_black = EngineInterface()
-        self.engine_white = EngineInterface(leelaz_cmd)
+        self.engine_black = Gnugo()
+        self.engine_white = Leelaz()
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
         self.poll_leela_messages()
