@@ -98,13 +98,13 @@ class Controller(Tk):
             def answer_handler(self, message):
                 message = message.strip(' =\n')
                 other_engine.gtp_wrapper.get_stdout()
-                goban_coord = self.engine_black.make_goban_coord(message)
+                goban_coord = gtp_coord_to_goban_coord(message)
                 self.model.turn = color
                 self.model.play_move(goban_coord)
                 other_engine.playmove(color, goban_coord)
                 self.view.show_position(self.model.goban)
                 self.command_answer_handler = None
-                self.execute_command('genmove ' + self.engine_black.make_leela_color(self.model.turn), other_engine)
+                self.execute_command('genmove ' + goban_color_to_gtp_color(self.model.turn), other_engine)
             self.command_answer_handler = answer_handler
         if words[0] == 'list_commands':
             def answer_handler(self, message):
