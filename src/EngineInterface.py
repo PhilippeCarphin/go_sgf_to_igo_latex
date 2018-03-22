@@ -2,6 +2,7 @@ from .gtpwrapper.src.gtpwrapper import GTPWrapper
 import time
 import shutil
 import os
+import queue
 
 def goban_coord_to_gtp_coord(goban_coord):
     leela_x = chr(goban_coord[0] + ord('A') - 1)
@@ -29,19 +30,67 @@ def gtp_color_to_goban_color(gtp_color):
     elif gtp_color == 'black':
         return 'B'
 
+GENMOVE = 1
+
+
 class EngineInterface(object):
     def __init__(self, master, engine_cmd):
         self.gtp_wrapper = GTPWrapper(engine_cmd)
         self.master = master
+        self.command_output = ''
+
+    def check_messages(self):
+        """ Polling of the stdout queue of leela process """
+        try:
+            line = self.gtp_wrapper.stdout_queue.get(0)
+            self.on_message_received(line)
+        except queue.Empty as e:
+            pass
+
+        try:
+            line = self.gtp_wrapper.get_stderr()
+            if line != '':
+                self.command_output += line
+                self.master.view.show_info(line)
+        except queue.Empty as e:
+            pass
+
+    def on_message_received(self, message):
+        """
+        This function dispatches messages to the proper handler.  Possibly this
+        dispatching might be done with some kind of notion of the last made
+        command.  Like controller could have a self.last_leela_command and we
+        could dispatch the message this way.
+        """
+        message = message.strip('\n')
+        if message == '=': return
+        if message == '= ': return
+        if message == '': return
+        message = message.strip(' =\n')
+        print("EngineInterface.on_message_received({})".format(message))
+        print(self.command_output)
+        self.master.engine_move(gtp_coord_to_goban_coord(message), self)
+
+    def on_command_received(self):
+        stderr = self.gtp_wrapper.get_stderr()
+        stdout = self.gtp_wrapper.get_stdout()
+        if stderr != '':
+            print('stderr was not empty')
+        if stdout != '':
+            print('stdout was not empty')
+        self.command_output = ''
 
     def playmove(self, color, goban_coord):
         gtp_color = goban_color_to_gtp_color(color)
         gtp_coord = goban_coord_to_gtp_coord(goban_coord)
         cmd = ' '.join(['play', gtp_color, gtp_coord])
+        self.on_command_received()
         self.gtp_wrapper.ask(cmd)
 
     def genmove(self, goban_color):
         cmd = ' '.join(['genmove', goban_color_to_gtp_color(goban_color)])
+        self.last_command = GENMOVE
+        self.on_command_received()
         self.gtp_wrapper.ask(cmd)
 
     def quit(self):

@@ -66,10 +66,10 @@ class Controller(Tk):
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
         self.engine_black = Gnugo(self)
-        self.engine_white = Leelaz(self)
+        self.engine_white = Gnugo(self)
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
-        self.poll_leela_messages()
+        self.poll_engine_messages()
         # self.execute_command('genmove black')
 
     def save_game(self):
@@ -82,108 +82,37 @@ class Controller(Tk):
         Tk.destroy(self, *args, **kwargs)
 
     def execute_command(self, cmd=None, engine=None):
+        # Change command to interface calls
+        # Make interface call
         if engine is None:
             engine = self.engine_black
         self.engine_black.gtp_wrapper.get_stderr()
         if cmd is None:
             cmd = simpledialog.askstring("Execute command", "Enter command to execute")
-        words = cmd.split(' ')
-        if words[0] == 'play':
-            self.model.turn = gtp_color_to_goban_color(words[1])
-            self.model.play_move(gtp_coord_to_goban_coord(words[2].upper()))
-            self.view.show_position(self.model.goban)
-        if words[0] == 'genmove':
-            color = gtp_color_to_goban_color(words[1])
-            other_engine = self.engine_white if engine is self.engine_black else self.engine_black
-            def answer_handler(self, message):
-                message = message.strip(' =\n')
-                other_engine.gtp_wrapper.get_stdout()
-                goban_coord = gtp_coord_to_goban_coord(message)
-                self.model.turn = color
-                self.model.play_move(goban_coord)
-                other_engine.playmove(color, goban_coord)
-                self.view.show_position(self.model.goban)
-                self.command_answer_handler = None
-                self.execute_command('genmove ' + goban_color_to_gtp_color(self.model.turn), other_engine)
-            self.command_answer_handler = answer_handler
-        if words[0] == 'list_commands':
-            def answer_handler(self, message):
-                message = message.strip(' =\n')
-                self.view.show_info(message + self.engine_black.leela_interface.get_stdout())
-                self.command_answer_handler = None
-            self.command_answer_handler = answer_handler
-        engine.gtp_wrapper.ask(cmd)
+            self.engine_black.genmove(gtp_color_to_goban_color(cmd.split(' ')[1]))
+            return
 
+    def engine_move(self, goban_coord, mover):
+        if mover is self.engine_black:
+            self.engine_white.playmove('B', goban_coord)
+            self.engine_white.genmove('W')
+        else:
+            self.engine_black.playmove('W', goban_coord)
+            self.engine_black.genmove('B')
+        self.model.play_move(goban_coord)
+        self.view.show_position(self.model.goban)
 
     def quit_handler(self):
         self.engine_black.kill()
         self.engine_white.kill()
         quit(0)
 
-    def on_message_received(self, message):
-        """
-        This function dispatches messages to the proper handler.  Possibly this
-        dispatching might be done with some kind of notion of the last made
-        command.  Like controller could have a self.last_leela_command and we
-        could dispatch the message this way.
-        """
-        message = message.strip('\n')
-        if message == '=': return
-        if message == '= ': return
-        if message == '': return
-        if message.endswith('PASS'):
-            sgfwriter.write_sgf_file(self.model.move_tree, './enginefight.sgf')
-        if self.command_answer_handler is not None:
-            self.command_answer_handler(self, message)
-            return
-        # if not message.startswith('='):
-            # return
-        if len(message) < 1:
-            return
-        if message.startswith('='):
-            message = message.strip(' =')
-            if len(message) in [2,3]:
-                self.handle_leela_move(message)
 
-        else:
-            self.view.show_info("STDOUT: {}".format(message))
-
-    def handle_leela_move(self, leela_coord):
-        """
-        Handler for move messages.  When the message is the leela_coord of a
-        move made by leela.
-        """
-        goban_coord = gtp_coord_to_goban_coord(leela_coord)
-        self.model.play_move(goban_coord)
-        self.view.show_position(self.model.goban)
-
-
-    def poll_leela_messages(self):
+    def poll_engine_messages(self):
         """ Polling of the stdout queue of leela process """
-        try:
-            line = self.engine_black.gtp_wrapper.stdout_queue.get(0)
-            self.on_message_received(line)
-        except queue.Empty as e:
-            pass
-        try :
-            line = self.engine_white.gtp_wrapper.stdout_queue.get(0)
-            self.on_message_received(line)
-        except queue.Empty as e:
-            pass
-
-        try:
-            line = self.engine_black.gtp_wrapper.get_stderr()
-            if line != '':
-                self.view.show_info(line)
-        except queue.Empty as e:
-            pass
-        try:
-            line = self.engine_white.gtp_wrapper.get_stderr()
-            if line != '':
-                self.view.show_info(line)
-        except queue.Empty as e:
-            pass
-        self.after(200, self.poll_leela_messages)
+        self.engine_black.check_messages()
+        self.engine_white.check_messages()
+        self.after(200, self.poll_engine_messages)
 
     def rotate(self):
         self.model.rotate_tree();
@@ -233,9 +162,9 @@ class Controller(Tk):
         try:
             self.model.play_move(goban_coord)
             # Inform leela of the move played
-            self.engine_black.playmove('B', goban_coord)
+            self.engine_white.playmove('B', goban_coord)
             self.view.show_info('Playing against\nLeela')
-            self.engine_black.genmove(self.model.turn)
+            self.engine_white.genmove(self.model.turn)
         except ModelError as e:
             print("Error when playing at " + str(goban_coord) + " : " + str(e))
             self.view.show_info(str(e))
