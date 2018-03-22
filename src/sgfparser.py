@@ -98,7 +98,7 @@ def make_tree_from_file_content(file_content):
 
 
 def make_tree_from_file_path(file_path):
-    with open(file_path) as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         file_content = f.read()
     return make_tree_from_file_content(file_content)
 
