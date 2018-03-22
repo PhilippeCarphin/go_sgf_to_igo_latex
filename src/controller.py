@@ -60,7 +60,8 @@ class Controller(Tk):
                         's': self.save_game,
                         524291 : self.quit_handler, # CTRL-C
                         'q' : self.quit_handler,
-                        'r': self.rotate}
+                        'r': self.rotate,
+                        'p': self.new_procedure}
         self.bm = igo.BeamerMaker()
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
@@ -101,6 +102,21 @@ class Controller(Tk):
             self.engine_black.genmove('B')
         self.model.play_move(goban_coord)
         self.view.show_position(self.model.goban)
+
+    def new_procedure(self):
+        self.model.load_sgf('./sgf_files/nassima_phil.sgf')
+        mt = self.model.move_tree
+        cm = mt.root_node
+        while cm.children:
+            # do genmove
+            # get output of genmove
+            # do something with the output
+            # undo move
+            # play the move from the game
+            cm = cm.children[0]
+            self.engine_black.playmove(cm.color, cm.coord)
+        self.engine_black.gtp_wrapper.ask('showboard')
+
 
     def quit_handler(self):
         self.engine_black.kill()
