@@ -65,8 +65,8 @@ class Controller(Tk):
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
-        self.engine_black = Gnugo()
-        self.engine_white = Leelaz()
+        self.engine_black = Gnugo(self)
+        self.engine_white = Leelaz(self)
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
         self.poll_leela_messages()

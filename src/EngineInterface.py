@@ -30,8 +30,9 @@ def gtp_color_to_goban_color(gtp_color):
         return 'B'
 
 class EngineInterface(object):
-    def __init__(self, engine_cmd):
+    def __init__(self, master, engine_cmd):
         self.gtp_wrapper = GTPWrapper(engine_cmd)
+        self.master = master
 
     def playmove(self, color, goban_coord):
         gtp_color = goban_color_to_gtp_color(color)
@@ -52,17 +53,17 @@ class EngineInterface(object):
         print("{} stopped.".format(self.name))
 
 class Leelaz(EngineInterface):
-    def __init__(self):
+    def __init__(self, master):
         weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
-        EngineInterface.__init__(self, [ 'leelaz', '-g', '-w', weights ])
+        EngineInterface.__init__(self, master, [ 'leelaz', '-g', '-w', weights ])
         self.stdout_buffer = ''
         self.stderr_buffer = ''
         self.name = 'Leelaz'
 
 
 class Gnugo(EngineInterface):
-    def __init__(self):
-        EngineInterface.__init__(self, ['gnugo', '--mode', 'gtp'])
+    def __init__(self, master):
+        EngineInterface.__init__(self, master, ['gnugo', '--mode', 'gtp'])
         time.sleep(0.5)
         self.gtp_wrapper.get_stdout()
         self.name = 'Gnugo'
