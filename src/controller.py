@@ -12,8 +12,8 @@ import queue
 from .model import Model, ModelError
 from .movetree import TreeError
 from .view import View
-from .EngineInterface import Gnugo, Leelaz
-from .EngineInterface import goban_coord_to_gtp_coord, goban_color_to_gtp_color, gtp_color_to_goban_color, gtp_coord_to_goban_coord
+from .engineinterface import Gnugo, Leelaz
+from .engineinterface import goban_coord_to_gtp_coord, goban_color_to_gtp_color, gtp_color_to_goban_color, gtp_coord_to_goban_coord
 from . import sgfwriter
 
 weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
