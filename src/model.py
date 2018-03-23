@@ -54,8 +54,8 @@ class Model(object):
         except GobanError as e:
             raise ModelError("ModelError " + str(e))
         new_goban.resolve_adj_captures(goban_coord)
-        if not self.check_ko_legal(new_goban, self.move_tree):
-            raise (ModelError("Move violates rule of Ko"))
+        #if not self.check_ko_legal(new_goban, self.move_tree):
+        #    raise (ModelError("Move violates rule of Ko"))
         if new_goban.get_liberties(goban_coord) == 0:
             raise ModelError("Suicide move")
         self.goban = new_goban
@@ -76,6 +76,7 @@ class Model(object):
 
     def load_sgf(self, file_path):
         self.move_tree = sgfparser.make_tree_from_file_path(file_path)
+        # TODO Assign positions to each node
         self.goban = self.move_tree.position_from_node(self.move_tree.root_node)
 
     def next_move(self):

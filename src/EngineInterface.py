@@ -31,12 +31,13 @@ def gtp_color_to_goban_color(gtp_color):
         return 'B'
 
 GENMOVE = 1
-
+PLAYMOVE = 2
 
 class EngineInterface(object):
     def __init__(self, master, engine_cmd):
         self.gtp_wrapper = GTPWrapper(engine_cmd)
         self.master = master
+        self.last_command = None
         self.command_output = ''
 
     def check_messages(self):
@@ -55,6 +56,9 @@ class EngineInterface(object):
         except queue.Empty as e:
             pass
 
+    def undo(self):
+        self.gtp_wrapper.ask('undo')
+
     def on_message_received(self, message):
         """
         This function dispatches messages to the proper handler.  Possibly this
@@ -68,10 +72,14 @@ class EngineInterface(object):
         if message == '': return
         message = message.strip(' =\n')
         print("EngineInterface.on_message_received({})".format(message))
-        time.sleep(0.1)
+        time.sleep(0.5)
         self.command_output += self.gtp_wrapper.get_stderr()
         print(self.command_output)
-        self.master.engine_move(gtp_coord_to_goban_coord(message), self, self.command_output)
+        print(
+            '=====================================================================================================')
+        # self.master.engine_move(gtp_coord_to_goban_coord(message), self,
+        # self.command_output)
+        self.master.analysis_done()
 
     def on_command_received(self):
         stderr = self.gtp_wrapper.get_stderr()
@@ -87,6 +95,7 @@ class EngineInterface(object):
         gtp_coord = goban_coord_to_gtp_coord(goban_coord)
         cmd = ' '.join(['play', gtp_color, gtp_coord])
         self.on_command_received()
+        self.last_command = PLAYMOVE
         self.gtp_wrapper.ask(cmd)
 
     def genmove(self, goban_color):

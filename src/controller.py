@@ -10,6 +10,7 @@ import signal
 from . import igo
 import queue
 from .model import Model, ModelError
+from .movetree import TreeError
 from .view import View
 from .EngineInterface import Gnugo, Leelaz
 from .EngineInterface import goban_coord_to_gtp_coord, goban_color_to_gtp_color, gtp_color_to_goban_color, gtp_coord_to_goban_coord
@@ -61,7 +62,8 @@ class Controller(Tk):
                         524291 : self.quit_handler, # CTRL-C
                         'q' : self.quit_handler,
                         'r': self.rotate,
-                        'p': self.new_procedure}
+                        'p': self.new_procedure,
+                        'z': self.get_analysis}
         self.bm = igo.BeamerMaker()
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
@@ -70,6 +72,8 @@ class Controller(Tk):
         self.engine_white = Gnugo(self)
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
+        self.analysis = ''
+        self.current_move = None
         self.poll_engine_messages()
         # self.execute_command('genmove black')
 
@@ -102,6 +106,30 @@ class Controller(Tk):
             self.engine_black.genmove('B')
         self.model.play_move(goban_coord)
         self.view.show_position(self.model.goban)
+
+    def get_analysis(self):
+        self.model.load_sgf('./sgf_files/nassima_phil.sgf')
+        self.current_move = self.model.move_tree.root_node
+        self.engine_black.genmove('B')
+
+    def analysis_done(self):
+        self.analysis += self.engine_black.command_output
+        self.analysis += '==================================================='
+
+        try:
+            self.current_move = self.current_move.children[0]
+        except IndexError:
+            with open("./analysis.txt", 'w') as f:
+                f.write(self.analysis)
+            return
+
+        self.model.turn = self.current_move.color
+        self.model.play_move(self.current_move.coord)
+        self.view.show_position(self.model.goban)
+
+        self.engine_black.undo()
+        self.engine_black.playmove(self.current_move.color, self.current_move.coord)
+        self.engine_black.genmove(self.model.turn)
 
     def new_procedure(self):
         self.model.load_sgf('./sgf_files/nassima_phil.sgf')
