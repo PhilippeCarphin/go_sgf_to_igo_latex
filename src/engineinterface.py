@@ -113,9 +113,12 @@ class EngineInterface(object):
         print("{} stopped.".format(self.name))
 
 class Leelaz(EngineInterface):
-    def __init__(self, master):
+    def __init__(self, master, playouts=None):
         weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
-        EngineInterface.__init__(self, master, [ 'leelaz', '-g', '-w', weights ])
+        if playouts:
+            EngineInterface.__init__(self, master, [ 'leelaz', '-g', '-w', weights, '--noponder', '-p', str(playouts) ])
+        else:
+            EngineInterface.__init__(self, master, [ 'leelaz', '-g', '-w', weights ])
         self.stdout_buffer = ''
         self.stderr_buffer = ''
         self.name = 'Leelaz'
