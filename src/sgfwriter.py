@@ -117,7 +117,7 @@ def glyph_token(node):
 
 def write_sgf_file(tree, file_path):
     output = write_sgf(tree)
-    with open(file_path, 'w') as f:
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write(output)
 
 if __name__ == "__main__":
