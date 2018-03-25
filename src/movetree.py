@@ -37,6 +37,7 @@ class Node(object):
         self.parent = parent
         self.child_number = 0
         self.depth = 0
+        self.properties = {}
 
     def add_child(self, child):
         child.depth = self.depth + 1
@@ -71,7 +72,6 @@ class Move(Node, Stone):
     def __init__(self, parent=None, color=None, coord=(None, None)):
         Node.__init__(self, parent)
         Stone.__init__(self, color, coord)
-        self.properties = {}
         self.glyphs = Glyphs()
         self.position = None
 

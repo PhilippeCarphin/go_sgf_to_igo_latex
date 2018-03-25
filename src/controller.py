@@ -63,7 +63,8 @@ class Controller(Tk):
                         'q' : self.quit_handler,
                         'r': self.rotate,
                         'p': self.new_procedure,
-                        'z': self.get_analysis}
+                        'z': self.get_analysis,
+                        3473435: self.stop_analysis}
         self.bm = igo.BeamerMaker()
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
@@ -74,8 +75,12 @@ class Controller(Tk):
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
         self.analysis = ''
         self.current_move = None
+        self.time_to_stop = False
         self.poll_engine_messages()
         # self.execute_command('genmove black')
+
+    def stop_analysis(self):
+        self.time_to_stop = True
 
     def save_game(self):
         save_file = './' + filedialog.asksaveasfilename()
@@ -109,27 +114,29 @@ class Controller(Tk):
 
     def get_analysis(self):
         self.model.load_sgf('./sgf_files/nassima_phil.sgf')
-        self.current_move = self.model.move_tree.root_node
+        first_move = self.model.move_tree.root_node.children[0]
+        self.view.show_position(self.model.move_tree.position_from_node(first_move))
+        self.model.move_tree.current_move = first_move
         self.engine_black.genmove('B')
 
     def analysis_done(self):
-        self.analysis += self.engine_black.command_output
-        self.analysis += '==================================================='
+        last_move = self.model.move_tree.current_move
+        last_move.properties['C'] = self.engine_black.command_output
 
-        try:
-            self.current_move = self.current_move.children[0]
-        except IndexError:
-            with open("./analysis.txt", 'w') as f:
-                f.write(self.analysis)
+        if self.time_to_stop or not last_move.children:
+            sgfwriter.write_sgf_file(self.model.move_tree, './analyzed_game.sgf')
+            self.view.show_info("Analysis stopped")
             return
 
-        self.model.turn = self.current_move.color
-        self.model.play_move(self.current_move.coord)
-        self.view.show_position(self.model.goban)
-
         self.engine_black.undo()
-        self.engine_black.playmove(self.current_move.color, self.current_move.coord)
-        self.engine_black.genmove(self.model.turn)
+        self.engine_black.playmove(last_move.color, last_move.coord)
+
+        self.model.move_tree.advance_move()
+
+        current_move = self.model.move_tree.current_move
+        self.view.show_position(self.model.move_tree.position_from_node(current_move))
+
+        self.engine_black.genmove(current_move.color)
 
     def new_procedure(self):
         self.model.load_sgf('./sgf_files/nassima_phil.sgf')
