@@ -71,15 +71,16 @@ class EngineInterface(object):
         if message == '= ': return
         if message == '': return
         message = message.strip(' =\n')
-        print("EngineInterface.on_message_received({})".format(message))
-        time.sleep(0.5)
-        self.command_output += self.gtp_wrapper.get_stderr()
-        print(self.command_output)
-        print(
-            '=====================================================================================================')
-        # self.master.engine_move(gtp_coord_to_goban_coord(message), self,
-        # self.command_output)
-        self.master.analysis_done()
+        if self.last_command == GENMOVE:
+            print("EngineInterface.on_message_received({})".format(message))
+            time.sleep(0.1)
+            self.command_output += self.gtp_wrapper.get_stderr()
+            print(self.command_output)
+            print(
+                '=====================================================================================================')
+            # self.master.engine_move(gtp_coord_to_goban_coord(message), self,
+            # self.command_output)
+            self.master.analysis_done()
 
     def on_command_received(self):
         stderr = self.gtp_wrapper.get_stderr()
