@@ -24,7 +24,7 @@ nm = {
     'opening': 'ON',  # (simpletext)
     'black_player': 'PB',  # (simpletext)
     'place': 'PC',  # (simpletext)
-    'white_player': 'PB',  # (simpletext)
+    'white_player': 'PW',  # (simpletext)
     'result': 'RE',  # (simpletext)
     'round': 'RO',  # (simpletext)
     'rule_set': 'RU',  # (simpletext)
