@@ -15,6 +15,7 @@ from .view import View
 from .engineinterface import Gnugo, Leelaz
 from .engineinterface import goban_coord_to_gtp_coord, goban_color_to_gtp_color, gtp_color_to_goban_color, gtp_coord_to_goban_coord
 from . import sgfwriter
+from . import leelaoutput
 
 weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
 leelaz_cmd = [ 'leelaz', '-g', '-w', weights ]
@@ -69,7 +70,7 @@ class Controller(Tk):
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
-        self.engine_black = Leelaz(self, playouts=500)
+        self.engine_black = Leelaz(self, playouts=1000)
         self.engine_white = Gnugo(self)
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
@@ -122,10 +123,14 @@ class Controller(Tk):
     def analysis_done(self):
         last_move = self.model.move_tree.current_move
         last_move.properties['C'] = self.engine_black.command_output
+        last_move.analysis = leelaoutput.parse_output(self.engine_black.command_output)
 
         if self.time_to_stop or not last_move.children:
             sgfwriter.write_sgf_file(self.model.move_tree, './analyzed_game.sgf')
             self.view.show_info("Analysis stopped")
+            move = self.model.move_tree.root_node.children[0]
+            evals = []
+
             return
 
         self.engine_black.undo()
