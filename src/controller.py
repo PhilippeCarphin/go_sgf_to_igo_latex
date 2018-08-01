@@ -70,14 +70,14 @@ class Controller(Tk):
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)
-        self.engine_black = Gnugo(self) #Leelaz(self, playouts=1000)
-        self.engine_white = Gnugo(self)
+        self.engine_black = None # Gnugo(self) #Leelaz(self, playouts=1000)
+        self.engine_white = None # Gnugo(self)
         self.command_answer_handler = None
         signal.signal(signal.SIGINT, lambda signal, frame: self.quit_handler())
         self.analysis = ''
         self.current_move = None
         self.time_to_stop = False
-        self.poll_engine_messages()
+        # self.poll_engine_messages()
         # self.execute_command('genmove black')
 
     def stop_analysis(self):
@@ -159,8 +159,10 @@ class Controller(Tk):
 
 
     def quit_handler(self):
-        self.engine_black.kill()
-        self.engine_white.kill()
+        if self.engine_black:
+            self.engine_black.kill()
+        if self.engine_white:
+            self.engine_white.kill()
         quit(0)
 
 
@@ -213,6 +215,10 @@ class Controller(Tk):
         that it has been clicked at game coordinates goban_coord, we ask the
         model to play a move at that position and give the new position to the
         canvas for display. """
+        self.model.play_move(goban_coord)
+        self.view.show_position(self.model.goban)
+        return
+
         if self.model.turn != 'B':
             return
         try:
