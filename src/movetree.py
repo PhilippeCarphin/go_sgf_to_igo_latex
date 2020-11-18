@@ -56,15 +56,15 @@ class Node(object):
     def rotate(self):
         pass
 
-def rotate_coord(coord):
-    return (19 - coord[0] + 1, 19 - coord[1] + 1)
+def rotate_coord(coord, board_size=19):
+    return (board_size - coord[0] + 1, board_size - coord[1] + 1)
 
 
 class Stone(object):
     def __init__(self, color=None, coord=(None, None)):
         self.color = color
         self.coord = coord
-    def rotate(self):
+    def rotate(self, board_size=19):
         self.coord = rotate_coord(self.coord)
 
 
@@ -75,8 +75,8 @@ class Move(Node, Stone):
         self.glyphs = Glyphs()
         self.position = None
 
-    def rotate(self):
-        Stone.rotate(self)
+    def rotate(self, board_size=19):
+        Stone.rotate(self, board_size)
 
     def __str__(self):
         parent_str = str(self.parent.coord) if isinstance(self.parent, Move) else "None"
@@ -209,6 +209,6 @@ class MoveTree(object):
             self.rotate_internal(n)
 
     def rotate_internal(self, move):
-        move.rotate()
+        move.rotate(self.size)
         for m in move.children:
             self.rotate_internal(m)
