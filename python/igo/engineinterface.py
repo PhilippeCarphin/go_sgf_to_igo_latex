@@ -1,4 +1,4 @@
-from .gtpwrapper.src.gtpwrapper import GTPWrapper
+from gtpwrapper import GTPWrapper
 import time
 import shutil
 import os
