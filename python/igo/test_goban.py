@@ -1,6 +1,6 @@
-from . import boardcanvas
-from . import goban
-from . import movetree
+import boardcanvas
+import goban
+import movetree
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

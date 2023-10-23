@@ -1,8 +1,8 @@
 import os
 
-from . import dirs
-from . import movetree
-from . import sgfparser
+import dirs
+import movetree
+import sgfparser
 
 
 def goban_to_sgf(goban_coord):

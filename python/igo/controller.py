@@ -7,15 +7,15 @@ import time
 # import pyperclip
 import signal
 
-from . import igo
+import igo
 import queue
-from .model import Model, ModelError
-from .movetree import TreeError
-from .view import View
-from .engineinterface import Gnugo, Leelaz
-from .engineinterface import goban_coord_to_gtp_coord, goban_color_to_gtp_color, gtp_color_to_goban_color, gtp_coord_to_goban_coord
-from . import sgfwriter
-from . import leelaoutput
+from model import Model, ModelError
+from movetree import TreeError
+from view import View
+# from engineinterface import Gnugo, Leelaz
+# from engineinterface import goban_coord_to_gtp_coord, goban_color_to_gtp_color, gtp_color_to_goban_color, gtp_coord_to_goban_coord
+import sgfwriter
+import leelaoutput
 
 weights = os.path.join(os.path.dirname(__file__), '../bin/leelaz-model-5309030-128000.txt')
 leelaz_cmd = [ 'leelaz', '-g', '-w', weights ]
@@ -66,7 +66,7 @@ class Controller(Tk):
                         'p': self.new_procedure,
                         'z': self.get_analysis,
                         3473435: self.stop_analysis}
-        self.bm = igo.BeamerMaker()
+        # self.bm = igo.BeamerMaker()
         self.config(height=800, width=400)
         self.view.place(relwidth=1.0, relheight=1.0)
         self.minsize(400, 400 + 110)

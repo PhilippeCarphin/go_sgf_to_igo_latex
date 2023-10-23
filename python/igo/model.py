@@ -1,8 +1,8 @@
 import copy
 
-from . import sgfparser
-from .goban import Goban, GobanError
-from .movetree import Move, MoveTree, TreeError
+import sgfparser
+from goban import Goban, GobanError
+from movetree import Move, MoveTree, TreeError
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

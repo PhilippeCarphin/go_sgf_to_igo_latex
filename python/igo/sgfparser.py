@@ -1,9 +1,9 @@
 import os
 import re
 
-from . import dirs
-from . import movetree
-from . movetree import Move, Info
+import dirs
+import movetree
+from movetree import Move, Info
 
 """ I want all the other files to not have any idea about what SGF is """
 

@@ -1,8 +1,8 @@
 import copy
 import unittest
 
-from . import goban
-from . import sgfparser as sgf
+import goban
+import sgfparser as sgf
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

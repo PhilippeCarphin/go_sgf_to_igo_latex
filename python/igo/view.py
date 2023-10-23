@@ -2,7 +2,7 @@ from tkinter import Frame
 from tkinter import Text
 import tkinter
 
-from .boardcanvas import BoardCanvas
+from boardcanvas import BoardCanvas
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 

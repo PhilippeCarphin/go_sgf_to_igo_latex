@@ -43,7 +43,7 @@ class Goban(MutableMapping):
     def __repr__(self):
         class_name = type(self).__name__
         module = 'goban'
-        return '%s.%s(height=%r, width=%r, state=%s)' % (module, class_name,
+        return '%s.%s(height=%r, width=%r, initial_state=%s)' % (module, class_name,
                                                          self.height, self.width, repr(self._storage))
 
     def __getitem__(self, key):
@@ -142,3 +142,6 @@ class Goban(MutableMapping):
             seen |= {n for n in self.get_neighbors(goban_coord) if n not in
                      self}
         return len(seen)
+
+    def clear_goban(self):
+        self._storage = dict()

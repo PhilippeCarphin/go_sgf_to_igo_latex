@@ -1,6 +1,6 @@
 from tkinter import *
 
-from . import dirs
+import dirs
 
 """ Copyright 2016, 2017 Philippe Carphin"""
 
@@ -42,10 +42,10 @@ class BoardCanvas(Canvas, object):
         self.load_images()
 
     def load_images(self):
-        self.white_stone_photo = PhotoImage(file=dirs.get_abspath('resources/white_stone.gif'))
-        self.black_stone_photo = PhotoImage(file=dirs.get_abspath('resources/black_stone.gif'))
-        self.black_cursor_photo = PhotoImage(file=dirs.get_abspath('resources/black_cursor_stone.gif'))
-        self.white_cursor_photo = PhotoImage(file=dirs.get_abspath('resources/white_cursor_stone.gif'))
+        self.white_stone_photo = PhotoImage(file=dirs.get_abspath('../resources/white_stone.gif'))
+        self.black_stone_photo = PhotoImage(file=dirs.get_abspath('../resources/black_stone.gif'))
+        self.black_cursor_photo = PhotoImage(file=dirs.get_abspath('../resources/black_cursor_stone.gif'))
+        self.white_cursor_photo = PhotoImage(file=dirs.get_abspath('../resources/white_cursor_stone.gif'))
         self.black_stone_img = self.white_stone_photo
         self.black_stone_img = self.black_stone_photo
         self.white_cursor_img = self.white_cursor_photo
