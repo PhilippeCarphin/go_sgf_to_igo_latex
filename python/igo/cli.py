@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """ OLD, DO NOT USE """
 import getopt
 import sys

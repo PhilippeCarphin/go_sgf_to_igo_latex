@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import movetree
 """ Copyright 2016, 2017 Philippe Carphin"""
 

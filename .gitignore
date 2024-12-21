@@ -19,3 +19,4 @@ dist
 **workspace.xml
 .idea
 leelaz_opencl_tuning
+.eggs
